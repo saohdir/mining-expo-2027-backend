@@ -1,5 +1,6 @@
 "use client";
-import {useCallback,useEffect,useState} from "react";
+import {Suspense,useCallback,useEffect,useState} from "react";
+import {useSearchParams} from "next/navigation";
 type Dict=Record<string,unknown>;
 const api=async(url:string,method="GET",body?:unknown)=>{const r=await fetch(url,{method,cache:"no-store",headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||d.issues?.map((x:{message:string})=>x.message).join(", ")||"Action failed");return d};
 const formatMoney=(v:unknown)=>"Rp "+Number(v||0).toLocaleString("id-ID");
@@ -10,12 +11,24 @@ type Invoice={id:string;number:string;status:string;accountId:string;totalMinor:
 type Notification={id:string;type:string;recordId:string;createdAt:string;readAt:string|null};
 type PaymentRequest={id:string;status:string;accountId:string;enrollmentId:string|null;boothRequestId:string|null;account:{email:string|null;profile?:{fullName:string}|null}};
 type EventPolicy={id:string;code:string;title:string;visitorOpen:boolean;published:boolean};
-export default function AdminPage(){
- const [actor,setActor]=useState<Admin|null>(null),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[tab,setTab]=useState("registrations"),[busy,setBusy]=useState(false),[msg,setMsg]=useState(""),[loading,setLoading]=useState(true);
+function AdminWorkspace(){
+ const searchParams=useSearchParams();
+ const requestedSection=searchParams.get("section");
+ const [actor,setActor]=useState<Admin|null>(null),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[tab,setTab]=useState("registrations"),[busy,setBusy]=useState(false),[msg,setMsg]=useState(""),[loading,setLoading]=useState(true),[moduleErrors,setModuleErrors]=useState<string[]>([]);
  const [registrations,setRegistrations]=useState<Registration[]>([]),[bookings,setBookings]=useState<Booking[]>([]),[invoices,setInvoices]=useState<Invoice[]>([]),[requests,setRequests]=useState<PaymentRequest[]>([]),[notifications,setNotifications]=useState<Notification[]>([]),[events,setEvents]=useState<EventPolicy[]>([]),[attendance,setAttendance]=useState<Dict>({});
  const [from,setFrom]=useState(""),[to,setTo]=useState(""),[filterType,setFilterType]=useState(""),[invoiceAccount,setInvoiceAccount]=useState(""),[invoiceBooking,setInvoiceBooking]=useState(""),[invoiceKind,setInvoiceKind]=useState<"enrollmentId"|"boothRequestId">("enrollmentId"),[invoiceAmount,setInvoiceAmount]=useState(""),[invoiceDP,setInvoiceDP]=useState("0"),[invoiceTitle,setInvoiceTitle]=useState("IMDX 2027 booking");
- const reload=useCallback(async()=>{try{const user=await api("/api/admin/me");setActor(user);const endpoints=["/api/admin/registrations?limit=100","/api/admin/booth-requests","/api/admin/invoices","/api/admin/payment-requests","/api/admin/notifications","/api/admin/reports/attendance","/api/admin/events"];const settled=await Promise.allSettled(endpoints.map(u=>api(u)));const values=settled.map(r=>r.status==="fulfilled"?r.value:{});setRegistrations(values[0].rows||[]);setBookings(values[1].records||[]);setInvoices(values[2].records||[]);setRequests(values[3].records||[]);setNotifications(values[4].notifications||[]);setAttendance(values[5]||{});setEvents(values[6].events||[])}catch(e){setActor(null)}finally{setLoading(false)}},[]);
- useEffect(()=>{void reload();const section=new URLSearchParams(window.location.search).get("section");if(section&&["overview","registrations","bookings","finance","notifications","settings"].includes(section))setTab(section)},[reload]);
+ const reload=useCallback(async()=>{try{const user=await api("/api/admin/me");setActor(user);const endpoints=["/api/admin/registrations?limit=100","/api/admin/booth-requests","/api/admin/invoices","/api/admin/payment-requests","/api/admin/notifications","/api/admin/reports/attendance","/api/admin/events"];const settled=await Promise.allSettled(endpoints.map(u=>api(u)));const values=settled.map(r=>r.status==="fulfilled"?r.value:{});
+ const names=["Registrations","Booth requests","Invoices","Payment requests","Notifications","Attendance","Event policies"];
+ setModuleErrors(settled.flatMap((r,i)=>r.status==="rejected"&&!(r.reason instanceof Error&&/Insufficient permission|Admin login required|FORBIDDEN/.test(r.reason.message))?[names[i]+": "+(r.reason instanceof Error?r.reason.message:"Request failed")]:[]));
+ setRegistrations(values[0].rows||[]);setBookings(values[1].records||[]);setInvoices(values[2].records||[]);setRequests(values[3].records||[]);setNotifications(values[4].notifications||[]);setAttendance(values[5]||{});setEvents(values[6].events||[])}catch(e){setActor(null)}finally{setLoading(false)}},[]);
+ useEffect(()=>{void reload()},[reload]);
+ useEffect(()=>{if(requestedSection&&["overview","registrations","bookings","finance","notifications","settings"].includes(requestedSection))setTab(requestedSection)},[requestedSection]);
+ const permittedTabs=[["registrations","Registrations"],["bookings","Booth Requests"],["finance","Invoices & Finance"],["notifications","Notifications"],["settings","Event Settings"]].filter(([id])=>
+   id==="notifications"||
+   (id==="settings"&&actor?.role==="SUPER_ADMIN")||
+   (id==="finance"&&["SUPER_ADMIN","SALES","FINANCE"].includes(actor?.role||""))||
+   (id==="bookings"&&["SUPER_ADMIN","SALES","OPERATIONS"].includes(actor?.role||""))||
+   (id==="registrations"&&["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"].includes(actor?.role||"")));
  const act=async(fn:()=>Promise<unknown>,success:string)=>{setBusy(true);setMsg("");try{await fn();setMsg(success);await reload()}catch(e){setMsg(e instanceof Error?e.message:"Action failed")}finally{setBusy(false)}};
  const chooseInvoice=(accountId:string,bookingId:string,kind:"enrollmentId"|"boothRequestId")=>{setInvoiceAccount(accountId);setInvoiceBooking(bookingId);setInvoiceKind(kind);setTab("finance")};
  const reportQuery=new URLSearchParams({...from?{from}:{},...to?{to}:{},...filterType?{type:filterType}:{}}).toString();
@@ -26,6 +39,12 @@ export default function AdminPage(){
  <>
  <header className="portal-heading"><p className="eyebrow">PRE-GO-LIVE / RESTRICTED</p><h1>Operations <em>dashboard.</em></h1><p>Signed in as {actor.email} · {actor.role}. Invoice/QR actions are logged and role-protected server-side.</p></header>
  {msg&&<div className="notice" role="status">{msg}</div>}
+ {moduleErrors.length>0&&<div className="warning" role="alert"><strong>Some CMS modules could not load:</strong><ul>{moduleErrors.map(error=><li key={error}>{error}</li>)}</ul><button type="button" className="ghost cms-small" onClick={()=>void reload()}>Retry loading modules</button></div>}
+ <nav className="cms-workspace-tabs" aria-label="Operational workspace sections">
+  {permittedTabs.map(([id,label])=><button type="button" key={id}
+    className={tab===id?"chosen":""} aria-current={tab===id?"page":undefined}
+    onClick={()=>setTab(id)}>{label}</button>)}
+ </nav>
  <div className="cms-layout"><aside className="cms-sidebar" aria-label="CMS modules">
  {[["overview","Overview"],["registrations","Registrations"],["bookings","Booth Requests"],["finance","Invoices & Finance"],["notifications","Notifications"],["settings","Event Settings"]].map(([id,label])=><button key={id} className={tab===id?"chosen":""} onClick={()=>setTab(id)}>{label}</button>)}
  <a className="button-link cms-small" href="/admin/reports">Reports &amp; Exports</a><a className="button-link cms-small" href="/admin/programmes">Programme Management</a><a className="button-link cms-small cms-payment-link" href="/admin/payments">Payment Management ↗</a><a className="button-link cms-small" href="/admin/floorplans">Floorplan Editor</a><a className="button-link cms-small" href="/admin/check-in">Gate QR Scanner</a>
@@ -67,4 +86,8 @@ export default function AdminPage(){
  {e.visitorOpen&&<button disabled={busy} className="cms-small" onClick={()=>void act(()=>api("/api/admin/events","PATCH",{eventCode:e.code,published:e.published,visitorOpen:false,reason:"Pause visitor registration by authorized administrator"}),"Visitor registrations paused.")}>Pause registration</button>}</div></div>)}</>}
  </div></div>
  </>}</main>;
+}
+
+export default function AdminWorkspacePage(){
+ return <Suspense fallback={<main className="portal-shell"><section className="cms-panel">Loading CMS workspace…</section></main>}><AdminWorkspace/></Suspense>;
 }
