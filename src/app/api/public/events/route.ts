@@ -1,0 +1,2 @@
+import { NextResponse } from "next/server";import { db } from "@/lib/db";import { failure } from "@/lib/errors";
+export async function GET(){try{const events=await db.event.findMany({where:{published:true},select:{id:true,code:true,title:true,venue:true,startsAt:true,endsAt:true,conferences:{where:{published:true},select:{id:true,title:true,slug:true,startsAt:true}}}});return NextResponse.json({events},{headers:{"Cache-Control":"public,max-age=30"}})}catch(e){return failure(e)}}
