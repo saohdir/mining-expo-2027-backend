@@ -1,8 +1,13 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
-type Scan={result:string;message:string;person?:{name:string;uniqueId:string;access:string}};
+type Scan={result:string;message:string;reentry?:boolean;person?:{name:string;uniqueId:string;access:string;organization?:string|null}};
+type Gate={id:string;code:string;name:string;zones:string[]};
 export default function CheckInPage(){
  const [value,setValue]=useState(""),[gate,setGate]=useState(""),[zone,setZone]=useState(""),[scanning,setScanning]=useState(false),[result,setResult]=useState<Scan|null>(null),[error,setError]=useState(""),[working,setWorking]=useState(false);
+ const [gates,setGates]=useState<Gate[]>([]),[gateNote,setGateNote]=useState("Loading assigned gates…");
+ const method=useRef<"CAMERA"|"MANUAL">("CAMERA");
+ useEffect(()=>{fetch("/api/admin/gates",{cache:"no-store"}).then(r=>r.json().then(b=>({ok:r.ok,b}))).then(({ok,b})=>{if(!ok)throw Error(b.message||"Gates unavailable");setGates(b.gates||[]);setGateNote((b.gates||[]).length?"":"No gate is assigned to you. Ask Operations to assign a gate before scanning.")}).catch(e=>setGateNote(e instanceof Error?e.message:"Gates unavailable"))},[]);
+ const chosenGate=gates.find(g=>g.code===gate);
  const clientRef=useRef<{stop:()=>Promise<unknown>;clear:()=>void}|null>(null);
  // Camera callback can fire multiple times before React renders `working`.
  // A synchronous ref lock prevents duplicate requests/attendance scans.
@@ -19,7 +24,7 @@ export default function CheckInPage(){
    try{
      const response=await fetch("/api/admin/check-in/scan",{
        method:"POST",headers:{"Content-Type":"application/json"},
-       body:JSON.stringify({token:token.trim(),gate,zone})
+       body:JSON.stringify({token:token.trim(),gate,zone,method:method.current})
      });
      const data=await response.json().catch(()=>({}));
      // The API deliberately returns HTTP 422 for invalid/duplicate passes,
@@ -50,9 +55,9 @@ export default function CheckInPage(){
  return()=>{cancelled=true;if(client){void client.stop().catch(()=>{}).finally(()=>{client?.clear();scanLock.current=false})}else{scanLock.current=false}clientRef.current=null}},[scanning,gate,zone]);
  return <main className="portal-shell"><nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>PROTECTED CMS / ON-SITE ADMISSION</span><a href="/admin">Back to CMS</a></nav>
  <header><p className="eyebrow">GATE CONTROL / ACCESS VALIDATION</p><h1>Scan the <em>event pass.</em></h1><p>Each QR is verified server-side against person, entitlement, gate, zone and admission history. This page is accessed only by authenticated staff.</p></header>
- <section className="cms-scanner-section"><div className="form-grid"><label>Assigned admission gate<input required disabled={scanning||working} value={gate} onChange={e=>setGate(e.target.value)} placeholder="Enter approved gate name"/></label><label>Access zone<select required disabled={scanning||working} value={zone} onChange={e=>setZone(e.target.value)}><option value="">Choose an access zone</option><option value="EXPO_ENTRY">Exhibition entry</option><option value="CONFERENCE">Conference zone</option></select></label></div><p className="micro">Online validation required. Gate assignments and re-entry policy must be approved in the CMS before live admission.</p>
+ <section className="cms-scanner-section"><div className="form-grid"><label>Assigned admission gate<select required disabled={scanning||working||!gates.length} value={gate} onChange={e=>{setGate(e.target.value);setZone("")}}><option value="">Choose your assigned gate</option>{gates.map(g=><option key={g.id} value={g.code}>{g.name} ({g.code})</option>)}</select></label><label>Access zone<select required disabled={scanning||working||!chosenGate} value={zone} onChange={e=>setZone(e.target.value)}><option value="">Choose an access zone</option>{chosenGate?.zones.map(z=><option key={z} value={z}>{z==="EXPO_ENTRY"?"Exhibition entry":z==="CONFERENCE"?"Conference zone":z}</option>)}</select></label>{gateNote&&<p className="warning micro" role="status">{gateNote}</p>}</div><p className="micro">Online validation required. Gate assignments and re-entry policy must be approved in the CMS before live admission.</p>
  <button disabled={!gate.trim()||!zone||working} onClick={()=>{setResult(null);setError("");setScanning(v=>!v)}} type="button">{scanning?"Stop camera":"Start camera scanner"}</button><div id="imdx-qr-reader" className="scanner-viewport" style={{display:scanning?"block":"none",marginTop:15}}/>
- <form onSubmit={e=>{e.preventDefault();void check(value)}}><label>Manual pass code fallback<input value={value} onChange={e=>setValue(e.target.value)} required minLength={20} placeholder="Opaque pass token"/></label><button disabled={working||!gate.trim()||!zone}>Validate with server</button></form>
+ <form onSubmit={e=>{e.preventDefault();method.current="MANUAL";void check(value).finally(()=>{method.current="CAMERA"})}}><label>Manual pass code fallback<input value={value} onChange={e=>setValue(e.target.value)} required minLength={10} maxLength={300} autoCapitalize="characters" placeholder="e.g. 7K2QF-9M4XA"/></label><button disabled={working||!gate.trim()||!zone}>Validate with server</button></form>
  {result&&<div className="cms-scan-result" data-decision={result.result==="VALID_ACCEPTED"?"accepted":["ALREADY_CHECKED_IN","WRONG_ZONE","NOT_YET_VALID"].includes(result.result)?"warning":"denied"} role="status">
  <span aria-hidden="true" className="cms-scan-result-symbol">{result.result==="VALID_ACCEPTED"?"✓":result.result==="ALREADY_CHECKED_IN"?"!":"×"}</span>
  <strong>{result.result==="VALID_ACCEPTED"?"ACCEPTED":result.result==="ALREADY_CHECKED_IN"?"ALREADY CHECKED IN":result.result.replaceAll("_"," ")}</strong>

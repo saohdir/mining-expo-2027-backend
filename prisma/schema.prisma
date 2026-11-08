@@ -158,6 +158,7 @@ model CustomerProfile {
   consentVersion String
   consentAt DateTime
   updatedAt DateTime @updatedAt
+  notifyChannel String @default("EMAIL")
 }
 model OtpChallenge {
   id String @id @default(uuid())
@@ -170,7 +171,11 @@ model OtpChallenge {
   expiresAt DateTime
   consumedAt DateTime?
   createdAt DateTime @default(now())
+  purpose String @default("LOGIN")
+  newDestination String?
+  ipHash String?
   @@index([accountId,createdAt])
+  @@index([ipHash,createdAt])
 }
 model CustomerSession {
   id String @id @default(uuid())
@@ -229,6 +234,8 @@ model Floorplan {
   status FloorplanStatus @default(DRAFT)
   rowVersion Int @default(1)
   publishedAt DateTime?
+  backgroundAlt String?
+  backgroundRights String?
   units BoothUnit[]
   boothRequests BoothRequest[]
   @@unique([eventId,versionNo])
@@ -248,10 +255,29 @@ model BoothUnit {
   areaSqm Decimal @db.Decimal(10,1)
   status BoothUnitStatus @default(AVAILABLE)
   approvedPublicName String?
+  categoryId String?
+  boothCategory BoothCategory? @relation(fields:[categoryId],references:[id])
+  lengthM Decimal? @db.Decimal(10,1)
+  widthM Decimal? @db.Decimal(10,1)
+  dimensionLabel String?
+  rotation Int @default(0)
+  internalNotes String?
+  placed Boolean @default(true)
   assignments BoothAssignment[]
   holds BoothHold[]
   @@unique([floorplanId,code])
   @@index([status])
+}
+model BoothCategory {
+  id String @id @default(uuid())
+  eventId String
+  name String
+  colorHex String
+  pattern String @default("SOLID")
+  sortOrder Int @default(0)
+  createdAt DateTime @default(now())
+  units BoothUnit[]
+  @@unique([eventId,name])
 }
 model BoothRequest {
   id String @id @default(uuid())
@@ -267,6 +293,7 @@ model BoothRequest {
   notes String?
   status BoothRequestStatus @default(NEW)
   offeredAreaSqm Decimal? @db.Decimal(10,1)
+  originalFloorplanId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   assignments BoothAssignment[]
@@ -355,6 +382,10 @@ model Invoice {
   items InvoiceItem[]
   transfers ManualTransfer[]
   adjustments PaymentAdjustment[]
+  deliveries InvoiceDelivery[]
+  cancelledAt DateTime?
+  cancelReason String?
+  revisionOfId String?
 }
 model InvoiceItem {
   id String @id @default(uuid())
@@ -377,6 +408,14 @@ model ManualTransfer {
   verifiedAt DateTime?
   verifiedBy String?
   createdAt DateTime @default(now())
+  source String @default("FINANCE")
+  submittedBy String?
+  submittedByAccountId String?
+  payerName String?
+  decisionReason String?
+  approvalRequired Boolean @default(false)
+  @@index([invoiceId,status])
+  @@index([bankReference])
 }
 model PaymentAdjustment {
   id String @id @default(uuid())
@@ -388,6 +427,22 @@ model PaymentAdjustment {
   reason String
   approvedBy String
   createdAt DateTime @default(now())
+  evidenceRef String?
+  @@index([invoiceId])
+}
+model InvoiceDelivery {
+  id String @id @default(uuid())
+  invoiceId String
+  invoice Invoice @relation(fields:[invoiceId],references:[id])
+  channel String
+  destinationMasked String
+  status String
+  outboxKey String? @unique
+  sentBy String
+  reason String
+  createdAt DateTime @default(now())
+  sentAt DateTime?
+  @@index([invoiceId,createdAt])
 }
 model EventPass {
   id String @id @default(uuid())
@@ -403,8 +458,41 @@ model EventPass {
   entitlement String @default("EXPO_ENTRY")
   issuedAt DateTime @default(now())
   expiresAt DateTime
+  revokedAt DateTime?
+  revokeReason String?
+  replacedById String?
+  shortCodeHash String? @unique
   scans PassScan[]
   admissions Admission[]
+}
+model Gate {
+  id String @id @default(uuid())
+  eventId String
+  code String
+  name String
+  zones String[]
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  staff StaffGateAssignment[]
+  @@unique([eventId,code])
+}
+model StaffGateAssignment {
+  id String @id @default(uuid())
+  adminId String
+  gateId String
+  gate Gate @relation(fields:[gateId],references:[id])
+  createdBy String
+  createdAt DateTime @default(now())
+  @@unique([adminId,gateId])
+}
+model AdmissionPolicy {
+  id String @id @default(uuid())
+  eventId String
+  zone String
+  reentry String @default("ONCE_PER_DAY")
+  updatedBy String
+  updatedAt DateTime @updatedAt
+  @@unique([eventId,zone])
 }
 model PassScan {
   id String @id @default(uuid())
@@ -415,7 +503,9 @@ model PassScan {
   result ScanResult
   scannedBy String
   createdAt DateTime @default(now())
+  method String @default("CAMERA")
   @@index([createdAt])
+  @@index([scannedBy,createdAt])
 }
 model Admission {
   id String @id @default(uuid())
@@ -456,6 +546,88 @@ model AuditLog {
   resourceId String
   beforeState Json?
   afterState Json?
+  createdAt DateTime @default(now())
+  @@index([resourceType,resourceId,createdAt])
+}
+model Lead {
+  id String @id @default(uuid())
+  leadType String
+  name String
+  email String
+  company String?
+  phone String?
+  message String
+  consentVersion String
+  consentAt DateTime
+  utmSource String?
+  utmMedium String?
+  utmCampaign String?
+  status String @default("NEW")
+  ipHash String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([status,createdAt])
+  @@index([ipHash,createdAt])
+}
+model ContentItem {
+  id String @id @default(uuid())
+  kind String
+  locale String @default("en")
+  title String
+  slug String
+  summary String?
+  body String?
+  url String?
+  fileType String?
+  fileSizeBytes Int?
+  imageUrl String?
+  altText String?
+  rightsStatus String?
+  role String?
+  status String @default("DRAFT")
+  sortOrder Int @default(0)
+  publishedAt DateTime?
+  updatedBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([kind,locale,slug])
+  @@index([kind,locale,status,sortOrder])
+}
+model WaitlistEntry {
+  id String @id @default(uuid())
+  conferenceId String
+  accountId String
+  status String @default("WAITING")
+  createdAt DateTime @default(now())
+  releasedAt DateTime?
+  releasedBy String?
+  enrollmentId String?
+  @@unique([conferenceId,accountId])
+  @@index([conferenceId,status,createdAt])
+}
+model AppSetting {
+  key String @id
+  value String
+  updatedBy String
+  updatedAt DateTime @updatedAt
+}
+model DataRequest {
+  id String @id @default(uuid())
+  accountId String
+  kind String
+  details String
+  status String @default("RECEIVED")
+  createdAt DateTime @default(now())
+  resolvedAt DateTime?
+  resolvedBy String?
+  @@index([status,createdAt])
+}
+model InternalNote {
+  id String @id @default(uuid())
+  resourceType String
+  resourceId String
+  body String
+  adminId String
   createdAt DateTime @default(now())
   @@index([resourceType,resourceId,createdAt])
 }

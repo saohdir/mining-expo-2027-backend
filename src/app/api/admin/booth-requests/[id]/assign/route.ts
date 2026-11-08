@@ -5,12 +5,15 @@ import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 import {financeTotals} from "@/lib/policy";
+import {areaMismatch} from "@/lib/floorplan-geometry";
 import {uniqueOfferedIds} from "@/lib/booth-offers";
 import {holdsMatchBooking} from "@/lib/floorplan-safety";
 
 const schema = z.object({
   reason: z.string().min(8).max(400),
-  approvedForPublic: z.boolean().default(false)
+  approvedForPublic: z.boolean().default(false),
+  // FR-101: required when the units' current area differs from the accepted quotation snapshot.
+  areaOverrideReason: z.string().trim().min(10).max(400).optional()
 }).strict();
 
 export async function POST(req: NextRequest, {params}: {params: Promise<{id: string}>}) {
@@ -25,7 +28,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         where: {id},
         include: {
           offers: {orderBy: {revision: "desc"}, take: 1},
-          invoices: {include: {transfers: true}},
+          invoices: {include: {transfers: true, adjustments: true}},
           floorplan: {select: {status: true, versionNo: true}},
           assignments: {where: {active: true}, select: {id: true}}
         }
@@ -51,7 +54,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
       const confirmed = request.invoices.some(invoice => {
         if (invoice.totalMinor !== offer.quotedPriceMinor ||
             !["PARTIALLY_PAID", "PAID"].includes(invoice.status)) return false;
-        const totals = financeTotals(invoice.totalMinor, invoice.transfers);
+        const totals = financeTotals(invoice.totalMinor, invoice.transfers, invoice.adjustments.filter(r=>r.type==="REVERSAL").map(r=>r.amountMinor));
         return totals.state === "PAID_IN_FULL" ||
           (process.env.ALLOW_BOOTH_ALLOCATION_ON_DP === "true" && totals.state === "DP_RECEIVED");
       });
@@ -72,10 +75,19 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
       const expectedStatus = usingHolds ? "RESERVED" : "AVAILABLE";
       const units = await tx.boothUnit.findMany({
         where: {floorplanId: request.floorplanId, id: {in: ids}},
-        select: {id: true, code: true, status: true}
+        select: {id: true, code: true, status: true, areaSqm: true}
       });
       if (units.length !== ids.length || units.some(u => u.status !== expectedStatus)) {
         throw new HttpError(409, "ALREADY_OCCUPIED", "One or more offered booth units are unavailable.");
+      }
+      const currentArea = units.reduce((a, u) => a + Number(u.areaSqm), 0);
+      const mismatch = areaMismatch(currentArea, Number(offer.offeredAreaSqm));
+      if (mismatch && !input.areaOverrideReason) {
+        throw new HttpError(409, "AREA_MISMATCH", "Units now measure " + (Math.round(currentArea * 10) / 10) + " m² but the accepted quotation states " + offer.offeredAreaSqm.toString() + " m². Provide an override reason to continue.");
+      }
+      if (mismatch) {
+        await tx.auditLog.create({data: {adminId: actor.id, action: "BOOTH_AREA_OVERRIDE", resourceType: "BoothRequest", resourceId: id,
+          afterState: {currentAreaSqm: currentArea, quotedAreaSqm: offer.offeredAreaSqm.toString(), reason: input.areaOverrideReason}}});
       }
       const existing = await tx.boothAssignment.findFirst({
         where: {boothUnitId: {in: ids}, active: true},

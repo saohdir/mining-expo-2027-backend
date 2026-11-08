@@ -6,7 +6,7 @@ const read=(path:string)=>readFileSync(path,"utf8");
 test("Sales attendance report matches visible CMS Reports permission and remains aggregate-only",()=>{
   const route=read("src/app/api/admin/reports/attendance/route.ts");
   const nav=read("src/app/admin/components/CmsShell.tsx");
-  assert.match(route,/admin\(\["SUPER_ADMIN","OPERATIONS","FINANCE","SALES","VIEWER"\]\)/);
+  assert.match(route,/admin\(\["SUPER_ADMIN",\s*"OPERATIONS",\s*"FINANCE",\s*"SALES",\s*"VIEWER"\]\)/);
   assert.match(nav,/Reports & Exports/);
   assert.match(route,/registeredUnique:/);
   assert.match(route,/arrivedUnique:/);

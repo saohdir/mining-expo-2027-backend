@@ -427,3 +427,4 @@ body:has(.imdx-cms){background:var(--color-bg-page,#F9F0E2)}
  .imdx-cms .cms-workspace-tabs button{white-space:nowrap;flex-shrink:0}
  .imdx-cms .floorplan-frame{min-height:240px}
 }
+.cms-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin:12px 0}.cms-kpi{border:1px solid #ecd9cb;border-radius:12px;padding:12px;display:grid;gap:4px}.cms-kpi strong{font-size:1.5rem}.cms-kpi small{opacity:.7;font-size:.7rem}

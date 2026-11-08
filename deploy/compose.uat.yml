@@ -27,10 +27,11 @@ services:
       SMTP_HOST: mailpit
       SMTP_PORT: "1025"
       FLOORPLAN_UPLOAD_DIR: /var/lib/imdx/floorplans
+      PRIVATE_FILE_DIR: /var/lib/imdx/private
       NODE_ENV: production
     depends_on:
       postgres: {condition: service_healthy}
-    volumes: [floorplan_data:/var/lib/imdx/floorplans]
+    volumes: [floorplan_data:/var/lib/imdx/floorplans, private_data:/var/lib/imdx/private]
   worker:
     build: {context: ..}
     command: ["npm","run","outbox:worker"]
@@ -38,6 +39,7 @@ services:
     env_file: [../.env.uat]
     environment:
       DATABASE_URL: postgresql://imdx:${IMDX_DB_PASSWORD}@postgres:5432/imdx_uat?schema=public
+      PRIVATE_FILE_DIR: /var/lib/imdx/private
       EMAIL_PROVIDER: smtp
       SMTP_FROM: "IMDX UAT <uat@localhost>"
       SMTP_HOST: mailpit
@@ -45,6 +47,7 @@ services:
       NODE_ENV: production
     depends_on:
       postgres: {condition: service_healthy}
+    volumes: [private_data:/var/lib/imdx/private]
   web:
     image: nginx:1.27-alpine
     restart: unless-stopped
@@ -56,3 +59,4 @@ services:
 volumes:
   postgres_data:
   floorplan_data:
+  private_data:

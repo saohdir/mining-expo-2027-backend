@@ -1,3 +1,4 @@
+import {buildRemap, applyRemap} from "@/lib/floorplan-remap";
 import {NextRequest, NextResponse} from "next/server";
 import {Prisma} from "@prisma/client";
 import {z} from "zod";
@@ -9,7 +10,9 @@ import {floorplanBlockers} from "@/lib/floorplan-publication";
 const schema = z.object({
   rowVersion: z.number().int().positive(),
   reason: z.string().trim().min(8).max(500),
-  confirmReconciliation: z.literal(true)
+  confirmReconciliation: z.literal(true),
+  approveRemap: z.boolean().default(false),
+  remapHash: z.string().max(64).optional()
 }).strict();
 
 export async function GET(_req: NextRequest, {params}: {params: Promise<{id: string}>}) {
@@ -48,10 +51,25 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
       if (plan.rowVersion !== input.rowVersion) {
         throw new HttpError(409, "VERSION_CONFLICT", "The floorplan changed; reload before publishing.");
       }
+      if (await tx.boothUnit.count({where: {floorplanId: id, placed: false}})) {
+        throw new HttpError(409, "UNPLACED_UNITS", "Place or remove all imported units before publishing.");
+      }
+      if (plan.backgroundUrl && (!plan.backgroundAlt || !plan.backgroundRights)) {
+        throw new HttpError(409, "BACKGROUND_METADATA", "Background image needs alt text and a rights status before publishing.");
+      }
       const blockers = await floorplanBlockers(tx, plan.eventId);
+      let remap: {moved: number; requests?: number} | null = null;
       if (!blockers.canPublish) {
-        throw new HttpError(409, "REMAP_REQUIRED",
-          "Unresolved booth requests, active holds or assignments must be reconciled before replacing a published floorplan.");
+        // FR-098 / AT-081: replacing a map with commitments requires the previewed remap report.
+        const preview = await buildRemap(tx, id);
+        if (!input.approveRemap || input.remapHash !== preview.report.hash) {
+          throw new HttpError(409, "REMAP_REQUIRED",
+            "Unresolved booth requests, active holds or assignments must be reconciled. Review the remap report and approve it to publish.");
+        }
+        if (preview.report.blocking.length) {
+          throw new HttpError(409, "REMAP_BLOCKED", "Committed units have no matching code in this version: " + preview.report.blocking.join(", "));
+        }
+        remap = await applyRemap(tx, preview, actor.id);
       }
       const previous = await tx.floorplan.findMany({
         where: {eventId: plan.eventId, status: "PUBLISHED"},
@@ -73,13 +91,13 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
           beforeState: {previous},
           afterState: {
             versionNo: plan.versionNo, reason: input.reason,
-            confirmation: input.confirmReconciliation, blockers
+            confirmation: input.confirmReconciliation, blockers, remap, remapHash: input.remapHash ?? null
           }
         }
       });
-      return {id, versionNo: plan.versionNo};
+      return {id, versionNo: plan.versionNo, remap};
     }, {isolationLevel: Prisma.TransactionIsolationLevel.Serializable});
-    return NextResponse.json({published: result.id, version: result.versionNo},
+    return NextResponse.json({published: result.id, version: result.versionNo, remap: result.remap},
       {headers: {"Cache-Control": "private,no-store"}});
   } catch (error) {
     if (typeof error === "object" && error && "code" in error &&

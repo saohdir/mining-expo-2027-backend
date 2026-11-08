@@ -35,6 +35,8 @@ export async function GET() {
       conferences: event.conferences.map(conference => ({
         ...conference,
         feeMinor: conference.feeMinor?.toString() ?? null,
+        // FR-042: FREE when the approved fee is zero, MANUAL_INVOICE when payable; TBA until approved.
+        admissionMode: conference.feeMinor === null ? "TBA" : conference.feeMinor === 0n ? "FREE" : "MANUAL_INVOICE",
         ...conferenceAvailability(
           conference.capacity,
           countByConference.get(conference.id) ?? 0,

@@ -1,3 +1,4 @@
+import {shortCodeFor, shortCodeHash} from "@/lib/pass-code";
 import {NextRequest, NextResponse} from "next/server";
 import {Prisma} from "@prisma/client";
 import {z} from "zod";
@@ -115,12 +116,14 @@ export async function POST(req: NextRequest) {
               enrollmentId: enrollment.id,
               eventId: event.id,
               tokenHash: hashToken(token),
+              shortCodeHash: shortCodeHash(shortCodeFor(token)),
               encryptedToken: sealToken(token),
               expiresAt: event.endsAt,
               entitlement: "EXPO_ENTRY"
             }
           });
         }
+        if (approvedVisitor) await tx.notificationOutbox.create({data: {topic: "PASS_READY", dedupeKey: "pass-ready:" + enrollment.id, payload: {enrollmentId: enrollment.id}}});
         await tx.notification.create({
           data: {
             audienceRole: "OPERATIONS",

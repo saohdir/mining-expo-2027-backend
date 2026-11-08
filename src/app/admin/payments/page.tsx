@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
+import {LedgerPanel} from "./LedgerPanel";
 import CmsStatus from "../components/CmsStatus";
 type Invoice={id:string;number:string;status:string;paymentStatus:string;customerName:string;organization:string|null;email:string|null;bookingType:string;bookingLabel:string;totalMinor:string;paidMinor:string;outstandingMinor:string;minimumDpMinor:string;verifiedReceiptCount:number;createdAt:string};
 type Payload={records:Invoice[];total:number;page:number};
@@ -78,7 +79,7 @@ export default function PaymentManagement(){
  {["ISSUED","SENT","PARTIALLY_PAID"].includes(selected.status)&&BigInt(selected.outstandingMinor)>0n&&<>
  <option value="DP_RECEIVED">DP — confirm partial payment</option>
  <option value="PAID_IN_FULL">Paid in full — confirm remaining payment</option></>}
- {selected.verifiedReceiptCount===0&&["DRAFT","ISSUED","SENT","OVERDUE"].includes(selected.status)&&<option value="CANCELLED">Cancelled — cancel invoice</option>}
+ 
  </select></label>
  {(action==="DP_RECEIVED"||action==="PAID_IN_FULL")&&<>
  {action==="DP_RECEIVED"?<label>Amount actually received (IDR)<input type="number" inputMode="numeric" min="1" step="1" required value={amount} onChange={e=>setAmount(e.target.value)} placeholder="Enter verified DP amount"/></label>:<p className="payment-amount-hint">Remaining payment to record: <strong>{rp(selected.outstandingMinor)}</strong></p>}
@@ -89,6 +90,7 @@ export default function PaymentManagement(){
  <button type="submit" disabled={saving||!action}>{saving?"Saving…":"Save payment status ↗"}</button>
  <p className="micro">Pending is the default until Finance verifies funds. Existing verified receipts cannot be deleted or overwritten. For a paid invoice cancellation, use the separately approved reversal/refund workflow.</p>
  </form>:<p className="warning">Read-only view. Only Finance or Super Admin may confirm manual payments.</p>}
+ {me&&<LedgerPanel key={selected.id} invoiceId={selected.id} me={me} onChanged={()=>void fetchPayments()}/>}
  </>}
  </section>
  </div>

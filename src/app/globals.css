@@ -111,3 +111,21 @@ body{background:var(--surface);font-weight:400;line-height:1.5}
 
 .cms-finance-main{max-width:660px;margin:20px 0 26px;padding:25px;border:1px solid var(--border);border-radius:8px;background:#fff8f2}
 .cms-finance-main h3{margin-top:0}
+
+/* FR-076 printable pass: high contrast, only the pass on paper */
+@media print {
+  body * { visibility: hidden; }
+  .printable-pass, .printable-pass * { visibility: visible; color: #000 !important; background: #fff !important; }
+  .printable-pass { position: absolute; left: 0; top: 0; }
+  .no-print { display: none !important; }
+}
+
+/* Public floorplan viewer (FR-105/109): status by pattern + text, not colour alone */
+.floorplan-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:12px 0}
+.fp-key{display:inline-block;padding:2px 8px;margin-right:6px;border:1px solid #35120a;border-radius:4px;font-size:12px;color:#111}
+.fp-available{background:repeating-linear-gradient(45deg,#fff 0 4px,#cfe0fa 4px 6px)}.fp-reserved{background:#F2C14E}.fp-occupied{background:#6B3FA0;color:#fff}.fp-blocked{background:#BDBDBD}
+.floorplan-viewer svg [role=button]:focus{outline:3px solid #ff5912;outline-offset:2px}
+.floorplan-detail{border:1px solid #e6d3c4;border-radius:12px;padding:16px;margin-top:12px;background:#fffaf5}
+@media (prefers-reduced-motion: reduce){.floorplan-viewer *{transition:none!important;animation:none!important}}
+.table-scroll{max-width:100%;overflow-x:auto}
+.floorplan-viewer{min-width:0;max-width:100%}

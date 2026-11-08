@@ -63,6 +63,7 @@ const navGroups:Group[]=[
   {title:"Main",items:[
     {label:"Overview",href:"/admin",icon:"overview",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")},
     {label:"Customers & Registrations",href:"/admin/registrations",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
+    {label:"Customer Accounts",href:"/admin/customers",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
     {label:"Booth Requests",href:"/admin/booths",icon:"booths",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]}
   ]},
   {title:"Finance",items:[
@@ -74,6 +75,7 @@ const navGroups:Group[]=[
     {label:"Floorplans",href:"/admin/floorplans",icon:"floorplan",roles:["SUPER_ADMIN","OPERATIONS","SALES","FINANCE"]},
     {label:"Booth Units & Assignments",href:"/admin/booths",icon:"box",roles:OPS},
     {label:"Gate QR Scanner",href:"/admin/check-in",icon:"scan",roles:["SUPER_ADMIN","OPERATIONS","CHECKIN_STAFF"]},
+    {label:"Gates & Passes",href:"/admin/check-in/settings",icon:"settings",roles:["SUPER_ADMIN","OPERATIONS"]},
     {label:"Check-ins",href:"/admin/reports",icon:"activity",roles:["SUPER_ADMIN","OPERATIONS","VIEWER"]}
   ]},
   {title:"Insights",items:[
@@ -81,7 +83,12 @@ const navGroups:Group[]=[
   ]},
   {title:"Content",items:[
     {label:"Events & Programmes",href:"/admin/programmes",icon:"calendar",roles:["SUPER_ADMIN","SALES","OPERATIONS","CONTENT_EDITOR","FINANCE"]},
-    {label:"Event Settings",href:"/admin/workspace?section=settings",icon:"settings",roles:["SUPER_ADMIN"]}
+    {label:"Website Content",href:"/admin/content",icon:"calendar",roles:["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"]},
+    {label:"Lead Inbox",href:"/admin/leads",icon:"bell",roles:["SUPER_ADMIN","SALES","OPERATIONS"]},
+    {label:"Event Settings",href:"/admin/workspace?section=settings",icon:"settings",roles:["SUPER_ADMIN"]},
+    {label:"Settings Status",href:"/admin/settings",icon:"settings",roles:["SUPER_ADMIN"]},
+    {label:"Staff & Roles",href:"/admin/staff",icon:"shield",roles:["SUPER_ADMIN"]},
+    {label:"Data Requests",href:"/admin/data-requests",icon:"shield",roles:["SUPER_ADMIN"]}
   ]},
   {title:"System",items:[
     {label:"Notifications",href:"/admin/notifications",icon:"bell",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")},
