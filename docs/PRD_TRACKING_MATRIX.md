@@ -177,25 +177,25 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-058 | P0 | VERIFIED | E2E pass issued; scan only via admin API | — | — | — |
 | FR-074 | P0 | VERIFIED | random token, hash lookup, AES-GCM sealed (code + E2E) | — | — | — |
-| FR-075 | P0 | PARTIAL | status/entitlement/expiry | reissue invalidates old | — | P0 |
-| FR-076 | P0 | PARTIAL | QR + manualCode in passes API | print/download pass | — | P0 |
+| FR-075 | P0 | VERIFIED | E2E admission: reissue → old code REVOKED, new pass active; validity/entitlement/revocation fields | — | — | — |
+| FR-076 | P0 | VERIFIED | passes API: QR + short code XXXXX-XXXXX (HMAC, hashed); account Download QR + print CSS; E2E scan by short code | browser print visual check | — | — |
 | FR-077 | P0 | PARTIAL | E2E: invoice cancel with cancelBooking revokes passes + enrollment CANCELLED; scan rejects REVOKED | booth allocations flagged to Operations (manual release) | — | P1 |
 | FR-078 | P1 | NOT | — | attendance history | — | P1 |
 | FR-079 | P1 | NOT | — | secure email link | — | P1 |
-| FR-080 | P0 | PARTIAL | `/admin/check-in` (not `/scanner`) | route alias | — | P1 |
-| FR-081 | P0 | NOT | gate is free text | server-side StaffGateAssignment (AT-076) | — | P0 |
+| FR-080 | P0 | VERIFIED | `/admin/check-in/scanner` alias; E2E anon scan 401 | real device camera test (UAT) | — | — |
+| FR-081 | P0 | VERIFIED | Gate + StaffGateAssignment; scan enforces gate/zone/assignment; E2E AT-076 (403, no admission, audited) | — | — | — |
 | FR-082 | P0 | VERIFIED | E2E NOT_YET_VALID/INVALID/ALREADY | — | — | — |
 | FR-083 | P0 | VERIFIED | PassScan per attempt; E2E concurrent → 1 admission | device meta | — | — |
 | FR-084 | P0 | UNVERIFIED | check-in page result panel | visual test | — | P1 |
-| FR-085 | P0 | NOT | ONCE_PER_DAY hard-coded | configurable ALLOW_REENTRY | D-09 | P0 |
-| FR-086 | P0 | PARTIAL | manual code via same API | rate-limit guesses per staff | — | P0 |
-| FR-087 | P0 | PARTIAL | attendance report | filters day/gate/zone verify | — | P0 |
+| FR-085 | P0 | VERIFIED | AdmissionPolicy per zone, default ONCE_PER_DAY; E2E re-entry counted as entry not unique | default sign-off | D-09 | — |
+| FR-086 | P0 | VERIFIED | manual code same API; 15 invalid/10 min per staff → 429 (E2E) | — | — | — |
+| FR-087 | P0 | VERIFIED | attendance API: accounts, registrations by type, valid holders, unique arrived, entries, rejected by reason, day/gate/zone filters (E2E) | — | — | — |
 | FR-088 | P0 | UNVERIFIED | scanner offline label (PR #8) | browser test | — | P1 |
-| FR-089 | P0 | PARTIAL | forged/race tested (E2E) | revoked/brute-force/unauthorized gate | FR-081 | P0 |
-| FR-134 | P0 | PARTIAL | see FR-080 | — | — | — |
+| FR-089 | P0 | PARTIAL | E2E: forged token INVALID, revoked, unauthorized gate/staff, brute force 429, concurrent dual gate | screenshot reuse = same token (dedup by admission) documented; device tests | — | P1 |
+| FR-134 | P0 | VERIFIED | see FR-080/081 | — | — | — |
 | FR-135 | P0 | VERIFIED | name/accountId match in scan route | — | — | — |
-| FR-136 | P0 | PARTIAL | atomic admission | reentry policy | FR-085 | P0 |
-| FR-137 | P0 | NOT | — | revoke/reissue with reason + audit | — | P0 |
+| FR-136 | P0 | VERIFIED | atomic admission + lineage dedupe across reissue + reentry policy (E2E) | — | — | — |
+| FR-137 | P0 | VERIFIED | `/api/admin/passes/[id]/revoke/reissue` + `/admin/check-in/settings` UI; E2E; customer notified via outbox | — | — | — |
 
 ## H. CMS administration & RBAC (FR-031, 033, 040, 052, 120, 147, 148, 153)
 
@@ -223,6 +223,9 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | AT-063 | — | VERIFIED | E2E finance-controls (delivery history) | — | — | — |
 | AT-064 | — | VERIFIED | E2E finance-controls | — | — | — |
 | AT-087 | — | VERIFIED | E2E finance-controls | — | — | — |
+| AT-075 | — | VERIFIED | E2E cms-regression concurrent scanners → 1 admission | — | — | — |
+| AT-076 | — | VERIFIED | E2E admission | — | — | — |
+| AT-077 | — | PARTIAL | E2E revoked/expired logic; unpaid conference pass → slice C | — | — | — |
 
 ## P1/P2 out of MVP (tracked, not started): FR-032, FR-041, FR-059, FR-154, FR-156, FR-157, FR-158, FR-159.
 
@@ -232,3 +235,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 ## Changelog
 - 2026-11-08 initial matrix from code + E2E (PR #9, #10).
 - Slice F (finance controls): FR-047/056/126/128/130/131/132, AT-063/064/069/087 → VERIFIED. Migration `20261109010000_finance_controls` (additive).
+- Slice G (admission): FR-075/076/080/081/085/086/087/134/136/137, AT-075/076 → VERIFIED. Migration `20261109020000_admission_controls`. **Operational note:** after deploy, Operations must create gates and assign CHECKIN_STAFF before scanning.

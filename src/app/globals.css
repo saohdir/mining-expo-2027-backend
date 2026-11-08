@@ -111,3 +111,11 @@ body{background:var(--surface);font-weight:400;line-height:1.5}
 
 .cms-finance-main{max-width:660px;margin:20px 0 26px;padding:25px;border:1px solid var(--border);border-radius:8px;background:#fff8f2}
 .cms-finance-main h3{margin-top:0}
+
+/* FR-076 printable pass: high contrast, only the pass on paper */
+@media print {
+  body * { visibility: hidden; }
+  .printable-pass, .printable-pass * { visibility: visible; color: #000 !important; background: #fff !important; }
+  .printable-pass { position: absolute; left: 0; top: 0; }
+  .no-print { display: none !important; }
+}

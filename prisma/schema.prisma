@@ -430,8 +430,41 @@ model EventPass {
   entitlement String @default("EXPO_ENTRY")
   issuedAt DateTime @default(now())
   expiresAt DateTime
+  revokedAt DateTime?
+  revokeReason String?
+  replacedById String?
+  shortCodeHash String? @unique
   scans PassScan[]
   admissions Admission[]
+}
+model Gate {
+  id String @id @default(uuid())
+  eventId String
+  code String
+  name String
+  zones String[]
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  staff StaffGateAssignment[]
+  @@unique([eventId,code])
+}
+model StaffGateAssignment {
+  id String @id @default(uuid())
+  adminId String
+  gateId String
+  gate Gate @relation(fields:[gateId],references:[id])
+  createdBy String
+  createdAt DateTime @default(now())
+  @@unique([adminId,gateId])
+}
+model AdmissionPolicy {
+  id String @id @default(uuid())
+  eventId String
+  zone String
+  reentry String @default("ONCE_PER_DAY")
+  updatedBy String
+  updatedAt DateTime @updatedAt
+  @@unique([eventId,zone])
 }
 model PassScan {
   id String @id @default(uuid())
@@ -442,7 +475,9 @@ model PassScan {
   result ScanResult
   scannedBy String
   createdAt DateTime @default(now())
+  method String @default("CAMERA")
   @@index([createdAt])
+  @@index([scannedBy,createdAt])
 }
 model Admission {
   id String @id @default(uuid())

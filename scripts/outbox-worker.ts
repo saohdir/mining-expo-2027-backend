@@ -43,6 +43,8 @@ async function processJob(topic:string,p:Payload){
  if(topic==="PAYMENT_VERIFIED")return deliver(inv.account.email,"IMDX — payment status updated","Finance has reviewed a manual transfer on your invoice "+inv.number+". Sign in to view your current confirmed balance: "+portal+"/account");
  return deliver(inv.account.email,"IMDX — invoice ready","Your IMDX 2027 invoice "+inv.number+" is ready in the secure customer portal. Sign in: "+portal+"/account\nNever transfer based on an unverified message alone.");
  }
+ if(["PASS_REVOKED","PASS_REISSUED"].includes(topic)){const id=(p as Payload&{passId?:string}).passId;if(!id)throw Error("Missing pass id");const pass=await db.eventPass.findUnique({where:{id},include:{account:true}});if(!pass||!pass.account.email)throw Error("Pass/customer email unavailable");
+  return deliver(pass.account.email,topic==="PASS_REVOKED"?"IMDX — event pass revoked":"IMDX — new event pass issued",(topic==="PASS_REVOKED"?"Your IMDX 2027 event pass was revoked by the organizer. Previously saved QR codes no longer work.":"A replacement IMDX 2027 event pass is ready. Earlier QR codes no longer work.")+" Sign in to view details: "+portal+"/account");}
  throw Error("Unhandled topic: "+topic);
 }
 async function drain(){

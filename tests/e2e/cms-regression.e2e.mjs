@@ -135,7 +135,13 @@ test("QR check-in: server validation, not-yet-valid, one admission, duplicate sc
   const passes = await S.cust.get("/api/customer/passes");
   ok(passes, 200, "passes");
   const token = passes.body.passes.find(p => p.entitlement === "EXPO_ENTRY").manualCode;
-  const scan = (c, t = token, gate = "G1") => c.post("/api/admin/check-in/scan", {token: t, gate, zone: "EXPO_ENTRY"});
+  assert.match(token, /^[0-9A-Z]{5}-[0-9A-Z]{5}$/, "short manual pass code");
+  for (const code of ["G1", "G2"]) {
+    const g = await R.OPERATIONS.post("/api/admin/gates", {code: code + run, name: "Gate " + code, zones: ["EXPO_ENTRY"]});
+    ok(g, 201, "gate " + code);
+    ok(await R.OPERATIONS.patch("/api/admin/gates/" + g.body.gate.id, {staffAdminIds: [R.CHECKIN_STAFF.id ?? (await R.CHECKIN_STAFF.get("/api/admin/me")).body.id], reason: "E2E assign scanner"}), 200, "assign");
+  }
+  const scan = (c, t = token, gate = "G1") => c.post("/api/admin/check-in/scan", {token: t, gate: gate + run, zone: "EXPO_ENTRY"});
   ok(await scan(R.SALES), 403, "sales cannot scan");
   const early = await scan(R.CHECKIN_STAFF);
   assert.equal(early.body.result, "NOT_YET_VALID", "before event start");
