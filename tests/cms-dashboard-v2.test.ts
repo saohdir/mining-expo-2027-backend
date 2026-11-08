@@ -57,7 +57,8 @@ test("Registry and exports share server filters including search and status",()=
 test("Scan screen distinguishes accepted, failure and offline without leaking identity",()=>{
   const source=read("src/app/admin/check-in/page.tsx");
   assert.match(source,/result\.result==="VALID_ACCEPTED"&&result\.person/);
-  assert.match(source,/Connection lost — no entry decision/);
+  assert.match(source,/Connection unavailable — no entry decision/);
+  assert.match(source,/Staff access denied — no entry decision/);
   assert.match(source,/!gate\.trim\(\)\|\|!zone/);
   assert.match(source,/Validate with server/);
 });

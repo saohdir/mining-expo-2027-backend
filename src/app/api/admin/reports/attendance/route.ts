@@ -1,7 +1,7 @@
 import {NextRequest,NextResponse} from "next/server";
 import {db} from "@/lib/db";import {admin} from "@/lib/auth";import {failure,HttpError} from "@/lib/errors";
 export async function GET(req:NextRequest){try{
- await admin(["SUPER_ADMIN","OPERATIONS","FINANCE","VIEWER"]);
+ await admin(["SUPER_ADMIN","OPERATIONS","FINANCE","SALES","VIEWER"]);
  const day=req.nextUrl.searchParams.get("day");
  if(day&&!/^\d{4}-\d{2}-\d{2}$/.test(day))throw new HttpError(400,"BAD_DAY","Day must be YYYY-MM-DD.");
  const event=await db.event.findUnique({where:{code:req.nextUrl.searchParams.get("event")||"IMDX-2027"}});
