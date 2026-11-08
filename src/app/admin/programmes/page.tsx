@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
-type Conference={id:string;title:string;slug:string;published:boolean;feeMinor:string|null;capacity:number|null;startsAt:string|null;event:{code:string;title:string};_count:{enrollments:number}};
+type Conference={id:string;title:string;slug:string;published:boolean;feeMinor:string|null;capacity:number|null;startsAt:string|null;activeEnrollmentCount:number;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY";event:{code:string;title:string};_count:{enrollments:number}};
 type FormFields={title:string;slug:string;feeMinor:string;capacity:string;startsAt:string};
 const req=async(path:string,method="GET",body?:unknown)=>{const r=await fetch(path,{method,cache:"no-store",headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||d.error||"Request failed");return d};
 const slug=(v:string)=>v.toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s-]/g,"").trim().replace(/\s+/g,"-").slice(0,90);
@@ -31,18 +31,23 @@ export default function ConferencesCms(){
  {message&&<div className="notice" role="status">{message}</div>}
  {loading?<section className="cms-panel">Loading programmes…</section>:<div className="program-layout">
  <section className="cms-panel program-list"><div className="payment-heading-row"><h2>Conference programmes</h2><small>{items.length} programs</small></div>
- {items.map((r,i)=><button key={r.id} type="button" onClick={()=>{setId(r.id);setForm(draft(r));setReason("");setApproved(false);setMessage("")}} className={"program-item "+(id===r.id?"selected":"")}><span className="eyebrow">{String(i+1).padStart(2,"0")} / {r.published?"PUBLISHED":"DRAFT"}</span><strong>{r.title}</strong><small>{r.startsAt?new Date(r.startsAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB":"Schedule TBA"} · {r._count.enrollments} registrations</small></button>)}
+ {items.map((r,i)=><button key={r.id} type="button" onClick={()=>{setId(r.id);setForm(draft(r));setReason("");setApproved(false);setMessage("")}} className={"program-item "+(id===r.id?"selected":"")}><span className="eyebrow">{String(i+1).padStart(2,"0")} / {r.published?"PUBLISHED":"DRAFT"}</span><strong>{r.title}</strong><small>{r.startsAt?new Date(r.startsAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB":"Schedule TBA"} · {r.activeEnrollmentCount} active / {r.capacity??"TBA"} capacity</small></button>)}
  {canEdit&&<form className="program-new" onSubmit={e=>{e.preventDefault();void run(async()=>{await req("/api/admin/conferences","POST",{title:newForm.title,slug:newForm.slug,eventCode:"IMDX-2027",feeMinor:null,capacity:null,startsAt:null});setNewForm({title:"",slug:""})})}}>
  <h3>Create a draft programme</h3><label>Programme title<input required minLength={10} value={newForm.title} onChange={e=>setNewForm(f=>({...f,title:e.target.value,slug:slug(e.target.value)}))}/></label>
  <label>URL slug<input required pattern="[a-z0-9-]+" minLength={3} value={newForm.slug} onChange={e=>setNewForm(f=>({...f,slug:e.target.value}))}/></label><button disabled={saving}>Create draft ↗</button></form>}
  </section>
  <section className="cms-panel program-detail">
  {!selected?<div className="payment-empty"><h2>No programmes.</h2><p>Create an event programme draft to begin.</p></div>:<>
- <p className="eyebrow">PROGRAMME EDITOR / {selected.event.code}</p><h2>{selected.title}</h2><div className="program-metadata"><span className="payment-pill">{selected.published?"Published":"Draft"}</span><span>{selected._count.enrollments} registered participants</span></div>
+ <p className="eyebrow">PROGRAMME EDITOR / {selected.event.code}</p><h2>{selected.title}</h2><div className="program-metadata"><span className="payment-pill">{selected.published?"Published":"Draft"}</span><span>{selected._count.enrollments} total registrations · {selected.activeEnrollmentCount} active bookings</span></div>
+ <div className="conference-availability" role="status">
+   <strong>{selected.capacity===null?"Capacity TBA":selected.capacity+" total seats"}</strong>
+   <span>{selected.registrationState==="NOT_READY"?"Registration unavailable until approved fee and capacity are set":selected.registrationState==="FULL"?"Fully booked":selected.remainingSeats+" seats remaining"}</span>
+   <small>Submitted, pending-review and confirmed bookings consume capacity. Rejected/cancelled bookings do not.</small>
+ </div>
  <form onSubmit={e=>{e.preventDefault();void run(()=>save())}}><div className="form-grid"><label>Programme title<input required minLength={10} maxLength={200} disabled={!canEdit} value={form.title} onChange={e=>change("title",e.target.value)}/></label>
  <label>URL slug<input disabled={!canEdit||selected._count.enrollments>0} required minLength={3} value={form.slug} onChange={e=>change("slug",e.target.value)}/></label></div>
  <div className="form-grid"><label>Date and time (WIB)<input type="datetime-local" disabled={!canEdit} value={form.startsAt} onChange={e=>change("startsAt",e.target.value)}/></label>
- <label>Capacity (blank = TBA)<input type="number" min="1" max="100000" disabled={!canEdit} value={form.capacity} onChange={e=>change("capacity",e.target.value)}/></label></div>
+ <label>Capacity (blank = TBA)<input type="number" min={Math.max(1,selected.activeEnrollmentCount)} max="100000" disabled={!canEdit} value={form.capacity} onChange={e=>change("capacity",e.target.value)}/></label></div>
  <label>Approved conference fee (IDR; blank = TBA, 0 = free)<input type="number" min="0" step="1" disabled={!canEdit||selected._count.enrollments>0} value={form.feeMinor} onChange={e=>change("feeMinor",e.target.value)}/></label>
  {selected._count.enrollments>0&&<p className="warning">This conference has registrations. The fee and slug are locked to protect existing bookings.</p>}
  {canEdit&&<>
@@ -51,7 +56,7 @@ export default function ConferencesCms(){
  {!selected.published?<button type="button" className="ghost" disabled={saving||!approved} onClick={()=>void run(()=>save(true))}>Publish programme ↗</button>:<button className="ghost" type="button" disabled={saving} onClick={()=>void run(()=>save(false))}>Unpublish programme</button>}</div>
  {!selected.published&&<label className="consent program-approval"><input type="checkbox" checked={approved} onChange={e=>setApproved(e.target.checked)}/>I confirm that the event organizer has approved the programme information, fee and publication.</label>}
  </>}
- <p className="micro">A programme can only be published after the parent event is published. Do not publish unapproved prices, capacities or schedules.</p>
+ <p className="micro">A programme can only be published after the parent event is published. Publishing an informational programme without an approved capacity does not open registration. Capacity cannot be reduced below active bookings.</p>
  </form></>}
  </section></div>}
  </main>
