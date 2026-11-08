@@ -58,6 +58,14 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         throw new HttpError(409, "BOOTH_UNAVAILABLE",
           "One or more proposed units are unavailable. Refresh the floorplan.");
       }
+      const activeAssignment = await tx.boothAssignment.findFirst({
+        where: {boothUnitId: {in: ids}, active: true},
+        select: {id: true}
+      });
+      if (activeAssignment) {
+        throw new HttpError(409, "ALREADY_ASSIGNED",
+          "An offered unit already has an active assignment. Operations must reconcile inventory.");
+      }
       const sortedUnits = ids.map(unitId => units.find(unit => unit.id === unitId)!);
       const areaTenths = sortedUnits.reduce((sum, unit) =>
         sum + Math.round(Number(unit.areaSqm) * 10), 0);
