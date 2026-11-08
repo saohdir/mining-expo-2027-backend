@@ -62,10 +62,20 @@ export default function FloorplanEditor(){
    let index=1;
    while(codes.has("B"+String(index).padStart(3,"0")))index++;
    const w=80,h=60;
+   // Button-created units should not stack in the centre of the canvas.
+   const candidates: {x:number;y:number}[]=[];
+   for(let yy=20;yy+h<=plan.canvasHeight;yy+=80){
+     for(let xx=20;xx+w<=plan.canvasWidth;xx+=100)candidates.push({x:xx,y:yy});
+   }
+   const free=candidates.find(candidate=>!units.some(u=>
+     candidate.x<u.x+u.w && candidate.x+w>u.x &&
+     candidate.y<u.y+u.h && candidate.y+h>u.y));
+   const nextX=x===undefined?(free?.x??20):x;
+   const nextY=y===undefined?(free?.y??20):y;
    const unit:Unit={
      code:"B"+String(index).padStart(3,"0"),category:"Standard",
-     x:Math.max(0,Math.min(plan.canvasWidth-w,snap(x??plan.canvasWidth/2-w/2))),
-     y:Math.max(0,Math.min(plan.canvasHeight-h,snap(y??plan.canvasHeight/2-h/2))),
+     x:Math.max(0,Math.min(plan.canvasWidth-w,snap(nextX))),
+     y:Math.max(0,Math.min(plan.canvasHeight-h,snap(nextY))),
      w,h,areaSqm:18,status:"AVAILABLE"
    };
    setSelected(units.length);setUnits(prev=>[...prev,unit]);
