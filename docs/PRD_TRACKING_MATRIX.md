@@ -21,7 +21,7 @@ Snapshot after slices F, G, E, B/C, H/I/A and frontend PR #1 (151 FR rows listed
 | Priority | VERIFIED | UNVERIFIED | PARTIAL | NOT |
 | --- | --- | --- | --- | --- |
 | P0 (140 rows) | 128 | 2 | 10 | 0 |
-| P1/P2 (11 rows) | 9 | 0 | 1 | 1 |
+| P1/P2 (19 rows) | 15 | 1 | 3 | 0 |
 
 Many PARTIAL P0 rows are blocked only by owner content/legal decisions (D-01/D-02/D-04/D-12) or need device/UAT evidence.
 
@@ -78,7 +78,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-118 | P0 | VERIFIED | profile edits audited before/after; enrollment snapshots; customer timeline API (E2E) | — | — | — |
 | FR-119 | P0 | VERIFIED | tabs + "Action needed" banners from server state (BR) | — | — | — |
 | FR-150 | P0 | PARTIAL | consent version/time, export minimisation, access logs, data-request intake + resolution (E2E) | retention/purge schedule (D-13) | — | — |
-| FR-152 | P0 | VERIFIED | notification preference EMAIL/WHATSAPP (WhatsApp requires verified phone) (E2E) | automated WhatsApp sending is P2 FR-158 | — | — |
+| FR-152 | P0 | VERIFIED | notification preference EMAIL/WHATSAPP (WhatsApp requires verified phone) (E2E) | automated WhatsApp sending: FR-158 (built, off) | — | — |
 | AT-057 | — | VERIFIED | E2E safe return path + account intent restore (selected booth preselected after OTP) | — | — | — |
 
 ## C. Visitor & conference registration (FR-022/023/029/042/054/071–073/133/155)
@@ -91,7 +91,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-042 | P0 | VERIFIED | admissionMode FREE / MANUAL_INVOICE / TBA in public events; booths QUOTE_REQUIRED by workflow; no checkout (E2E) | prices (D-02) | — | — |
 | FR-054 | P0 | VERIFIED | visitor free: no invoice/transfer created (E2E) | — | — | — |
 | FR-071 | P0 | VERIFIED | duplicate per user/program 409 (E2E), serializable capacity | — | — | — |
-| FR-072 | P0 | VERIFIED | confirmed conference → CONFERENCE pass + EXPO_ENTRY if none (E2E) | per-session zones (FR-157, P1) | — | — |
+| FR-072 | P0 | VERIFIED | confirmed conference → CONFERENCE pass + EXPO_ENTRY if none (E2E); session-zone pass when the programme has a zone (FR-157) | — | — | — |
 | FR-073 | P0 | VERIFIED | no conference pass until full payment by default; DP does not grant (E2E) | — | D-08/D-09 | — |
 | FR-133 | P0 | VERIFIED | published programme change alerts each active booking via outbox; snapshots retained (E2E) | — | — | — |
 | FR-155 | P1 | VERIFIED | waitlist only when FULL, idempotent, manual release re-checks capacity (E2E) | — | — | — |
@@ -147,7 +147,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-110 | P0 | VERIFIED | directory boothNo derived from active approved assignments only (E2E) | — | — | — |
 | FR-111 | P0 | VERIFIED | stats per status/category, m² and %, CSV (Viewer read-only) (E2E) | — | — | — |
 | FR-112 | P0 | VERIFIED | audit diffs: units added/changed/removed, categories, align, CSV, publish+remap, area override | — | — | — |
-| FR-113 | P2 | NOT (out of scope) | — | P2 approval | — | P2 |
+| FR-113 | P2 | VERIFIED (flag-free, draft-only) | SVG element-ID unit import with dry run (E2E, UT) | PDF conversion, auto space-splitting not built | — | P2 |
 | FR-144 | P0 | VERIFIED | see FR-090–098 | — | — | — |
 
 ## F. Invoice & manual payment (FR-045–051, 056, 057, 065, 123–132, 151)
@@ -249,7 +249,19 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | AT-092 | — | VERIFIED | COMING_SOON + "no booth available" notice | — | — | — |
 | AT-077 | — | PARTIAL | E2E revoked/expired logic; unpaid conference pass → slice C | — | — | — |
 
-## P1/P2 not started — need owner approval/policy: FR-032 (CRM), FR-041 (multi-event), FR-059 (group billing/discounts), FR-154 (bulk import/badges), FR-156 (exhibitor staff passes), FR-157 (per-session attendance needs gate policy), FR-158 (SMS/WA API), FR-159 (fee estimator).
+## P1/P2 extensions (built behind flags, default off — see `docs/P1_P2_EXTENSIONS.md`)
+
+| FR | Priority | Status | Evidence | Remaining / approval |
+| --- | --- | --- | --- | --- |
+| FR-157 | P1 | VERIFIED | session zones, zone pass, WRONG_ZONE at other gates, `bySession` report (E2E) | Operations defines session gates |
+| FR-156 | P1 | VERIFIED (flag) | booth representative invites, limit, own account + pass, revoke (E2E) | PO approves policy + `EXHIBITOR_STAFF_LIMIT` |
+| FR-059 | P1 | PARTIAL (flag) | group delegate invitations, seat check on accept, group review + passes (E2E) | group discounts/corporate billing need approval (D-02) |
+| FR-154 | P1 | PARTIAL (flag) | CSV pre-registration dry run/import/accept, badge PDF (E2E, UT) | scheduled mailouts, scanned-ID reconciliation need approval |
+| FR-032 | P2 | VERIFIED (config) | signed CRM webhook via outbox, retry, idempotency (E2E, UT) | choose CRM + endpoint |
+| FR-159 | P2 | VERIFIED (flag) | estimator from approved tariffs, read-only (E2E, UT) | D-02 tariffs |
+| FR-158 | P2 | UNVERIFIED (flag) | WhatsApp template automation, consent re-check (UT, provider mocked) | D-05 provider account + approved template, live sandbox test; SMS automation waits for D-04 |
+| FR-041 | P2 | VERIFIED (config) | `ACTIVE_EVENT_CODE`, edition create with setup clone, four-eyes page approval (E2E) | role approval for non-page content (news/partners) not covered |
+| FR-017 | P1 | PARTIAL | see section A | D-02 packages |
 
 ## Blocked by owner decisions (fail-closed defaults in code)
 D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056/131 payout), D-04 SMS provider (FR-068/AT-060), D-05 WhatsApp API (FR-158), D-09 reentry default (FR-085), D-10 proof policy (FR-128 size/retention), D-11 maker-checker threshold (FR-132), D-12 legal/content (FR-012/005/009), D-13 retention (FR-150), D-14 hosting.
@@ -267,3 +279,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - CR-AUTH-01 (approved change request): customer sign-in moved from passwordless OTP to email + password; OTP only for registration. See `docs/CR-AUTH-01_CUSTOMER_PASSWORD_AUTH.md`. Migration `20261110010000_customer_password_auth`.
 - CMS Pages & layout builder (FR-034/038, NFR-04 SEO per page): `docs/CMS_PAGE_BUILDER.md`. Migration `20261110020000_page_builder`.
 - Public conference pages (FR-006) and EN/ID language switch (FR-001/NFR-09 infrastructure).
+- P1/P2 extensions (branch `feat/prd14-p1-p2`): FR-157/156/059/154/113/032/159/158/041 built behind flags (default off). Migration `20261110030000_p1_p2_extensions` (additive). See `docs/P1_P2_EXTENSIONS.md`.

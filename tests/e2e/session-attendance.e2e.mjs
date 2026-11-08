@@ -10,11 +10,12 @@ const run = Date.now().toString(36);
 const zone = "CONF_" + run.toUpperCase();
 const R = {}, S = {};
 const ok = (r, code, label) => assert.equal(r.status, code, label + " → " + r.status + " " + JSON.stringify(r.body).slice(0, 300));
-const scan = (token, gate, z) => R.OPERATIONS.post("/api/admin/check-in/scan", {token, gate, zone: z});
+// Super Admin scans: the admission suite deliberately rate-limits the Operations scanner.
+const scan = (token, gate, z) => R.SUPER_ADMIN.post("/api/admin/check-in/scan", {token, gate, zone: z});
 test.after(async () => { if (S.ev) await db.event.update({where: {id: S.ev.id}, data: {startsAt: S.ev.startsAt}}); await db.$disconnect(); });
 
 test("session zone: validation, uniqueness, RBAC", async () => {
-  for (const r of ["OPERATIONS", "SALES", "VIEWER"]) R[r] = await adminLogin(r);
+  for (const r of ["OPERATIONS", "SUPER_ADMIN", "SALES", "VIEWER"]) R[r] = await adminLogin(r);
   S.ev = await db.event.findUniqueOrThrow({where: {code: "IMDX-2027"}});
   if (!S.ev.published) await db.event.update({where: {id: S.ev.id}, data: {published: true}});
   S.conf = await db.conference.create({data: {eventId: S.ev.id, title: "Session zone " + run, slug: "zone-" + run, published: true, capacity: 20, feeMinor: 0n}});
