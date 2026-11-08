@@ -43,7 +43,7 @@ docker compose --env-file "$ENV_FILE" -f "$COMPOSE" up -d --no-build app worker 
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE" ps
 
 echo "[7/7] Checking local reverse proxy and secure API..."
-for route in / /account /admin /admin/payments /admin/programmes /api/health; do
+for route in / /account /admin /admin/payments /admin/programmes /admin/reports /api/health; do
   code="$(curl --retry 4 --retry-delay 2 --retry-connrefused --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:8080$route")"
   if [[ "$code" != "200" ]]; then echo "UAT smoke check failed: $route returned $code" >&2; exit 1; fi
   echo "PASS $route (HTTP $code)"
