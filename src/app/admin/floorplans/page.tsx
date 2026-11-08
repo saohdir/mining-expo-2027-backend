@@ -14,7 +14,7 @@ export default function FloorplanEditor(){
  const pt=(e:{clientX:number;clientY:number})=>{const point=svg.current!.createSVGPoint();point.x=e.clientX;point.y=e.clientY;const m=svg.current!.getScreenCTM();return m?point.matrixTransform(m.inverse()):{x:0,y:0}};
  const adjust=(field:keyof Unit,v:string)=>setUnits(arr=>arr.map((unit,i)=>i===selected?{...unit,[field]:["x","y","w","h","areaSqm"].includes(field)?Number(v):v}:unit));
  const current=units[selected];
- return <main className="portal-shell"><nav className="portal-top"><a className="brandmark" href="/">IMDX<span>2027</span></a><span>CMS / FLOORPLAN</span><a href="/admin">Back to CMS</a></nav>
+ return <main className="portal-shell"><nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>CMS / FLOORPLAN</span><a href="/admin">Back to CMS</a></nav>
  <header><p className="eyebrow">OPERATIONS</p><h1>Floorplan <em>management.</em></h1><p>Edit available booths in draft versions. Published maps are customer-facing read-only; requests never automatically hold a booth.</p></header>
  {message&&<div className="notice" role="status">{message}</div>}
  <section><h2>Choose a floorplan version</h2><div className="form-grid"><label>New draft title<input value={draftName} onChange={e=>setDraftName(e.target.value)} required/></label><button disabled={busy} onClick={()=>void run(async()=>{const d=await api("/api/admin/floorplans","POST",{title:draftName,canvasWidth:1200,canvasHeight:800,eventCode:"IMDX-2027"});await refresh();await load(d.plan.id)})}>Create draft version</button></div>

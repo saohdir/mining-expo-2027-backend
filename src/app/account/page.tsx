@@ -17,7 +17,7 @@ export default function AccountPage(){
  async function doAction(task:()=>Promise<unknown>,success:string){setBusy(true);setMessage("");try{await task();setMessage(success);await reload()}catch(e){setMessage(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
  const event=events[0];
  return <main className="portal-shell">
-  <nav className="portal-top"><a href="/" className="brandmark">IMDX<span>2027</span></a><span>Customer account / UAT</span><a href="/admin">Admin CMS</a></nav>
+  <nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>Customer account / UAT</span><a href="/admin">Admin CMS</a></nav>
   {loading?<section>Loading account information…</section>:!me?<section className="portal-auth"><p className="eyebrow">SECURE SIGN IN</p><h1>One account.<br/><em>Three experiences.</em></h1><p>Create an account to visit the exhibition, attend a conference and request exhibition space.</p>
     {!challenge?<form onSubmit={e=>{e.preventDefault();void doAction(async()=>{const r=await send("/api/auth/request-otp",{mode,channel,...(channel==="EMAIL"?{email}:{phone}), ...(mode==="register"?{fullName:name,consent:true,consentVersion:"v1.4-UAT"}:{})});setChallenge(r.challengeId||"")},"Verification code requested.")}}>
       <div className="tabline"><button type="button" className={mode==="register"?"chosen":""} onClick={()=>setMode("register")}>Create account</button><button type="button" className={mode==="login"?"chosen":""} onClick={()=>setMode("login")}>Sign in</button></div>
