@@ -1,9 +1,9 @@
 "use client";
 import {useCallback,useEffect,useState} from "react";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
-type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null}[]};
+type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
 type AccountData={id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
- enrollments:{id:string;type:string;status:string;conference?:{title:string}|null}[];requests:{id:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]}[];invoices:{id:string;number:string;status:string;totalMinor:string}[]};
+ enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:{id:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]}[];invoices:{id:string;number:string;status:string;totalMinor:string}[]};
 type Floorplan={state:string;id?:string;version?:number;title?:string;canvas?:{width:number;height:number};backgroundUrl?:string;units?:{id:string;code:string;category:string;hall?:string;areaSqm:string;status:string;x:number;y:number;w:number;h:number}[]};
 async function request(path:string,options:RequestInit={}){const res=await fetch(path,{...options,headers:{...(options.body?{"Content-Type":"application/json"}:{}),...options.headers},cache:"no-store"});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error((data as ApiError).message||(data as ApiError).issues?.map(i=>i.message).join(", ")||"Request failed");return data;}
 const send=(path:string,data:unknown)=>request(path,{method:"POST",body:JSON.stringify(data)});
@@ -16,6 +16,7 @@ export default function AccountPage(){
  useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>setSmsAvailable(Boolean(x.smsOtp))).catch(()=>{})},[reload]);
  async function doAction(task:()=>Promise<unknown>,success:string){setBusy(true);setMessage("");try{await task();setMessage(success);await reload()}catch(e){setMessage(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
  const event=events[0];
+ const selectedConference=event?.conferences?.find(c=>c.id===conference);
  return <main className="portal-shell">
   <nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>Customer account / UAT</span><a href="/admin">Admin CMS</a></nav>
   {loading?<section>Loading account information…</section>:!me?<section className="portal-auth"><p className="eyebrow">SECURE SIGN IN</p><h1>One account.<br/><em>Three experiences.</em></h1><p>Create an account to visit the exhibition, attend a conference and request exhibition space.</p>
@@ -46,9 +47,19 @@ export default function AccountPage(){
       {passes?.passes.length?passes.passes.map(p=><figure key={p.passId} className="pass"><img width={220} height={220} src={p.qrDataUrl} alt="Personal entry QR pass"/><figcaption>Private pass · {p.entitlement} · Do not share</figcaption><code style={{fontSize:11,overflowWrap:"anywhere",maxWidth:230,textAlign:"center"}}>{p.manualCode}</code></figure>):<p className="micro">QR will appear after your visitor registration is eligible and confirmed.</p>}
      </section>}
     {tab==="conference"&&<section><h2>My conferences</h2><p>Registration and payment are separate. A submitted request does not confirm payment.</p>
-      {me.enrollments.filter(x=>x.type==="CONFERENCE").map(x=><div key={x.id} className="record"><div><strong>{x.conference?.title||"Conference"}</strong><span className="micro"> · {x.status}</span></div><button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/manual-payment-request",{enrollmentId:x.id}),"Finance has been notified of your invoice request.")}>Request bank-transfer invoice</button></div>)}
+      {me.enrollments.filter(x=>x.type==="CONFERENCE").map(x=><div key={x.id} className="record"><div><strong>{x.conference?.title||"Conference"}</strong><span className="micro"> · {x.status}</span></div>
+       {x.status==="CONFIRMED"?<span className="status">Confirmed</span>
+        :x.conference?.feeMinor==="0"?<span className="micro">Free programme · awaiting organizer confirmation</span>
+        :x.conference?.feeMinor===null||!x.conference?<span className="micro">Fee not approved</span>
+        :["SUBMITTED","PENDING_REVIEW"].includes(x.status)?<button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/manual-payment-request",{enrollmentId:x.id}),"Finance has been notified of your invoice request.")}>Request bank-transfer invoice</button>
+        :<span className="micro">No invoice action available for this status</span>}</div>)}
       {event?.conferences?.length?<form onSubmit={e=>{e.preventDefault();void doAction(()=>send("/api/customer/registrations",{eventCode:event.code,kind:"CONFERENCE",conferenceId:conference,consent:true}),"Conference request submitted for review.")}}>
-       <label>Select conference<select required value={conference} onChange={e=>setConference(e.target.value)}><option value="">Choose an available conference</option>{event.conferences.map(c=><option key={c.id} value={c.id}>{c.title}</option>)}</select></label><button disabled={busy||!conference}>Submit conference registration</button></form>:<p>Conference registration has not been published by the organizer yet.</p>}
+       <label>Select conference<select required value={conference} onChange={e=>setConference(e.target.value)}><option value="">Choose an available conference</option>{event.conferences.map(c=><option key={c.id} value={c.id} disabled={c.registrationState!=="AVAILABLE"}>{c.title} · {c.registrationState==="FULL"?"Fully booked":c.registrationState==="NOT_READY"?"Registration not yet available":c.remainingSeats+" seats available"}</option>)}</select></label>
+       {selectedConference&&<div className="conference-availability" role="status"><strong>{selectedConference.feeMinor===null?"Fee to be confirmed":selectedConference.feeMinor==="0"?"Free programme":money(selectedConference.feeMinor)}</strong>
+        <span>{selectedConference.registrationState==="AVAILABLE"?selectedConference.remainingSeats+" seats currently available":selectedConference.registrationState==="FULL"?"Fully booked":"Registration pending fee and capacity approval"}</span>
+        <small>{selectedConference.startsAt?new Date(selectedConference.startsAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB":"Schedule TBA"}</small>
+        <small>Seat counts are indicative and checked again when you submit. Payment is only confirmed by Finance.</small></div>}
+       <button disabled={busy||!selectedConference||selectedConference.registrationState!=="AVAILABLE"}>Submit conference registration</button></form>:<p>Conference registration has not been published by the organizer yet.</p>}
     </section>}
     {tab==="booth"&&<section><h2>Exhibitor booth request</h2><p>Choose preferred units on the published floorplan. Your selections are <strong>not a reservation</strong> until operations approve and assign them.</p>
      {me.requests.map(x=><div className="record" key={x.id}><div><strong>{x.requestedAreaSqm} m² requested</strong><p className="micro">Request {x.id.slice(0,8)} · {x.status}{x.assignments?.length?" · Assigned: "+x.assignments.map(a=>a.boothUnit.code).join(", "):""}</p></div><div className="cms-row-actions">
