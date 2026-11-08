@@ -66,8 +66,8 @@ const navGroups:Group[]=[
     {label:"Booth Requests",href:"/admin/booths",icon:"booths",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]}
   ]},
   {title:"Finance",items:[
-    {label:"Payment Requests",href:"/admin/workspace?section=finance",icon:"request",roles:FIN},
-    {label:"Invoices",href:"/admin/workspace?section=finance",icon:"invoice",roles:FIN},
+    {label:"Payment Requests",href:"/admin/workspace?section=finance#cms-payment-requests",icon:"request",roles:FIN},
+    {label:"Invoices",href:"/admin/workspace?section=finance#cms-invoices",icon:"invoice",roles:FIN},
     {label:"Payments & Reconciliation",href:"/admin/payments",icon:"payments",roles:["SUPER_ADMIN","FINANCE","OPERATIONS"]}
   ]},
   {title:"Operations",items:[
@@ -85,8 +85,7 @@ const navGroups:Group[]=[
   ]},
   {title:"System",items:[
     {label:"Notifications",href:"/admin/notifications",icon:"bell",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")},
-    {label:"Audit Log",href:"/admin/audit",icon:"shield",roles:["SUPER_ADMIN"]},
-    {label:"Staff Settings",href:"/admin/workspace?section=settings",icon:"settings",roles:["SUPER_ADMIN"]}
+    {label:"Audit Log",href:"/admin/audit",icon:"shield",roles:["SUPER_ADMIN"]}
   ]}
 ];
 type Note={id:string;type:string;readAt:string|null;createdAt:string;recordId:string};
@@ -150,7 +149,8 @@ export default function CmsShell({children}:{children:ReactNode}){
     .filter(g=>g.items.length),[actor]);
   const active=(href:string)=>href===pathname||(
     href.startsWith("/admin/workspace")&&pathname==="/admin/workspace" &&
-    typeof window!=="undefined"&&window.location.search===href.substring(href.indexOf("?")));
+    typeof window!=="undefined"&&window.location.search.includes("section="+
+      (new URLSearchParams(href.split("?")[1]?.split("#")[0]||"")).get("section")));
   const unread=notes.some(n=>!n.readAt);
   const markRead=async(id:string)=>{
     const response=await fetch("/api/admin/notifications",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
@@ -167,8 +167,8 @@ export default function CmsShell({children}:{children:ReactNode}){
         <nav className="imdx-cms-nav">
           {groups.map(g=><div className="imdx-cms-nav-group" key={g.title}>
             <p className="imdx-cms-group-title">{g.title}</p>
-            {g.items.map((item,i)=><Link key={item.label} href={item.href}
-              className={"imdx-cms-nav-link"+(active(item.href)&&i===0?" is-active":active(item.href)&&!g.items.some(x=>x.href===item.href&&x!==item)?" is-active":"")}
+            {g.items.map(item=><Link key={item.label} href={item.href}
+              className={"imdx-cms-nav-link"+(active(item.href)?" is-active":"")}
               title={item.label} aria-current={active(item.href)?"page":undefined} onClick={()=>setDrawer(false)}>
               <CmsIcon name={item.icon}/><span>{item.label}</span></Link>)}
           </div>)}
