@@ -40,6 +40,30 @@ COMPOSE_PARALLEL_LIMIT=1 docker compose --env-file "$ENV_FILE" -f "$COMPOSE" bui
 
 echo "[6/7] Starting UAT containers without deleting PostgreSQL data..."
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE" up -d --no-build app worker web
+
+# The Docker Compose app container can receive a NEW container IP after up -d.
+# Nginx resolves 'app' when it starts, so a still-running Nginx may proxy to
+# the old, now-dead IP and return 502 on /account, /admin and /api.
+# Only refresh Nginx after the replacement Next.js container responds.
+echo "Waiting for the new Next.js app to become ready..."
+ready=0
+for attempt in $(seq 1 20); do
+  if docker compose --env-file "$ENV_FILE" -f "$COMPOSE" exec -T app \
+    node -e 'fetch("http://127.0.0.1:3000/api/health").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))' >/dev/null 2>&1; then
+    ready=1
+    break
+  fi
+  sleep 2
+done
+if [[ "$ready" != 1 ]]; then
+  echo "The new app did not become ready; Nginx has NOT been restarted." >&2
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE" ps >&2
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE" logs --tail=60 app >&2
+  exit 1
+fi
+
+echo "Refreshing Nginx to resolve the replacement app container IP..."
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE" restart web
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE" ps
 
 echo "[7/7] Checking local reverse proxy and secure API..."
