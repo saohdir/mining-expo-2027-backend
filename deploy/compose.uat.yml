@@ -31,6 +31,20 @@ services:
     depends_on:
       postgres: {condition: service_healthy}
     volumes: [floorplan_data:/var/lib/imdx/floorplans]
+  worker:
+    build: {context: ..}
+    command: ["npm","run","outbox:worker"]
+    restart: unless-stopped
+    env_file: [../.env.uat]
+    environment:
+      DATABASE_URL: postgresql://imdx:${IMDX_DB_PASSWORD}@postgres:5432/imdx_uat?schema=public
+      EMAIL_PROVIDER: smtp
+      SMTP_FROM: "IMDX UAT <uat@localhost>"
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      NODE_ENV: production
+    depends_on:
+      postgres: {condition: service_healthy}
   web:
     image: nginx:1.27-alpine
     restart: unless-stopped
