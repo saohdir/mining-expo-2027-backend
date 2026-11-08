@@ -18,7 +18,7 @@ export const useCmsSession=()=> {
   return value;
 };
 
-type IconName="overview"|"users"|"tickets"|"booths"|"request"|"invoice"|"payments"|
+export type IconName="overview"|"users"|"tickets"|"booths"|"request"|"invoice"|"payments"|
   "floorplan"|"box"|"scan"|"activity"|"chart"|"calendar"|"file"|"bell"|"shield"|
   "settings"|"menu"|"search"|"close"|"arrow"|"logout"|"clock"|"check";
 export function CmsIcon({name,size=20}:{name:IconName;size?:number}){
