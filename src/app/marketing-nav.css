@@ -80,3 +80,20 @@
  .portal-auth{padding:24px!important}
 }
 @media(prefers-reduced-motion:reduce){.imdx-dropdown,.imdx-caret{transition:none}}
+
+/* Floorplan accessible fallback: same preferences as SVG, not a reservation. */
+.booth-choices-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:24px 0 14px}
+.booth-choices-heading h3{margin:0 0 6px;color:#17120f;font-size:23px;letter-spacing:-.04em}
+.booth-choices-heading p{margin:0}
+.booth-choice-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:25px}
+.booth-choice{width:100%;min-height:116px;display:flex;flex-direction:column;align-items:start;justify-content:space-between;text-align:left;gap:4px;background:#fffdfb;color:#520f00;border:1px solid #ecd5c2;border-radius:7px;padding:15px;transition:background .15s,border-color .15s}
+.booth-choice:hover{background:#fff1e7;color:#520f00;border-color:#ff5912}
+.booth-choice strong{font-size:19px;font-weight:700}
+.booth-choice small{font-size:12px;color:#88584b}
+.booth-choice span{font-size:11px;font-weight:700;text-transform:uppercase;color:#aa3e12;letter-spacing:.06em}
+.booth-choice.is-selected,.booth-choice.is-selected:hover{background:#ff5912;color:#fff;border-color:#ff5912}
+.booth-choice.is-selected small,.booth-choice.is-selected span{color:#fff}
+.booth-choice:disabled{background:#f5efea;color:#88766b;border-color:#e4dcd4;opacity:.8;cursor:not-allowed}
+.booth-choice:disabled small,.booth-choice:disabled span{color:#88766b}
+@media(max-width:780px){.booth-choice-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.booth-choice-list{grid-template-columns:1fr}.booth-choices-heading{align-items:start;flex-direction:column}.booth-choice{min-height:95px}}
