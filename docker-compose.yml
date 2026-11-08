@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: imdx_dev
+      POSTGRES_USER: imdx_dev
+      POSTGRES_PASSWORD: localdev_only_change_me
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - imdx_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U imdx_dev -d imdx_dev"]
+      interval: 5s
+      retries: 10
+volumes:
+  imdx_pgdata:

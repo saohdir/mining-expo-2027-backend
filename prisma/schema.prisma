@@ -1,0 +1,354 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+enum AdminRole { SUPER_ADMIN SALES FINANCE OPERATIONS CONTENT_EDITOR CHECKIN_STAFF VIEWER }
+enum AccountStatus { PENDING_VERIFICATION ACTIVE SUSPENDED CLOSED }
+enum Channel { EMAIL SMS }
+enum EnrollmentType { VISITOR CONFERENCE EXHIBITOR }
+enum EnrollmentStatus { DRAFT SUBMITTED PENDING_REVIEW CONFIRMED REJECTED CANCELLED }
+enum BoothRequestStatus { NEW UNDER_REVIEW OFFERED ACCEPTED WAITING_INVOICE INVOICED ALLOCATION_PENDING CONFIRMED CANCELLED REJECTED }
+enum FloorplanStatus { DRAFT PUBLISHED ARCHIVED }
+enum BoothUnitStatus { AVAILABLE RESERVED OCCUPIED BLOCKED }
+enum InvoiceStatus { DRAFT ISSUED SENT PARTIALLY_PAID PAID OVERDUE VOID CANCELLED }
+enum PaymentRequestStatus { NEW REVIEWING INVOICED CANCELLED }
+enum TransferStatus { SUBMITTED PENDING_VERIFICATION VERIFIED REJECTED }
+enum PassStatus { ACTIVE REVOKED EXPIRED }
+enum ScanResult { VALID_ACCEPTED ALREADY_CHECKED_IN WRONG_ZONE NOT_YET_VALID EXPIRED REVOKED UNPAID INVALID OFFLINE_ERROR }
+model Event {
+  id String @id @default(uuid())
+  code String @unique
+  title String
+  venue String
+  startsAt DateTime
+  endsAt DateTime
+  timezone String @default("Asia/Jakarta")
+  visitorOpen Boolean @default(false)
+  published Boolean @default(false)
+  createdAt DateTime @default(now())
+  conferences Conference[]
+  enrollments Enrollment[]
+  floorplans Floorplan[]
+  boothRequests BoothRequest[]
+  passes EventPass[]
+}
+model Conference {
+  id String @id @default(uuid())
+  eventId String
+  event Event @relation(fields:[eventId],references:[id])
+  title String
+  slug String
+  published Boolean @default(false)
+  feeMinor BigInt?
+  currency String @default("IDR")
+  capacity Int?
+  startsAt DateTime?
+  enrollments Enrollment[]
+  @@unique([eventId,slug])
+}
+model CustomerAccount {
+  id String @id @default(uuid())
+  email String? @unique
+  phone String? @unique
+  status AccountStatus @default(PENDING_VERIFICATION)
+  verifiedEmailAt DateTime?
+  verifiedPhoneAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profile CustomerProfile?
+  challenges OtpChallenge[]
+  sessions CustomerSession[]
+  enrollments Enrollment[]
+  requests BoothRequest[]
+  invoices Invoice[]
+  paymentRequests ManualPaymentRequest[]
+  passes EventPass[]
+}
+model CustomerProfile {
+  id String @id @default(uuid())
+  accountId String @unique
+  account CustomerAccount @relation(fields:[accountId],references:[id])
+  fullName String
+  organization String?
+  jobTitle String?
+  country String?
+  consentVersion String
+  consentAt DateTime
+  updatedAt DateTime @updatedAt
+}
+model OtpChallenge {
+  id String @id @default(uuid())
+  accountId String
+  account CustomerAccount @relation(fields:[accountId],references:[id])
+  channel Channel
+  destinationHash String
+  codeHash String
+  attemptCount Int @default(0)
+  expiresAt DateTime
+  consumedAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([accountId,createdAt])
+}
+model CustomerSession {
+  id String @id @default(uuid())
+  accountId String
+  account CustomerAccount @relation(fields:[accountId],references:[id])
+  tokenHash String @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+}
+model AdminUser {
+  id String @id @default(uuid())
+  email String @unique
+  passwordHash String
+  role AdminRole
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  sessions AdminSession[]
+}
+model AdminSession {
+  id String @id @default(uuid())
+  adminId String
+  admin AdminUser @relation(fields:[adminId],references:[id])
+  tokenHash String @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+model Enrollment {
+  id String @id @default(uuid())
+  accountId String
+  account CustomerAccount @relation(fields:[accountId],references:[id])
+  eventId String
+  event Event @relation(fields:[eventId],references:[id])
+  conferenceId String?
+  conference Conference? @relation(fields:[conferenceId],references:[id])
+  type EnrollmentType
+  status EnrollmentStatus @default(SUBMITTED)
+  profileSnapshot Json
+  consentAt DateTime
+  createdAt DateTime @default(now())
+  confirmedAt DateTime?
+  passes EventPass[]
+  invoices Invoice[]
+  paymentRequests ManualPaymentRequest[]
+  @@index([accountId,eventId,type])
+}
+model Floorplan {
+  id String @id @default(uuid())
+  eventId String
+  event Event @relation(fields:[eventId],references:[id])
+  versionNo Int
+  title String
+  backgroundUrl String?
+  canvasWidth Int @default(1200)
+  canvasHeight Int @default(800)
+  status FloorplanStatus @default(DRAFT)
+  rowVersion Int @default(1)
+  publishedAt DateTime?
+  units BoothUnit[]
+  boothRequests BoothRequest[]
+  @@unique([eventId,versionNo])
+}
+model BoothUnit {
+  id String @id @default(uuid())
+  floorplanId String
+  floorplan Floorplan @relation(fields:[floorplanId],references:[id])
+  code String
+  category String
+  hall String?
+  zone String?
+  x Float
+  y Float
+  w Float
+  h Float
+  areaSqm Decimal @db.Decimal(10,1)
+  status BoothUnitStatus @default(AVAILABLE)
+  approvedPublicName String?
+  assignments BoothAssignment[]
+  @@unique([floorplanId,code])
+  @@index([status])
+}
+model BoothRequest {
+  id String @id @default(uuid())
+  accountId String
+  account CustomerAccount @relation(fields:[accountId],references:[id])
+  eventId String
+  event Event @relation(fields:[eventId],references:[id])
+  floorplanId String
+  floorplan Floorplan @relation(fields:[floorplanId],references:[id])
+  requestedAreaSqm Decimal @db.Decimal(10,1)
+  preferredUnitIds Json
+  companySnapshot Json
+  notes String?
+  status BoothRequestStatus @default(NEW)
+  offeredAreaSqm Decimal? @db.Decimal(10,1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  assignments BoothAssignment[]
+  invoices Invoice[]
+  paymentRequests ManualPaymentRequest[]
+  @@index([accountId,createdAt])
+}
+model BoothAssignment {
+  id String @id @default(uuid())
+  boothUnitId String
+  boothUnit BoothUnit @relation(fields:[boothUnitId],references:[id])
+  boothRequestId String
+  boothRequest BoothRequest @relation(fields:[boothRequestId],references:[id])
+  active Boolean @default(true)
+  assignedAt DateTime @default(now())
+  endedAt DateTime?
+  assignedBy String
+  approvedForPublic Boolean @default(false)
+  @@index([boothUnitId,active])
+}
+model ManualPaymentRequest {
+  id String @id @default(uuid())
+  accountId String
+  account CustomerAccount @relation(fields:[accountId],references:[id])
+  enrollmentId String?
+  enrollment Enrollment? @relation(fields:[enrollmentId],references:[id])
+  boothRequestId String?
+  boothRequest BoothRequest? @relation(fields:[boothRequestId],references:[id])
+  status PaymentRequestStatus @default(NEW)
+  createdAt DateTime @default(now())
+}
+model Invoice {
+  id String @id @default(uuid())
+  number String @unique
+  accountId String
+  account CustomerAccount @relation(fields:[accountId],references:[id])
+  enrollmentId String?
+  enrollment Enrollment? @relation(fields:[enrollmentId],references:[id])
+  boothRequestId String?
+  boothRequest BoothRequest? @relation(fields:[boothRequestId],references:[id])
+  status InvoiceStatus @default(DRAFT)
+  currency String @default("IDR")
+  totalMinor BigInt
+  minimumDpMinor BigInt @default(0)
+  dueAt DateTime?
+  issuedAt DateTime?
+  sentAt DateTime?
+  createdAt DateTime @default(now())
+  items InvoiceItem[]
+  transfers ManualTransfer[]
+  adjustments PaymentAdjustment[]
+}
+model InvoiceItem {
+  id String @id @default(uuid())
+  invoiceId String
+  invoice Invoice @relation(fields:[invoiceId],references:[id])
+  description String
+  quantity Int @default(1)
+  unitPriceMinor BigInt
+  amountMinor BigInt
+}
+model ManualTransfer {
+  id String @id @default(uuid())
+  invoiceId String
+  invoice Invoice @relation(fields:[invoiceId],references:[id])
+  amountMinor BigInt
+  bankReference String?
+  proofUrl String?
+  status TransferStatus @default(SUBMITTED)
+  transferredAt DateTime?
+  verifiedAt DateTime?
+  verifiedBy String?
+  createdAt DateTime @default(now())
+}
+model PaymentAdjustment {
+  id String @id @default(uuid())
+  invoiceId String
+  invoice Invoice @relation(fields:[invoiceId],references:[id])
+  transferId String?
+  type String
+  amountMinor BigInt
+  reason String
+  approvedBy String
+  createdAt DateTime @default(now())
+}
+model EventPass {
+  id String @id @default(uuid())
+  accountId String
+  account CustomerAccount @relation(fields:[accountId],references:[id])
+  enrollmentId String
+  enrollment Enrollment @relation(fields:[enrollmentId],references:[id])
+  eventId String
+  event Event @relation(fields:[eventId],references:[id])
+  tokenHash String @unique
+  status PassStatus @default(ACTIVE)
+  entitlement String @default("EXPO_ENTRY")
+  issuedAt DateTime @default(now())
+  expiresAt DateTime
+  scans PassScan[]
+  admissions Admission[]
+}
+model PassScan {
+  id String @id @default(uuid())
+  passId String?
+  pass EventPass? @relation(fields:[passId],references:[id])
+  gate String
+  zone String
+  result ScanResult
+  scannedBy String
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+}
+model Admission {
+  id String @id @default(uuid())
+  passId String
+  pass EventPass @relation(fields:[passId],references:[id])
+  zone String
+  dayKey String
+  gate String
+  admittedBy String
+  admittedAt DateTime @default(now())
+  @@unique([passId,zone,dayKey])
+}
+model Notification {
+  id String @id @default(uuid())
+  audienceRole AdminRole
+  type String
+  recordType String
+  recordId String
+  readAt DateTime?
+  createdAt DateTime @default(now())
+}
+model NotificationOutbox {
+  id String @id @default(uuid())
+  topic String
+  dedupeKey String @unique
+  payload Json
+  state String @default("QUEUED")
+  attempts Int @default(0)
+  nextRunAt DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+model AuditLog {
+  id String @id @default(uuid())
+  adminId String?
+  accountId String?
+  action String
+  resourceType String
+  resourceId String
+  beforeState Json?
+  afterState Json?
+  createdAt DateTime @default(now())
+  @@index([resourceType,resourceId,createdAt])
+}
+model ExportJob {
+  id String @id @default(uuid())
+  adminId String
+  reportType String
+  filters Json
+  format String
+  state String @default("QUEUED")
+  objectKey String?
+  rowCount Int @default(0)
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+}
