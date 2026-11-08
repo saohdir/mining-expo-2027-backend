@@ -49,6 +49,14 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         throw new HttpError(409, "OFFER_UNIT_UNAVAILABLE",
           "An offered booth is no longer available. Request a revised offer.");
       }
+      const activeAssignment = await tx.boothAssignment.findFirst({
+        where: {boothUnitId: {in: ids}, active: true},
+        select: {id: true}
+      });
+      if (activeAssignment) {
+        throw new HttpError(409, "ALREADY_ASSIGNED",
+          "The offered booth inventory has changed. Request a revised quotation.");
+      }
 
       const marked = await tx.boothOffer.updateMany({
         where: {id: offer.id, boothRequestId: id, acceptedAt: null},
