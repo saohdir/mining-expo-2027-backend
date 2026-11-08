@@ -2,6 +2,7 @@ import {expireBoothHolds} from "../src/lib/booth-hold-expiry";
 import {runWorkerCycle} from "../src/lib/worker-cycle";
 import {processExportJobs} from "../src/lib/export-jobs";
 import {deliverCrm} from "../src/lib/crm-sync";
+import {deliverWhatsApp, queueWhatsAppCopy} from "../src/lib/messaging";
 import {PrismaClient} from "@prisma/client";
 import nodemailer from "nodemailer";
 const db=new PrismaClient();
@@ -14,10 +15,15 @@ const deliver=async(to:string,subject:string,body:string)=>{
  const credentials=process.env.SMTP_USER&&process.env.SMTP_PASS?{auth:{user:process.env.SMTP_USER,pass:process.env.SMTP_PASS}}:{};
  const transport=nodemailer.createTransport({host:process.env.SMTP_HOST,port,secure:port===465,...credentials});
  await transport.sendMail({from:process.env.SMTP_FROM,to,subject,text:body});
+ // FR-158: opted-in customers also get a WhatsApp template copy (separate outbox job, independent retries).
+ if(to!==toAdmin)await queueWhatsAppCopy(db,to,subject,portal+"/account",currentKey).catch(()=>console.error("WhatsApp queueing failed"));
 };
+let currentKey="";
 type Payload={id?:string;invoiceId?:string;boothRequestId?:string};
 async function processJob(topic:string,p:Payload,dedupeKey=""){
  if(topic==="CRM_SYNC")return deliverCrm(db,p as never,dedupeKey);
+ if(topic==="WHATSAPP_SEND"){await deliverWhatsApp(db,p as never);return;}
+ currentKey=dedupeKey;
  if(["BOOTH_REQUEST_RECEIVED","BOOTH_STATUS_UPDATED"].includes(topic)){const id=p.boothRequestId||p.id;if(!id)throw Error("Missing booth request id");
  const b=await db.boothRequest.findUnique({where:{id},include:{account:true}});
  if(!b)throw Error("Booth request missing");
