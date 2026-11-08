@@ -28,7 +28,11 @@ export async function GET(req:NextRequest){try{
   ...(type?{type:type as typeof types[number]}:{}),
   ...(status?{status:status as typeof statuses[number]}:{}),
   ...((p.get("from")||p.get("to"))?{createdAt:dateRange}:{}),
-  ...(search?{OR:[{account:{email:{contains:search,mode:"insensitive"}}},{account:{profile:{fullName:{contains:search,mode:"insensitive"}}}}]}:{})
+  ...(search?{OR:[
+   {id:{startsWith:search,mode:"insensitive"}},
+   {account:{email:{contains:search,mode:"insensitive"}}},
+   {account:{profile:{fullName:{contains:search,mode:"insensitive"}}}}
+  ]}:{})
  };
  const [total,rows]=await Promise.all([db.enrollment.count({where}),db.enrollment.findMany({
  where,take:limit,skip:(page-1)*limit,orderBy:{createdAt:"desc"},

@@ -9,8 +9,16 @@ export async function GET(req: NextRequest) {
   try {
     await admin(["SUPER_ADMIN", "SALES", "OPERATIONS", "FINANCE"]);
     const state = req.nextUrl.searchParams.get("status");
-    const where = state && allowed.includes(state as typeof allowed[number])
-      ? {status: state as typeof allowed[number]} : {};
+    const targetId = req.nextUrl.searchParams.get("id");
+    if (targetId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetId)) {
+      return NextResponse.json({message:"Invalid booth request reference."},
+        {status:400,headers:{"Cache-Control":"private,no-store"}});
+    }
+    const where = {
+      ...(state && allowed.includes(state as typeof allowed[number])
+        ? {status: state as typeof allowed[number]} : {}),
+      ...(targetId ? {id: targetId} : {})
+    };
     const records = await db.boothRequest.findMany({
       where, take: 100, orderBy: {createdAt: "desc"},
       include: {
