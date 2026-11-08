@@ -11,6 +11,8 @@ This implementation is a **design-system + existing feature UX slice**, not an a
 - Topbar search with role-scoped server lookups, role identity, notification dropdown and site return link; secure UAT environmental warning.
 - `/admin` new Overview: real server aggregates with inclusive WIB period filters and labeled measure basis, role-specific KPIs, action queue + notification inbox. No illustrative counts from the first 100 list records.
 - `/admin/registrations` filterable server-paginated registry, responsive record cards, domain-specific status chips, exports sharing search/type/status/date filters.
+- `/admin/booths` detail view compares requested preferences, organizer offer and physically assigned units in three visibly distinct cards; domain-labeled booth/invoice/payment/assignment states and a separate paid-but-unallocated warning.
+- `/admin/payments` replaces the decorative 4-card payment status legend with a compact Finance verification panel and distinct invoice/payment states.
 - `/admin/notifications` inbox and limited safe delivery diagnostics.
 - `/admin/audit` Super Admin read-only history with before/after snapshots.
 - Existing form workflows preserved at `/admin/workspace?section=...`. Existing `/admin/payments`, `/admin/booths`, `/admin/floorplans`, `/admin/programmes`, `/admin/reports`, `/admin/check-in` inherit shared shell and scoped token styling.
