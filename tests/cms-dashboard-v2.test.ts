@@ -66,3 +66,25 @@ test("Old admin operations remain available separately from new Overview",()=>{
   assert.match(read("src/app/admin/page.tsx"),/role/);
   assert.match(read("src/app/admin/components/CmsShell.tsx"),/admin\/workspace\?section=finance/);
 });
+
+test("Exhibitor detail separates requested, offered, assigned and financial domain statuses",()=>{
+  const source=read("src/app/admin/booths/page.tsx");
+  const endpoint=read("src/app/api/admin/booth-requests/route.ts");
+  assert.match(source,/imdx-cms-booth-compare/);
+  assert.match(source,/REQUESTED/);
+  assert.match(source,/OFFERED/);
+  assert.match(source,/ASSIGNED/);
+  assert.match(source,/domain="Booth request"/);
+  assert.match(source,/domain="Invoice"/);
+  assert.match(source,/domain="Payment"/);
+  assert.match(source,/domain="Assignment"/);
+  assert.match(endpoint,/invoices: \{orderBy: \{createdAt: "desc"\}/);
+});
+
+test("Finance UI distinguishes invoice lifecycle from Finance-verified bank payment state",()=>{
+  const source=read("src/app/admin/payments/page.tsx");
+  assert.match(source,/Manual bank transfer verification/);
+  assert.match(source,/domain="Invoice" value=\{selected\.status\}/);
+  assert.match(source,/domain="Payment" value=\{selected\.paymentStatus\}/);
+  assert.doesNotMatch(source,/Pay now/);
+});
