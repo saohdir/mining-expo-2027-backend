@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
           select: {status: true, versionNo: true, title: true,
             units: {select: {id: true, code: true, hall: true, areaSqm: true, status: true}}}
         },
+        invoices: {orderBy: {createdAt: "desc"}, take: 1, select: {id: true, status: true}},
         offers: {orderBy: {revision: "desc"}, take: 1,
           select: {id: true, revision: true, offeredUnits: true, offeredUnitIds: true,
             offeredAreaSqm: true, quotedPriceMinor: true, acceptedAt: true,
