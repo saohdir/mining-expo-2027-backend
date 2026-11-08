@@ -1,17 +1,15 @@
-# IMDX 2027 — Backend & Operational Portal
+# IMDX 2027 — UAT dynamic application
 
-Source: IMDX Product Requirements Document v1.4 (8 November 2026). This repository is being initialized as the **dynamic application** for secure customer accounts, CMS, booking approval, manual transfer billing, floorplan management, QR admission and reporting.
+This repository contains the **secure server-side application** for IMDX 2027 PRD v1.4.
+Its sibling repository mining-expo-2027-demo contains public marketing pages to be served on the SAME UAT domain, not a separate payment demo.
 
-**STATUS: DEVELOPMENT ONLY / NOT DEPLOYED.** No customer registration, payment, or admission is currently live. Do not collect real personal information, issue invoices or admit attendees until the operational and security release checklist is completed.
+- /account — unified customer identity, visitor/conference/exhibitor and invoices
+- /admin — role-authorized registrations, booth requests, payments, reports and notifications
+- /admin/floorplans — CMS floorplan editor
+- /admin/check-in — CMS-only QR scanner
+- /api/* — secured API
 
-## Fundamental rules
+**Manual bank transfer ONLY. No payment gateway, automatic checkout or webhooks.**
 
-- NO Midtrans, payment gateway, embedded checkout, QRIS payment or webhook-based automatic settlement.
-- Only FINANCE / authorized CMS staff may confirm actual bank transfers.
-- Customer-selected booth positions are preferences, not holds or allocations.
-- QR admission validates an opaque server-issued pass in the protected CMS, never on public GitHub Pages.
-- Never commit credentials or approved bank details to this repository.
-
-The existing [static marketing demo](https://github.com/saohdir/mining-expo-2027-demo) remains a **separate concept prototype**.
-
-Implementation details, setup and feature readiness are tracked in `docs/IMPLEMENTATION_STATUS.md`.
+No public dynamic UAT server is deployed yet and not all 159 PRD v1.4 requirements are complete.
+Read docs/IMPLEMENTATION_STATUS.md and docs/UAT_DEPLOYMENT.md before activating participant signups.
