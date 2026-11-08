@@ -38,6 +38,7 @@ export default function NotificationsPage(){
       const data=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(data.message||"Unable to update notifications.");
       await reload();
+      window.dispatchEvent(new Event("imdx:notifications-updated"));
     }catch(e){setError(e instanceof Error?e.message:"Unable to update")}
     finally{setSaving(false)}
   };
