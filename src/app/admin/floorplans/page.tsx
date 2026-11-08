@@ -9,6 +9,7 @@ export default function FloorplanEditor(){
  const [drag,setDrag]=useState<{index:number,x:number,y:number,startX:number,startY:number}|null>(null);
  const [cloneTitle,setCloneTitle]=useState("IMDX restored layout"),[cloneReason,setCloneReason]=useState("");
  const [publishReason,setPublishReason]=useState(""),[publishApproved,setPublishApproved]=useState(false),[preflight,setPreflight]=useState<PublishCheck|null>(null);
+ const [unblockReason,setUnblockReason]=useState("");
  const svg=useRef<SVGSVGElement>(null);
  const refresh=async()=>{const data=await api("/api/admin/floorplans");setPlans(data.plans||[])};
  const load=async(id:string)=>{const [data,preview]=await Promise.all([api("/api/admin/floorplans/"+id),api("/api/admin/floorplans/"+id+"/publish")]);setPlan(data.plan);setPreflight(preview);setPublishReason("");setPublishApproved(false);setUnits(data.plan.units.map((x:Unit)=>({...x,areaSqm:Number(x.areaSqm)})));setSelected(-1)};
@@ -53,6 +54,11 @@ export default function FloorplanEditor(){
  onPointerUp={()=>setDrag(null)}>
  <rect x={u.x} y={u.y} width={u.w} height={u.h} rx="3" stroke="#fff" strokeWidth={3} fill={i===selected?"#ff5912":u.status==="OCCUPIED"?"#999":"#67bbd6"} opacity=".91"/>
  <text x={u.x+5} y={u.y+17} fill="#35120a" fontSize={14} pointerEvents="none">{u.code}</text></g>)}</svg></div>
- <aside>{current?<><h3>Selected unit properties</h3>{(["code","category","hall","zone","x","y","w","h","areaSqm"] as (keyof Unit)[]).map(k=><label key={k}>{k}<input disabled={plan.status!=="DRAFT"} type={["x","y","w","h","areaSqm"].includes(k)?"number":"text"} step={k==="areaSqm"?"0.1":"1"} value={String(current[k]??"")} onChange={e=>adjust(k,e.target.value)}/></label>)}<button className="ghost" disabled={plan.status!=="DRAFT"||current.status==="OCCUPIED"} onClick={()=>{setUnits(u=>u.filter((_,i)=>i!==selected));setSelected(-1)}}>Delete unit</button></>:<p className="micro">Use Add mode to draw rectangles, then edit dimensions and area. Move existing rectangles by dragging; changes persist only after Save.</p>}</aside>
+ <aside>{current?<><h3>Selected unit properties</h3>{(["code","category","hall","zone","x","y","w","h","areaSqm"] as (keyof Unit)[]).map(k=><label key={k}>{k}<input disabled={plan.status!=="DRAFT"} type={["x","y","w","h","areaSqm"].includes(k)?"number":"text"} step={k==="areaSqm"?"0.1":"1"} value={String(current[k]??"")} onChange={e=>adjust(k,e.target.value)}/></label>)}{plan.status==="DRAFT"&&current.status==="BLOCKED"&&current.id&&<div className="floorplan-unblock">
+ <p className="micro">Copied unavailable unit. Operations must approve any release and publication will remain blocked while historic bookings are unresolved.</p>
+ <label>Reason for releasing blocked unit<input value={unblockReason} minLength={8} maxLength={500} onChange={e=>setUnblockReason(e.target.value)}/></label>
+ <button type="button" disabled={busy||unblockReason.trim().length<8} onClick={()=>void run(async()=>{await api("/api/admin/floorplans/"+plan.id+"/units/"+current.id+"/unblock","POST",{rowVersion:plan.rowVersion,reason:unblockReason.trim()});setUnblockReason("");await load(plan.id)})}>Approve unit release</button>
+ </div>}
+ <button className="ghost" disabled={plan.status!=="DRAFT"||current.status!=="AVAILABLE"} onClick={()=>{setUnits(u=>u.filter((_,i)=>i!==selected));setSelected(-1)}}>Delete available unit</button></>:<p className="micro">Use Add mode to draw rectangles, then edit dimensions and area. Move existing rectangles by dragging; changes persist only after Save.</p>}</aside>
  </div></section>}</main>;
 }
