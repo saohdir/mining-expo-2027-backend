@@ -60,7 +60,8 @@ export async function GET(req:NextRequest){
     const [
       accounts,visitor,conference,exhibitor,boothCount,pendingRequest,
       issued,invoiceTotal,uniqueAdmissions,acceptedEntries,rejectedScans,
-      boothQueue,manualQueue,allocationQueue,notifications,inventory,activeHolds
+      boothQueue,manualQueue,allocationQueue,notifications,inventory,activeHolds,
+      boothNeedsCount,allocationNeedsCount,programmeDrafts,programmeTba
     ]=await Promise.all([
       db.customerAccount.count({where:{status:"ACTIVE",...created}}),
       db.enrollment.count({where:{...entryWhere,type:"VISITOR"}}),
@@ -103,13 +104,25 @@ export async function GET(req:NextRequest){
       db.boothHold.count({
         where:{status:"ACTIVE",boothUnit:{floorplan:{eventId:event.id}},
           expiresAt:{lte:new Date(Date.now()+24*3600000)}}
-      })
+      }),
+      db.boothRequest.count({
+        where:{...entryWhere,status:{in:["NEW","UNDER_REVIEW"]}}
+      }),
+      db.boothRequest.count({
+        where:{...entryWhere,status:{in:["ACCEPTED","WAITING_INVOICE","INVOICED","ALLOCATION_PENDING"]}}
+      }),
+      db.conference.count({where:{eventId:event.id,published:false}}),
+      db.conference.count({where:{eventId:event.id,OR:[{capacity:null},{feeMinor:null}]}})
     ]);
     const totalArea=inventory.reduce((s,u)=>s+Number(u.areaSqm),0);
     const availableArea=inventory.filter(u=>u.status==="AVAILABLE").reduce((s,u)=>s+Number(u.areaSqm),0);
     const occupiedArea=inventory.filter(u=>u.status==="OCCUPIED").reduce((s,u)=>s+Number(u.areaSqm),0);
     const occupiedPct=totalArea?Math.round(occupiedArea*1000/totalArea)/10:0;
     const role=actor.role;
+    const needsCount=role==="SUPER_ADMIN"?pendingRequest+boothNeedsCount+allocationNeedsCount:
+      role==="SALES"?pendingRequest+boothNeedsCount:
+      role==="FINANCE"?pendingRequest:
+      role==="OPERATIONS"?boothNeedsCount+allocationNeedsCount:0;
     const actionQueue:QueueItem[]=[];
     if(["SUPER_ADMIN","SALES","FINANCE"].includes(role)) for(const p of manualQueue)
       actionQueue.push({type:"Manual payment request",reference:p.id.slice(0,8),label:"New manual invoice request",createdAt:p.createdAt,
@@ -124,7 +137,7 @@ export async function GET(req:NextRequest){
     const actionItems=actionQueue.slice(0,8).map(q=>({...q,createdAt:q.createdAt.toISOString()}));
     const metricSets:Record<string,ReturnType<typeof metric>[]> = {
       SUPER_ADMIN:[
-        metric("action","Needs action",actionQueue.length,"Queue items visible in selected period · up to 24", "bell",true),
+        metric("action","Needs action",needsCount,"Open queue records created in selected period", "bell",true),
         metric("account","Verified accounts",accounts,"ACTIVE accounts created in period · platform scope","users"),
         metric("visitor","Visitor registrations",visitor,"Visitor enrollments created · event", "tickets"),
         metric("conference","Conference bookings",conference,"Conference enrollments created · event","calendar"),
@@ -134,20 +147,20 @@ export async function GET(req:NextRequest){
         metric("rejected","Rejected scan attempts",rejectedScans,"Event-linked non-accepted scans · period","scan")
       ],
       SALES:[
-        metric("action","Needs action",actionQueue.length,"Sales queues · selected period · up to 16","bell",true),
+        metric("action","Needs action",needsCount,"Open sales queues created in selected period","bell",true),
         metric("booth","Booth requests",boothCount,"Requests created · event","booths"),
         metric("review","Booth reviews",boothQueue.length,"NEW / UNDER_REVIEW · first 8 in period","request"),
         metric("conference","Conference bookings",conference,"Conference enrollments created · event","calendar"),
         metric("invoice","Issued invoices",issued,"Issued in period · event; read-only summary","invoice")
       ],
       FINANCE:[
-        metric("action","Needs action",actionQueue.length,"Finance queues · selected period · up to 8","bell",true),
+        metric("action","Needs action",needsCount,"Open manual invoice requests created in period","bell",true),
         metric("manual","Pending payment requests",pendingRequest,"NEW manual requests created · platform scope","request"),
         metric("issued","Issued invoices",issued,"Invoices issued in period · event","invoice"),
         metric("total","Invoice face value",idr(invoiceTotal._sum.totalMinor),"Gross issued total, not verified receipts","payments")
       ],
       OPERATIONS:[
-        metric("action","Needs action",actionQueue.length,"Operations queues · selected period · up to 16","bell",true),
+        metric("action","Needs action",needsCount,"Open Operations queues created in period","bell",true),
         metric("booth","Booth requests",boothCount,"Created · event","booths"),
         metric("available","Available booth area",availableArea.toLocaleString("id-ID")+" m²","Current published map · unreserved","floorplan"),
         metric("occupied","Occupied area",occupiedPct+"%","Current published map · area basis","box"),
@@ -157,7 +170,8 @@ export async function GET(req:NextRequest){
         metric("rejected","Rejected scan attempts",rejectedScans,"Event-linked non-accepted scans · period","scan")
       ],
       CONTENT_EDITOR:[
-        metric("programmes","Programme drafts","—","Programme publishing summary not yet exposed by approved CMS endpoint","calendar")
+        metric("programmes","Draft programmes",programmeDrafts,"Currently unpublished · event scope","calendar"),
+        metric("tba","Programmes with TBA",programmeTba,"Missing approved fee or capacity · current event","clock")
       ],
       VIEWER:[
         metric("visitor","Visitor registrations",visitor,"Enrollments created · selected event and period","tickets"),
@@ -173,7 +187,9 @@ export async function GET(req:NextRequest){
       metrics:metricSets[role]||[],
       queue:actionItems,
       notifications:role==="CHECKIN_STAFF"?[]:notifications,
-      details:{issuedInvoiceCount:issued,invoiceValueMinor:String(invoiceTotal._sum.totalMinor??0n),occupiedAreaSqm:occupiedArea,exhibitorEnrollments:exhibitor}
+      details:role==="VIEWER"||role==="CONTENT_EDITOR"||role==="CHECKIN_STAFF"?
+        {occupiedAreaSqm:occupiedArea,exhibitorEnrollments:exhibitor}:
+        {issuedInvoiceCount:issued,invoiceValueMinor:String(invoiceTotal._sum.totalMinor??0n),occupiedAreaSqm:occupiedArea,exhibitorEnrollments:exhibitor}
     },{headers:{"Cache-Control":"private,no-store"}});
   }catch(e){return failure(e)}
 }
