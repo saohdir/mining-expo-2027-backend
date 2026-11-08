@@ -28,3 +28,31 @@ jobs:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/imdx?schema=public
           OTP_HASH_SECRET: test-only-placeholder-secret-with-32-chars
           QR_ENCRYPTION_KEY: test-only-placeholder-encryption-32-chars
+  e2e:
+    # API-level E2E of PRD v1.4 flows against a disposable PostgreSQL 16.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: ci_only_password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-retries 12
+    env:
+      PGPASSWORD: ci_only_password
+      E2E_PG: -h localhost -p 5432 -U postgres
+      E2E_DATABASE_URL: postgresql://postgres:ci_only_password@localhost:5432/imdx_e2e
+      E2E_FILES: tests/e2e/business-flow.e2e.mjs tests/e2e/cms-regression.e2e.mjs
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: API E2E (business flow + CMS regression)
+        run: bash scripts/e2e-local.sh
