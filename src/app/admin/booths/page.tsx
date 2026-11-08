@@ -17,6 +17,19 @@ async function api(url:string, method="GET", body?:unknown) {
   if(!response.ok)throw Error(value.message||value.error||"Request failed");
   return value;
 }
+// Preserve the normal request list after changes, including an exact deep-linked
+// request that may fall outside the most recent 100. Never replace the list
+// with a one-record result after sending a quotation or releasing a hold.
+async function fetchBoothList(target?:string):Promise<Booth[]>{
+  const data=await api("/api/admin/booth-requests");
+  const records=(data.records||[]) as Booth[];
+  if(target&&!records.some(record=>record.id===target)){
+    const detail=await api("/api/admin/booth-requests?id="+encodeURIComponent(target));
+    const selected=(detail.records||[])[0] as Booth|undefined;
+    if(selected)return [selected,...records];
+  }
+  return records;
+}
 const idr=(n:string)=>"Rp "+Number(n||0).toLocaleString("id-ID");
 const wib=(date:string)=>new Date(date).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB";
 
@@ -62,8 +75,7 @@ export default function BoothManagement(){
   };
   const load=async(preserveId?:string)=>{
     const target=preserveId||id;
-    const result=await api("/api/admin/booth-requests"+(target?"?id="+encodeURIComponent(target):""));
-    const next=(result.records||[]) as Booth[];
+    const next=await fetchBoothList(target);
     setRecords(next);
     const current=next.find(r=>r.id===(preserveId||id))||next[0];
     if(current)updateSelection(current);else setId("");
@@ -72,9 +84,10 @@ export default function BoothManagement(){
     const person=await api("/api/admin/me");
     if(!alive)return;setActor(person);
     const target=new URLSearchParams(window.location.search).get("request");
-    const result=await api("/api/admin/booth-requests"+(target?"?id="+encodeURIComponent(target):""));
-    if(!alive)return;const next=(result.records||[]) as Booth[];setRecords(next);
-    if(next[0])updateSelection(next[0]);
+    const next=await fetchBoothList(target||undefined);
+    if(!alive)return;setRecords(next);
+    const chosen=next.find(record=>record.id===target)||next[0];
+    if(chosen)updateSelection(chosen);
   }catch(e){if(alive)setMessage(e instanceof Error?e.message:"Unable to load CMS")}
   finally{if(alive)setLoading(false)}})();return()=>{alive=false}},[]);
   const run=async(action:()=>Promise<unknown>,success:string)=>{
