@@ -32,3 +32,16 @@ test("delivery is signed, idempotent-keyed, and throws on non-2xx for retry", as
   await assert.rejects(env({CRM_WEBHOOK_URL: "https://crm.example/hook", CRM_WEBHOOK_SECRET: secret}, () => deliverCrm(fakeDb, {entity: "LEAD", id: "L1"}, "k", bad)) as Promise<void>, /500/);
   await assert.rejects(env({CRM_WEBHOOK_URL: "https://crm.example/hook", CRM_WEBHOOK_SECRET: "short"}, () => deliverCrm(fakeDb, {entity: "LEAD", id: "L1"}, "k", ok)) as Promise<void>, /SECRET/);
 });
+
+test("FR-159 estimator: per-m² with rounding/minimum, package suggestion, unknown category", async () => {
+  const {estimate, tariffSchema} = await import("../src/lib/fee-estimator");
+  const t = tariffSchema.parse({categories: [{name: "Standard", perSqmMinor: "3500000", minimumSqm: 9}, {name: "Premium", perSqmMinor: "4250000"}],
+    packages: [{name: "Shell 9", maxSqm: 9, priceMinor: "30000000"}, {name: "Shell 18", maxSqm: 18, priceMinor: "58000000"}], approvedBy: "Organizer", approvedAt: "2026-11-01"});
+  const a = estimate(t, 4, "standard")!;
+  assert.equal(a.pricedSqm, 9); assert.equal(a.minimumApplied, true); assert.equal(a.estimateMinor, "31500000"); assert.equal(a.package?.name, "Shell 9");
+  const b = estimate(t, 12.2, "Premium")!;
+  assert.equal(b.pricedSqm, 12.5); assert.equal(b.estimateMinor, "53125000"); assert.equal(b.package?.name, "Shell 18");
+  assert.equal(estimate(t, 40, "Premium")!.package, null);
+  assert.equal(estimate(t, 10, "Unknown"), null);
+  assert.throws(() => tariffSchema.parse({categories: [{name: "X", perSqmMinor: "-1"}], approvedBy: "O", approvedAt: "2026-11-01"}));
+});

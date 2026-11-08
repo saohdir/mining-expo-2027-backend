@@ -90,6 +90,7 @@ const navGroups:Group[]=[
     {label:"Lead Inbox",href:"/admin/leads",icon:"bell",roles:["SUPER_ADMIN","SALES","OPERATIONS"]},
     {label:"Event Settings",href:"/admin/workspace?section=settings",icon:"settings",roles:["SUPER_ADMIN"]},
     {label:"Settings Status",href:"/admin/settings",icon:"settings",roles:["SUPER_ADMIN"]},
+    {label:"Fee Estimator",href:"/admin/estimator",icon:"invoice",roles:["SUPER_ADMIN","SALES","FINANCE"]},
     {label:"Staff & Roles",href:"/admin/staff",icon:"shield",roles:["SUPER_ADMIN"]},
     {label:"Data Requests",href:"/admin/data-requests",icon:"shield",roles:["SUPER_ADMIN"]}
   ]},

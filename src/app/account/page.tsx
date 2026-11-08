@@ -5,6 +5,7 @@ import {AccountSecurity,AttendanceHistory} from "./AccountSecurity";
 import {ActionNeeded} from "./ActionNeeded";
 import {AuthPanel} from "./AuthPanel";
 import {BoothStaffPanel, GroupRegistrationPanel} from "./TeamPanels";
+import {FeeEstimate} from "./FeeEstimate";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
 type AccountData={phone?:string|null;id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
@@ -30,9 +31,9 @@ export default function AccountPage(){
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[me,plan]);
  const [registrationOpen,setRegistrationOpen]=useState(false);
- const [team,setTeam]=useState({staff:false,groups:false});
+ const [team,setTeam]=useState({staff:false,groups:false,estimator:false});
  useEffect(()=>{void request("/api/health").then(h=>setRegistrationOpen(Boolean(h.registrationEnabled))).catch(()=>{})},[]);
- useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>{setSmsAvailable(Boolean(x.smsOtp));setTeam({staff:Boolean(x.exhibitorStaff),groups:Boolean(x.groupEnrollment)})}).catch(()=>{})},[reload]);
+ useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>{setSmsAvailable(Boolean(x.smsOtp));setTeam({staff:Boolean(x.exhibitorStaff),groups:Boolean(x.groupEnrollment),estimator:Boolean(x.feeEstimator)})}).catch(()=>{})},[reload]);
  async function doAction(task:()=>Promise<unknown>,success:string){setBusy(true);setMessage("");try{await task();setMessage(success);await reload()}catch(e){setMessage(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
  const event=events[0];
  const selectedConference=event?.conferences?.find(c=>c.id===conference);
@@ -127,6 +128,7 @@ export default function AccountPage(){
       </div>
       <form onSubmit={e=>{e.preventDefault();void doAction(()=>send("/api/customer/booth-requests",{eventCode:event?.code||"IMDX-2027",floorplanId:plan.id,preferredUnitIds:chosen,requestedAreaSqm:Number(area),company,notes,consent:true}),"Booth preference received. Organizer will review availability.")}}>
        <div className="form-grid"><label>Company name<input value={company} required minLength={2} onChange={e=>setCompany(e.target.value)}/></label><label>Requested area (m²)<input type="number" step="0.1" min="1" max="10000" value={area} required onChange={e=>setArea(e.target.value)}/></label></div>
+       {team.estimator&&<FeeEstimate area={area}/>}
        <label>Notes / preferred arrangement<textarea value={notes} onChange={e=>setNotes(e.target.value)} maxLength={1000}/></label><div className="record" role="note" aria-label="Request summary"><div><strong>Review before sending</strong><p className="micro">Preferred booths: {chosen.map(id=>plan.units?.find(u=>u.id===id)?.code).filter(Boolean).join(", ")||"none selected"} · Requested area: {area} m². No price or deposit applies yet: the organizer will send a quotation; any deposit (DP) and due date appear only on your official invoice. See the <a href="/terms/" target="_blank" rel="noreferrer">registration &amp; payment terms</a>.</p></div></div><button disabled={busy||chosen.length===0} type="submit">Submit booth request</button></form></>:<p>The organizer has not published a booth floorplan. You can return after publication.</p>}
     </section>}
     {tab==="payments"&&<section><h2>Invoices & bank transfer</h2><p>No Midtrans or automated payment gateway. Only verified organizer bank transfers change your paid status.</p>
