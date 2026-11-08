@@ -9,7 +9,10 @@ export async function GET(_req:NextRequest,{params}:{params:Promise<{id:string}>
  text("IMDX 2027 - Invoice",21,true);text("Invoice: "+inv.number,13,true);text("Status: "+inv.status+(["CANCELLED","VOID"].includes(inv.status)?" (cancelled"+(totals.paidMinor!=="0"?"; refund handled separately":"")+")":""),12);
  text("Issued: "+(inv.issuedAt?.toISOString().slice(0,10)||"Pending"),10);text("Customer: "+(inv.account.profile?.fullName||inv.account.email||""),10);
  text("Event venue: JIEXPO Kemayoran, Jakarta",10);y-=12;text("Items",13,true);
- for(const item of inv.items){text(item.description+" ("+item.quantity+" x IDR "+item.unitPriceMinor.toString()+")",10);}
+ const lines=inv.items.filter(i=>i.kind==="ITEM"),extra=inv.items.filter(i=>i.kind!=="ITEM");
+ for(const item of lines){text(item.description+" ("+item.quantity+" x IDR "+item.unitPriceMinor.toString()+")",10);}
+ // FR-125: configured taxes/fees are shown as their own lines under the subtotal.
+ if(extra.length){text("Subtotal: IDR "+lines.reduce((a,i)=>a+i.amountMinor,0n).toString(),10,true);for(const c of extra)text((c.kind==="TAX"?"Tax: ":"Fee: ")+c.description+" IDR "+c.amountMinor.toString(),10);}
  y-=10;text("Total: IDR "+inv.totalMinor.toString(),14,true);text("Confirmed receipts: IDR "+totals.paidMinor,11);text("Outstanding: IDR "+totals.outstandingMinor,11);
  if(!["CANCELLED","VOID"].includes(inv.status)){const b=bankDetails();y-=15;text("BANK TRANSFER INSTRUCTIONS",12,true);text("Bank: "+b.name,11);text("Account holder: "+b.owner,11);text("Account number: "+b.number,11);}
  y-=24;

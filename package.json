@@ -13,6 +13,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "admin:create": "tsx scripts/create-admin.ts",
+    "customers:create-test": "tsx scripts/create-test-customers.ts",
     "outbox:worker": "tsx scripts/outbox-worker.ts"
   },
   "dependencies": {

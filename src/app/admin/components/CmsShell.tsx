@@ -70,7 +70,8 @@ const navGroups:Group[]=[
   {title:"Finance",items:[
     {label:"Payment Requests",href:"/admin/workspace?section=finance#cms-payment-requests",icon:"request",roles:FIN},
     {label:"Invoices",href:"/admin/workspace?section=finance#cms-invoices",icon:"invoice",roles:FIN},
-    {label:"Payments & Reconciliation",href:"/admin/payments",icon:"payments",roles:["SUPER_ADMIN","FINANCE","SALES"]}
+    {label:"Payments & Reconciliation",href:"/admin/payments",icon:"payments",roles:["SUPER_ADMIN","FINANCE","SALES"]},
+    {label:"Invoice Taxes & Fees",href:"/admin/invoice-charges",icon:"invoice",roles:["SUPER_ADMIN","FINANCE","SALES"]}
   ]},
   {title:"Operations",items:[
     {label:"Floorplans",href:"/admin/floorplans",icon:"floorplan",roles:["SUPER_ADMIN","OPERATIONS","SALES","FINANCE"]},
@@ -92,7 +93,8 @@ const navGroups:Group[]=[
     {label:"Settings Status",href:"/admin/settings",icon:"settings",roles:["SUPER_ADMIN"]},
     {label:"Fee Estimator",href:"/admin/estimator",icon:"invoice",roles:["SUPER_ADMIN","SALES","FINANCE"]},
     {label:"Staff & Roles",href:"/admin/staff",icon:"shield",roles:["SUPER_ADMIN"]},
-    {label:"Data Requests",href:"/admin/data-requests",icon:"shield",roles:["SUPER_ADMIN"]}
+    {label:"Data Requests",href:"/admin/data-requests",icon:"shield",roles:["SUPER_ADMIN"]},
+    {label:"Data Retention",href:"/admin/retention",icon:"shield",roles:["SUPER_ADMIN"]}
   ]},
   {title:"System",items:[
     {label:"Notifications",href:"/admin/notifications",icon:"bell",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")},
