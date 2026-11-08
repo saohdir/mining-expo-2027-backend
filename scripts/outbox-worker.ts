@@ -1,4 +1,5 @@
 import {expireBoothHolds} from "../src/lib/booth-hold-expiry";
+import {runWorkerCycle} from "../src/lib/worker-cycle";
 import {PrismaClient} from "@prisma/client";
 import nodemailer from "nodemailer";
 const db=new PrismaClient();
@@ -49,5 +50,10 @@ async function drain(){
  catch(e){const waitingMs=Math.min(30*60*1000,30000*2**job.attempts);await db.notificationOutbox.update({where:{id:job.id},data:{state:"FAILED",nextRunAt:new Date(Date.now()+waitingMs)}});console.error("Outbox delivery failed for topic",job.topic,"record",job.id);}
  }
 }
-async function main(){console.info("IMDX outbox worker launched");while(true){try{await expireBoothHolds(db);await drain()}catch(e){console.error("Worker cycle error",e instanceof Error?e.message:"unknown")}await delay(20000)}}
+// Steps run independently: hold expiry failing (e.g. BoothHold not yet migrated)
+// must not stop outbox email delivery, and vice versa.
+async function main(){console.info("IMDX outbox worker launched");while(true){await runWorkerCycle([
+ {name:"booth-hold-expiry",run:()=>expireBoothHolds(db)},
+ {name:"outbox-drain",run:()=>drain()}
+]);await delay(20000)}}
 main().catch(e=>{console.error(e);process.exit(1)}).finally(()=>db.$disconnect());
