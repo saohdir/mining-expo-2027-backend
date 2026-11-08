@@ -46,6 +46,8 @@ test("Notification bulk read applies role scope to all updated records in one qu
   assert.match(api,/where:\{id:\{in:ids\},\.\.\.scope\(actor\.role\),readAt:null\}/);
   assert.match(page,/body:JSON\.stringify\(ids\.length===1\?\{id:ids\[0\]\}:\{ids\}\)/);
   assert.doesNotMatch(page,/for\(const id of ids\)/);
+  assert.match(page,/imdx:notifications-updated/);
+  assert.match(read("src/app/admin/components/CmsShell.tsx"),/addEventListener\("imdx:notifications-updated",reloadNotes\)/);
 });
 
 test("New programme draft is selected immediately after create instead of first alphabetical record",()=>{
