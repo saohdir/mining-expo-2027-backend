@@ -1,6 +1,8 @@
 import {expireBoothHolds} from "../src/lib/booth-hold-expiry";
 import {runWorkerCycle} from "../src/lib/worker-cycle";
 import {processExportJobs} from "../src/lib/export-jobs";
+import {deliverCrm} from "../src/lib/crm-sync";
+import {deliverWhatsApp, queueWhatsAppCopy} from "../src/lib/messaging";
 import {PrismaClient} from "@prisma/client";
 import nodemailer from "nodemailer";
 const db=new PrismaClient();
@@ -13,9 +15,15 @@ const deliver=async(to:string,subject:string,body:string)=>{
  const credentials=process.env.SMTP_USER&&process.env.SMTP_PASS?{auth:{user:process.env.SMTP_USER,pass:process.env.SMTP_PASS}}:{};
  const transport=nodemailer.createTransport({host:process.env.SMTP_HOST,port,secure:port===465,...credentials});
  await transport.sendMail({from:process.env.SMTP_FROM,to,subject,text:body});
+ // FR-158: opted-in customers also get a WhatsApp template copy (separate outbox job, independent retries).
+ if(to!==toAdmin)await queueWhatsAppCopy(db,to,subject,portal+"/account",currentKey).catch(()=>console.error("WhatsApp queueing failed"));
 };
+let currentKey="";
 type Payload={id?:string;invoiceId?:string;boothRequestId?:string};
-async function processJob(topic:string,p:Payload){
+async function processJob(topic:string,p:Payload,dedupeKey=""){
+ if(topic==="CRM_SYNC")return deliverCrm(db,p as never,dedupeKey);
+ if(topic==="WHATSAPP_SEND"){await deliverWhatsApp(db,p as never);return;}
+ currentKey=dedupeKey;
  if(["BOOTH_REQUEST_RECEIVED","BOOTH_STATUS_UPDATED"].includes(topic)){const id=p.boothRequestId||p.id;if(!id)throw Error("Missing booth request id");
  const b=await db.boothRequest.findUnique({where:{id},include:{account:true}});
  if(!b)throw Error("Booth request missing");
@@ -58,7 +66,7 @@ async function drain(){
  const jobs=await db.notificationOutbox.findMany({where:{state:{in:["QUEUED","FAILED"]},nextRunAt:{lte:new Date()},attempts:{lt:5}},orderBy:{createdAt:"asc"},take:20});
  for(const job of jobs){const claim=await db.notificationOutbox.updateMany({where:{id:job.id,state:{in:["QUEUED","FAILED"]}},data:{state:"PROCESSING",attempts:{increment:1}}});
  if(claim.count!==1)continue;
- try{await processJob(job.topic,job.payload as Payload);await db.notificationOutbox.update({where:{id:job.id},data:{state:"SENT"}});await db.invoiceDelivery.updateMany({where:{outboxKey:job.dedupeKey},data:{status:"SENT",sentAt:new Date()}});}
+ try{await processJob(job.topic,job.payload as Payload,job.dedupeKey);await db.notificationOutbox.update({where:{id:job.id},data:{state:"SENT"}});await db.invoiceDelivery.updateMany({where:{outboxKey:job.dedupeKey},data:{status:"SENT",sentAt:new Date()}});}
  catch(e){const waitingMs=Math.min(30*60*1000,30000*2**job.attempts);await db.notificationOutbox.update({where:{id:job.id},data:{state:"FAILED",nextRunAt:new Date(Date.now()+waitingMs)}});await db.invoiceDelivery.updateMany({where:{outboxKey:job.dedupeKey,status:{not:"SENT"}},data:{status:"FAILED"}});console.error("Outbox delivery failed for topic",job.topic,"record",job.id);}
  }
 }

@@ -1,12 +1,12 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
 type Conference={id:string;title:string;slug:string;published:boolean;feeMinor:string|null;capacity:number|null;startsAt:string|null;activeEnrollmentCount:number;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY";event:{code:string;title:string};_count:{enrollments:number}};
-type FormFields={title:string;slug:string;feeMinor:string;capacity:string;startsAt:string};
+type FormFields={title:string;slug:string;feeMinor:string;capacity:string;startsAt:string;zoneCode?:string};
 const req=async(path:string,method="GET",body?:unknown)=>{const r=await fetch(path,{method,cache:"no-store",headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||d.error||"Request failed");return d};
 const slug=(v:string)=>v.toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s-]/g,"").trim().replace(/\s+/g,"-").slice(0,90);
 const wibInput=(value:string|null)=>value?new Date(value).toLocaleString("sv-SE",{timeZone:"Asia/Jakarta",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).replace(" ","T").slice(0,16):"";
 const fromWib=(s:string)=>s?new Date(s+":00+07:00").toISOString():null;
-const draft=(v:Conference):FormFields=>({title:v.title,slug:v.slug,feeMinor:v.feeMinor??"",capacity:v.capacity===null?"":String(v.capacity),startsAt:wibInput(v.startsAt)});
+const draft=(v:Conference):FormFields=>({title:v.title,slug:v.slug,feeMinor:v.feeMinor??"",capacity:v.capacity===null?"":String(v.capacity),startsAt:wibInput(v.startsAt),zoneCode:(v as Conference&{zoneCode?:string|null}).zoneCode??""});
 export default function ConferencesCms(){
  const [items,setItems]=useState<Conference[]>([]),[id,setId]=useState(""),[form,setForm]=useState<FormFields>({title:"",slug:"",feeMinor:"",capacity:"",startsAt:""}),[newForm,setNewForm]=useState({title:"",slug:""}),[reason,setReason]=useState(""),[approved,setApproved]=useState(false),[message,setMessage]=useState(""),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[role,setRole]=useState("");
  const selected=useMemo(()=>items.find(x=>x.id===id)||null,[items,id]);const canEdit=role==="SUPER_ADMIN"||role==="OPERATIONS";
@@ -28,7 +28,7 @@ export default function ConferencesCms(){
   const hasEnrollment=selected._count.enrollments>0;
   if(form.capacity&&!/^\d+$/.test(form.capacity))throw Error("Capacity must be a positive integer.");
   if(form.feeMinor&&!/^\d+$/.test(form.feeMinor))throw Error("Fee must be a whole number of IDR.");
-  const body:Record<string,unknown>={title:form.title,startsAt:fromWib(form.startsAt),capacity:form.capacity?Number(form.capacity):null,reason:reason.trim()};
+  const body:Record<string,unknown>={title:form.title,startsAt:fromWib(form.startsAt),capacity:form.capacity?Number(form.capacity):null,zoneCode:form.zoneCode?.trim()?form.zoneCode.trim().toUpperCase():null,reason:reason.trim()};
   if(!hasEnrollment){body.slug=form.slug;body.feeMinor=form.feeMinor===""?null:form.feeMinor}
   if(publish!==undefined)body.published=publish;
   await req("/api/admin/conferences/"+selected.id,"PATCH",body);
@@ -40,7 +40,7 @@ export default function ConferencesCms(){
  {loading?<section className="cms-panel">Loading programmes…</section>:<div className="program-layout">
  <section className="cms-panel program-list"><div className="payment-heading-row"><h2>Conference programmes</h2><small>{items.length} programs</small></div>
  {items.map((r,i)=><button key={r.id} type="button" onClick={()=>{setId(r.id);setForm(draft(r));setReason("");setApproved(false);setMessage("")}} className={"program-item "+(id===r.id?"selected":"")}><span className="eyebrow">{String(i+1).padStart(2,"0")} / {r.published?"PUBLISHED":"DRAFT"}</span><strong>{r.title}</strong><small>{r.startsAt?new Date(r.startsAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB":"Schedule TBA"} · {r.activeEnrollmentCount} active / {r.capacity??"TBA"} capacity</small></button>)}
- {canEdit&&<form className="program-new" onSubmit={e=>{e.preventDefault();void run(async()=>{const created=await req("/api/admin/conferences","POST",{title:newForm.title,slug:newForm.slug,eventCode:"IMDX-2027",feeMinor:null,capacity:null,startsAt:null});setNewForm({title:"",slug:""});return created.id as string})}}>
+ {canEdit&&<form className="program-new" onSubmit={e=>{e.preventDefault();void run(async()=>{const created=await req("/api/admin/conferences","POST",{title:newForm.title,slug:newForm.slug,feeMinor:null,capacity:null,startsAt:null});setNewForm({title:"",slug:""});return created.id as string})}}>
  <h3>Create a draft programme</h3><label>Programme title<input required minLength={10} value={newForm.title} onChange={e=>setNewForm(f=>({...f,title:e.target.value,slug:slug(e.target.value)}))}/></label>
  <label>URL slug<input required pattern="[a-z0-9-]+" minLength={3} value={newForm.slug} onChange={e=>setNewForm(f=>({...f,slug:e.target.value}))}/></label><button disabled={saving}>Create draft ↗</button></form>}
  </section>
@@ -55,7 +55,7 @@ export default function ConferencesCms(){
  <form onSubmit={e=>{e.preventDefault();void run(()=>save())}}><div className="form-grid"><label>Programme title<input required minLength={10} maxLength={200} disabled={!canEdit} value={form.title} onChange={e=>change("title",e.target.value)}/></label>
  <label>URL slug<input disabled={!canEdit||selected._count.enrollments>0} required minLength={3} value={form.slug} onChange={e=>change("slug",e.target.value)}/></label></div>
  <div className="form-grid"><label>Date and time (WIB)<input type="datetime-local" disabled={!canEdit} value={form.startsAt} onChange={e=>change("startsAt",e.target.value)}/></label>
- <label>Capacity (blank = TBA)<input type="number" min={Math.max(1,selected.activeEnrollmentCount)} max="100000" disabled={!canEdit} value={form.capacity} onChange={e=>change("capacity",e.target.value)}/></label></div>
+ <label>Capacity (blank = TBA)<input type="number" min={Math.max(1,selected.activeEnrollmentCount)} max="100000" disabled={!canEdit} value={form.capacity} onChange={e=>change("capacity",e.target.value)}/></label><label>Session access zone (optional, e.g. CONF_GREEN) — passes for this programme open only this zone; add it to a gate<input pattern="[A-Za-z0-9_]{2,40}" disabled={!canEdit} value={form.zoneCode||""} onChange={e=>change("zoneCode",e.target.value)}/></label></div>
  <label>Approved conference fee (IDR; blank = TBA, 0 = free)<input type="number" min="0" step="1" disabled={!canEdit||selected._count.enrollments>0} value={form.feeMinor} onChange={e=>change("feeMinor",e.target.value)}/></label>
  {selected._count.enrollments>0&&<p className="warning">This conference has registrations. The fee and slug are locked to protect existing bookings.</p>}
  {canEdit&&<>

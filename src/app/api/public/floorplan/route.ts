@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {db} from "@/lib/db";
 import {failure} from "@/lib/errors";
 
@@ -6,7 +7,7 @@ import {failure} from "@/lib/errors";
  * Company names appear only for OCCUPIED units whose assignment is approved for public display. */
 export async function GET(req: NextRequest) {
   try {
-    const eventCode = req.nextUrl.searchParams.get("event") || "IMDX-2027";
+    const eventCode = req.nextUrl.searchParams.get("event") || activeEventCode();
     const cache = {"Cache-Control": "public, max-age=30, s-maxage=60, stale-while-revalidate=30"};
     const plan = await db.floorplan.findFirst({where: {event: {code: eventCode, published: true}, status: "PUBLISHED"},
       include: {units: {where: {placed: true}, orderBy: {code: "asc"}, select: {id: true, code: true, category: true, hall: true, zone: true, x: true, y: true, w: true, h: true, rotation: true,

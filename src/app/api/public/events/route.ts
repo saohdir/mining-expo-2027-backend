@@ -1,6 +1,7 @@
 import {NextResponse} from "next/server";
 import {db} from "@/lib/db";
 import {failure} from "@/lib/errors";
+import {activeEventCode} from "@/lib/active-event";
 import {ACTIVE_CONFERENCE_STATUSES, conferenceAvailability} from "@/lib/conference-capacity";
 
 export async function GET() {
@@ -30,8 +31,10 @@ export async function GET() {
     }) : [];
     const countByConference = new Map(counts.map(x => [x.conferenceId, x._count._all]));
 
+    // FR-041: the active edition comes first (clients use events[0]); other published editions follow.
+    events.sort((a, b) => Number(b.code === activeEventCode()) - Number(a.code === activeEventCode()) || a.startsAt.getTime() - b.startsAt.getTime());
     const projected = events.map(event => ({
-      ...event,
+      ...event, active: event.code === activeEventCode(),
       conferences: event.conferences.map(conference => ({
         ...conference,
         feeMinor: conference.feeMinor?.toString() ?? null,

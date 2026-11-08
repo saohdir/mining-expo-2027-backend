@@ -6,9 +6,10 @@ type Tx = Prisma.TransactionClient;
 /** FR-072/073: a confirmed conference enrollment gets a CONFERENCE pass, plus EXPO_ENTRY when the
  * account has no active expo pass for that event. Idempotent. */
 export async function issueConferencePasses(tx: Tx, enrollmentId: string) {
-  const e = await tx.enrollment.findUniqueOrThrow({where: {id: enrollmentId}, include: {event: true, passes: {where: {status: "ACTIVE"}}}});
+  const e = await tx.enrollment.findUniqueOrThrow({where: {id: enrollmentId}, include: {event: true, conference: true, passes: {where: {status: "ACTIVE"}}}});
   if (e.type !== "CONFERENCE" || e.status !== "CONFIRMED") return 0;
-  const wanted = ["CONFERENCE"];
+  // FR-157: a programme with its own session zone gets a pass for exactly that zone (no access to other sessions).
+  const wanted = [e.conference?.zoneCode || "CONFERENCE"];
   const expo = await tx.eventPass.count({where: {accountId: e.accountId, eventId: e.eventId, status: "ACTIVE", entitlement: "EXPO_ENTRY"}});
   if (!expo) wanted.push("EXPO_ENTRY");
   let issued = 0;

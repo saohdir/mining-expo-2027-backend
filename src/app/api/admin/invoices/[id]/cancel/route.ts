@@ -2,6 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import {z} from "zod";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
+import {revokeBoothStaff} from "@/lib/invitations";
 import {failure, HttpError} from "@/lib/errors";
 import {customerPaymentState} from "@/lib/finance-ledger";
 import {isWriteConflict} from "@/lib/finance-tx";
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         revokedPasses = (await tx.eventPass.updateMany({where: {enrollmentId: inv.enrollmentId, status: "ACTIVE"}, data: {status: "REVOKED"}})).count;
       }
       if (x.cancelBooking && inv.boothRequestId) {
+        revokedPasses += await revokeBoothStaff(tx, inv.boothRequestId, "Exhibitor booking cancelled");
         await tx.notification.create({data: {audienceRole: "OPERATIONS", type: "BOOTH_INVOICE_CANCELLED", recordType: "BoothRequest", recordId: inv.boothRequestId}});
       }
       const summary = customerPaymentState(changed, inv.transfers, inv.adjustments);

@@ -4,6 +4,7 @@ import {db} from "@/lib/db";
 import {failure, HttpError} from "@/lib/errors";
 import {clientIpHash} from "@/lib/request-meta";
 import {safeEmail} from "@/lib/security";
+import {enqueueCrm} from "@/lib/crm-sync";
 
 const schema = z.object({
   leadType: z.enum(["CONTACT", "PARTNER", "SPONSOR", "EXHIBITOR"]).default("CONTACT"),
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
         utmSource: x.utmSource, utmMedium: x.utmMedium, utmCampaign: x.utmCampaign, ipHash}});
       await tx.notification.create({data: {audienceRole: "SALES", type: "LEAD_" + x.leadType, recordType: "Lead", recordId: l.id}});
       await tx.notificationOutbox.create({data: {topic: "LEAD_RECEIVED", dedupeKey: "lead:" + l.id, payload: {id: l.id}}});
+      await enqueueCrm(tx, "LEAD", l.id, "created");
       return l;
     });
     return NextResponse.json({reference: "IMDX-L-" + lead.id.slice(0, 8).toUpperCase(), message: "Thank you. Our team will contact you."}, {status: 201, headers: {"Cache-Control": "no-store"}});

@@ -1,17 +1,18 @@
 import {NextRequest, NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {z} from "zod";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 
 const ZONE = z.string().regex(/^[A-Z0-9_]{2,40}$/);
-const create = z.object({eventCode: z.string().default("IMDX-2027"), code: z.string().regex(/^[A-Za-z0-9_-]{1,30}$/), name: z.string().min(2).max(80), zones: z.array(ZONE).min(1).max(10)}).strict();
+const create = z.object({eventCode: z.string().default(activeEventCode), code: z.string().regex(/^[A-Za-z0-9_-]{1,30}$/), name: z.string().min(2).max(80), zones: z.array(ZONE).min(1).max(10)}).strict();
 
 /** Gates and assigned staff (FR-081). CHECKIN_STAFF only sees gates assigned to them. */
 export async function GET(req: NextRequest) {
   try {
     const actor = await admin(["SUPER_ADMIN", "OPERATIONS", "CHECKIN_STAFF"]);
-    const event = await db.event.findUnique({where: {code: req.nextUrl.searchParams.get("event") || "IMDX-2027"}});
+    const event = await db.event.findUnique({where: {code: req.nextUrl.searchParams.get("event") || activeEventCode()}});
     if (!event) throw new HttpError(404, "NOT_FOUND", "Event not found.");
     const gates = await db.gate.findMany({where: {eventId: event.id, ...(actor.role === "CHECKIN_STAFF" ? {active: true, staff: {some: {adminId: actor.id}}} : {})},
       orderBy: {code: "asc"}, include: {staff: actor.role === "CHECKIN_STAFF" ? false : {select: {adminId: true}}}});

@@ -64,7 +64,8 @@ const navGroups:Group[]=[
     {label:"Overview",href:"/admin",icon:"overview",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")},
     {label:"Customers & Registrations",href:"/admin/registrations",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
     {label:"Customer Accounts",href:"/admin/customers",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
-    {label:"Booth Requests",href:"/admin/booths",icon:"booths",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]}
+    {label:"Booth Requests",href:"/admin/booths",icon:"booths",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
+    {label:"Groups & Representatives",href:"/admin/groups",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","VIEWER"]}
   ]},
   {title:"Finance",items:[
     {label:"Payment Requests",href:"/admin/workspace?section=finance#cms-payment-requests",icon:"request",roles:FIN},
@@ -76,6 +77,7 @@ const navGroups:Group[]=[
     {label:"Booth Units & Assignments",href:"/admin/booths",icon:"box",roles:OPS},
     {label:"Gate QR Scanner",href:"/admin/check-in",icon:"scan",roles:["SUPER_ADMIN","OPERATIONS","CHECKIN_STAFF"]},
     {label:"Gates & Passes",href:"/admin/check-in/settings",icon:"settings",roles:["SUPER_ADMIN","OPERATIONS"]},
+    {label:"Pre-registration & Badges",href:"/admin/bulk",icon:"users",roles:["SUPER_ADMIN","OPERATIONS"]},
     {label:"Check-ins",href:"/admin/reports",icon:"activity",roles:["SUPER_ADMIN","OPERATIONS","VIEWER"]}
   ]},
   {title:"Insights",items:[
@@ -88,6 +90,7 @@ const navGroups:Group[]=[
     {label:"Lead Inbox",href:"/admin/leads",icon:"bell",roles:["SUPER_ADMIN","SALES","OPERATIONS"]},
     {label:"Event Settings",href:"/admin/workspace?section=settings",icon:"settings",roles:["SUPER_ADMIN"]},
     {label:"Settings Status",href:"/admin/settings",icon:"settings",roles:["SUPER_ADMIN"]},
+    {label:"Fee Estimator",href:"/admin/estimator",icon:"invoice",roles:["SUPER_ADMIN","SALES","FINANCE"]},
     {label:"Staff & Roles",href:"/admin/staff",icon:"shield",roles:["SUPER_ADMIN"]},
     {label:"Data Requests",href:"/admin/data-requests",icon:"shield",roles:["SUPER_ADMIN"]}
   ]},

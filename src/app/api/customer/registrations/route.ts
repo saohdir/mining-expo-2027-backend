@@ -1,3 +1,5 @@
+import {enqueueCrm} from "@/lib/crm-sync";
+import {activeEventCode} from "@/lib/active-event";
 import {shortCodeFor, shortCodeHash} from "@/lib/pass-code";
 import {NextRequest, NextResponse} from "next/server";
 import {Prisma} from "@prisma/client";
@@ -10,7 +12,7 @@ import {randomToken, hashToken, sealToken} from "@/lib/security";
 import {ACTIVE_CONFERENCE_STATUSES, conferenceAvailability} from "@/lib/conference-capacity";
 
 const schema = z.object({
-  eventCode: z.string().default("IMDX-2027"),
+  eventCode: z.string().default(activeEventCode),
   kind: z.enum(["VISITOR", "CONFERENCE"]),
   conferenceId: z.string().uuid().optional(),
   consent: z.literal(true)
@@ -124,6 +126,7 @@ export async function POST(req: NextRequest) {
           });
         }
         if (approvedVisitor) await tx.notificationOutbox.create({data: {topic: "PASS_READY", dedupeKey: "pass-ready:" + enrollment.id, payload: {enrollmentId: enrollment.id}}});
+        await enqueueCrm(tx, "ENROLLMENT", enrollment.id, "created");
         await tx.notification.create({
           data: {
             audienceRole: "OPERATIONS",

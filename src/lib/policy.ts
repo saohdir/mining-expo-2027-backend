@@ -2,7 +2,11 @@ import { HttpError } from "./errors";
 export const policies={
  registration:()=>process.env.ENABLE_REGISTRATION==="true",
  invoices:()=>process.env.ENABLE_INVOICES==="true",
- admission:()=>process.env.ENABLE_QR_ADMISSION==="true"
+ admission:()=>process.env.ENABLE_QR_ADMISSION==="true",
+ exhibitorStaff:()=>process.env.ENABLE_EXHIBITOR_STAFF==="true",
+ groupEnrollment:()=>process.env.ENABLE_GROUP_ENROLLMENT==="true",
+ bulkTools:()=>process.env.ENABLE_BULK_TOOLS==="true",
+ feeEstimator:()=>process.env.ENABLE_FEE_ESTIMATOR==="true"
 };
 export function requireEnabled(name:keyof typeof policies){if(!policies[name]())throw new HttpError(503,"NOT_ENABLED",name+" requires organizer approval and server configuration.");}
 export function bankDetails(){const name=process.env.APPROVED_BANK_NAME,owner=process.env.APPROVED_BANK_ACCOUNT_NAME,number=process.env.APPROVED_BANK_ACCOUNT_NUMBER;if(!name||!owner||!number)throw new HttpError(503,"BANK_NOT_APPROVED","Bank transfer instructions are not configured.");return {name,owner,number};}

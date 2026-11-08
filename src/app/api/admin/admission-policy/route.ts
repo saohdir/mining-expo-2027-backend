@@ -1,10 +1,11 @@
 import {NextRequest, NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {z} from "zod";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 
-const schema = z.object({eventCode: z.string().default("IMDX-2027"), zone: z.string().regex(/^[A-Z0-9_]{2,40}$/), reentry: z.enum(["ONCE_PER_DAY", "ALLOW_REENTRY"]), reason: z.string().min(8).max(300)}).strict();
+const schema = z.object({eventCode: z.string().default(activeEventCode), zone: z.string().regex(/^[A-Z0-9_]{2,40}$/), reentry: z.enum(["ONCE_PER_DAY", "ALLOW_REENTRY"]), reason: z.string().min(8).max(300)}).strict();
 /** FR-085: per-zone re-entry policy. Default (no row) is ONCE_PER_DAY (documented release default, D-09). */
 export async function PUT(req: NextRequest) {
   try {

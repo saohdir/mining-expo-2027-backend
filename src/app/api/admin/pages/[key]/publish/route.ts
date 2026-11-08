@@ -6,7 +6,8 @@ import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 import {layoutProblems, layoutSchema, PAGE_KEYS} from "@/lib/page-layout";
 
-/** Publish the draft as a new immutable revision (audited, reason required). */
+/** Publish the draft as a new immutable revision (audited, reason required). With CONTENT_APPROVAL_REQUIRED=true
+ * publishing is a second-person approval step. */
 export async function POST(req: NextRequest, {params}: {params: Promise<{key: string}>}) {
   try {
     const actor = await admin(["SUPER_ADMIN", "CONTENT_EDITOR"]);
@@ -16,6 +17,9 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{key: st
     const out = await db.$transaction(async tx => {
       const row = await tx.pageLayout.findUnique({where: {pageKey_locale: {pageKey: k, locale: loc}}});
       if (!row) throw new HttpError(409, "NO_DRAFT", "Save a draft first.");
+      // FR-041 role-based content approval (four-eyes, opt-in): the editor who last changed the draft cannot publish it.
+      if (process.env.CONTENT_APPROVAL_REQUIRED === "true" && row.draftUpdatedBy === actor.id)
+        throw new HttpError(409, "APPROVAL_REQUIRED", "Another editor or a Super Admin must review and publish this draft.");
       const layout = layoutSchema.parse(row.draft);
       const problems = layoutProblems(k, layout); if (problems.length) throw new HttpError(400, "INVALID_LAYOUT", problems.join("; "));
       const version = row.version + 1;

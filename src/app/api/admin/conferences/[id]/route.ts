@@ -13,6 +13,7 @@ const schema = z.object({
   feeMinor: z.string().regex(/^\d+$/).nullable().optional(),
   capacity: z.number().int().positive().max(100000).nullable().optional(),
   published: z.boolean().optional(),
+  zoneCode: z.string().regex(/^[A-Z0-9_]{2,40}$/).nullable().optional(),
   reason: z.string().min(8).max(500)
 }).strict();
 
@@ -53,6 +54,10 @@ export async function PATCH(req: NextRequest, {params}: {params: Promise<{id: st
         }
       }
 
+      if (input.zoneCode && input.zoneCode !== old.zoneCode && await tx.conference.count({where: {eventId: old.eventId, zoneCode: input.zoneCode, id: {not: id}}}))
+        throw new HttpError(409, "ZONE_IN_USE", "Another programme already uses this session zone.");
+      if (input.zoneCode !== undefined && input.zoneCode !== old.zoneCode && await tx.eventPass.count({where: {enrollment: {conferenceId: id}, status: "ACTIVE"}}))
+        throw new HttpError(409, "PASSES_ISSUED", "Passes were already issued for this programme; reissue them after changing the session zone.");
       const {reason, ...props} = input;
       const updated = await tx.conference.update({
         where: {id},
