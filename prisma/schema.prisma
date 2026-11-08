@@ -280,6 +280,7 @@ model EventPass {
   eventId String
   event Event @relation(fields:[eventId],references:[id])
   tokenHash String @unique
+  encryptedToken String?
   status PassStatus @default(ACTIVE)
   entitlement String @default("EXPO_ENTRY")
   issuedAt DateTime @default(now())
@@ -351,4 +352,9 @@ model ExportJob {
   rowCount Int @default(0)
   expiresAt DateTime?
   createdAt DateTime @default(now())
+}
+
+model InvoiceSequence {
+  key String @id
+  nextNumber Int @default(1)
 }
