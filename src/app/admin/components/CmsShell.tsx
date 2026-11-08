@@ -68,7 +68,7 @@ const navGroups:Group[]=[
   {title:"Finance",items:[
     {label:"Payment Requests",href:"/admin/workspace?section=finance#cms-payment-requests",icon:"request",roles:FIN},
     {label:"Invoices",href:"/admin/workspace?section=finance#cms-invoices",icon:"invoice",roles:FIN},
-    {label:"Payments & Reconciliation",href:"/admin/payments",icon:"payments",roles:["SUPER_ADMIN","FINANCE","OPERATIONS"]}
+    {label:"Payments & Reconciliation",href:"/admin/payments",icon:"payments",roles:["SUPER_ADMIN","FINANCE","SALES"]}
   ]},
   {title:"Operations",items:[
     {label:"Floorplans",href:"/admin/floorplans",icon:"floorplan",roles:["SUPER_ADMIN","OPERATIONS","SALES","FINANCE"]},
@@ -80,7 +80,7 @@ const navGroups:Group[]=[
     {label:"Reports & Exports",href:"/admin/reports",icon:"chart",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","VIEWER"]}
   ]},
   {title:"Content",items:[
-    {label:"Events & Programmes",href:"/admin/programmes",icon:"calendar",roles:["SUPER_ADMIN","SALES","OPERATIONS","CONTENT_EDITOR","FINANCE","VIEWER"]},
+    {label:"Events & Programmes",href:"/admin/programmes",icon:"calendar",roles:["SUPER_ADMIN","SALES","OPERATIONS","CONTENT_EDITOR","FINANCE"]},
     {label:"Event Settings",href:"/admin/workspace?section=settings",icon:"settings",roles:["SUPER_ADMIN","OPERATIONS"]}
   ]},
   {title:"System",items:[
