@@ -3,7 +3,7 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {PrismaClient} from "@prisma/client";
-import {adminLogin, customerSignup, Client, lastOtp} from "./lib.mjs";
+import {adminLogin, customerSignup, customerLogin, Client, lastOtp} from "./lib.mjs";
 
 const db = new PrismaClient();
 const run = Date.now().toString(36);
@@ -19,60 +19,10 @@ test("setup", async () => {
   S.cust = await customerSignup(S.email, "Account Owner");
 });
 
-test("AT-061: no account enumeration; decoy challenge; registering an existing account just sends a sign-in code", async () => {
-  const anon = new Client("enum");
-  const unknown = await anon.post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: `nobody-${run}@test.local`});
-  const known = await anon.post("/api/auth/request-otp", {mode: "register", channel: "EMAIL", email: S.email, fullName: "Someone Else", consent: true, consentVersion: "v"});
-  ok(unknown, 200, "unknown login"); ok(known, 200, "existing register");
-  assert.equal(unknown.body.message, known.body.message, "identical generic message");
-  assert.ok(unknown.body.challengeId && known.body.challengeId, "both return a challenge id");
-  ok(await anon.post("/api/auth/verify-otp", {challengeId: unknown.body.challengeId, code: "123456"}), 400, "decoy never verifies");
-  assert.equal((await db.customerProfile.findFirst({where: {account: {email: S.email}}})).fullName, "Account Owner", "existing profile not overwritten");
-});
-
-test("AT-059/061: OTP is single-use, attempt-limited, hashed, and rate limited per destination; honeypot", async () => {
-  const c = new Client("otp");
-  const r = await c.post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: S.email});
-  await wait(300);
-  const code = lastOtp(S.email);
-  const row = await db.otpChallenge.findUnique({where: {id: r.body.challengeId}});
-  assert.notEqual(row.codeHash, code); assert.ok(!JSON.stringify(r.body).includes(code), "code never returned");
-  for (let i = 0; i < 5; i++) ok(await c.post("/api/auth/verify-otp", {challengeId: r.body.challengeId, code: code === "000000" ? "111111" : "000000"}), 400, "wrong " + i);
-  ok(await c.post("/api/auth/verify-otp", {challengeId: r.body.challengeId, code}), 400, "locked after 5 attempts");
-  const r2 = await c.post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: S.email});
-  await wait(300);
-  const code2 = lastOtp(S.email);
-  ok(await c.post("/api/auth/verify-otp", {challengeId: r2.body.challengeId, code: code2}), 200, "correct");
-  ok(await c.post("/api/auth/verify-otp", {challengeId: r2.body.challengeId, code: code2}), 400, "reuse rejected");
-  const floodEmail = `flood-${run}@test.local`;
-  await customerSignup(floodEmail, "Flood Target"); // 1 request
-  const statuses = [];
-  for (let i = 0; i < 5; i++) statuses.push((await new Client("rl").post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: floodEmail})).status);
-  assert.deepEqual(statuses, [200, 200, 200, 200, 429], "5 codes per destination per hour, then 429");
-  const unknown = await new Client("rl").post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: `ghost-${run}@test.local`});
-  ok(unknown, 200, "unknown destination still generic");
-  const hp = await new Client("bot").post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: `bot-${run}@test.local`, website: ""});
-  ok(hp, 200, "empty honeypot accepted");
-  ok(await new Client("bot").post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: `bot-${run}@test.local`, website: "spam"}), 400, "filled honeypot rejected");
-});
-
-test("AT-057: post-OTP return path restored only for same-site account routes", async () => {
-  let i = 0;
-  for (const [returnTo, expected] of [["/account?request=abc#booth", "/account?request=abc#booth"], ["https://evil.example/x", "/account"], ["//evil.example", "/account"], ["/admin", "/account"]]) {
-    const c = new Client("ret"), email = `ret${i++}-${run}@test.local`;
-    const r = await c.post("/api/auth/request-otp", {mode: "register", channel: "EMAIL", email, fullName: "Return Tester", consent: true, consentVersion: "v"});
-    ok(r, 200, "otp");
-    await wait(300);
-    const v = await c.post("/api/auth/verify-otp", {challengeId: r.body.challengeId, code: lastOtp(email), returnTo});
-    ok(v, 200, "verify"); assert.equal(v.body.next, expected, returnTo);
-  }
-});
+// Registration/login/reset security now lives in customer-password-auth.e2e.mjs (CR-AUTH-01).
 
 test("AT-086: contact change needs recent auth + OTP to new email; other sessions revoked; old address alerted", async () => {
-  const other = new Client("other-device");
-  const r = await other.post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: S.email});
-  await wait(300);
-  ok(await other.post("/api/auth/verify-otp", {challengeId: r.body.challengeId, code: lastOtp(S.email)}), 200, "second device");
+  const other = await customerLogin(S.email); // second device signs in with password
   ok(await S.cust.post("/api/customer/contact-change", {channel: "EMAIL", value: `nobody-${run}@test.local`.replace("nobody", "taken")}), 200, "untaken ok");
   const takenEmail = `reg-taken-${run}@test.local`;
   await customerSignup(takenEmail, "Taken");
@@ -92,7 +42,7 @@ test("AT-086: contact change needs recent auth + OTP to new email; other session
   ok(await other.get("/api/customer/me"), 401, "other device signed out");
   assert.equal((await S.cust.get("/api/customer/me")).body.email, newEmail);
   assert.equal(await db.notificationOutbox.count({where: {topic: "CONTACT_CHANGED", dedupeKey: "contact-changed:" + c.body.challengeId}}), 1, "old address alert queued");
-  ok(await S.cust.post("/api/auth/verify-otp", {challengeId: c.body.challengeId, code: "000000"}), 400, "contact-change challenge cannot log in");
+  ok(await S.cust.post("/api/auth/register/verify", {challengeId: c.body.challengeId, code: "000000"}), 400, "contact-change challenge cannot complete a registration");
   S.email = newEmail;
 });
 

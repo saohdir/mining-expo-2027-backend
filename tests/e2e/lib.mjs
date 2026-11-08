@@ -26,12 +26,29 @@ export function lastOtp(email){
   for(let i=lines.length-1;i>=0;i--){if(lines[i].to.includes(email)){const m=lines[i].body.match(/code is (\d{6})/);if(m)return m[1];}}
   throw new Error("no OTP for "+email);
 }
-export async function customerSignup(email,name){
+export const TEST_PASSWORD = "Tambang2027x";
+/** Decode quoted-printable bodies captured by the SMTP sink (soft breaks, =3D etc.). */
+export const qp = body => body.replace(/=\r?\n/g, "").replace(/=([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+export function lastLink(email){
+  const lines=fs.existsSync(MAIL)?fs.readFileSync(MAIL,"utf8").trim().split("\n").filter(Boolean).map(l=>JSON.parse(l)):[];
+  for(let i=lines.length-1;i>=0;i--){if(lines[i].to.includes(email)){const m=qp(lines[i].body).match(/reset-password\?token=([A-Za-z0-9_%-]+)/);if(m)return decodeURIComponent(m[1]);}}
+  throw new Error("no reset link for "+email);
+}
+/** CR-AUTH-01 registration: details → email OTP → create password (signs in). */
+export async function customerSignup(email,name,password=TEST_PASSWORD){
   const c=new Client(email);
-  const r=await c.post("/api/auth/request-otp",{mode:"register",channel:"EMAIL",email,fullName:name,consent:true,consentVersion:"test-v1"});
-  if(r.status!==200)throw new Error("otp "+r.status+" "+JSON.stringify(r.body));
+  const r=await c.post("/api/auth/register/start",{fullName:name,email,acceptTerms:true,acceptPrivacy:true});
+  if(r.status!==200)throw new Error("register "+r.status+" "+JSON.stringify(r.body));
   await new Promise(s=>setTimeout(s,300));
-  const v=await c.post("/api/auth/verify-otp",{challengeId:r.body.challengeId,code:lastOtp(email)});
+  const v=await c.post("/api/auth/register/verify",{challengeId:r.body.challengeId,code:lastOtp(email)});
   if(v.status!==200)throw new Error("verify "+v.status+" "+JSON.stringify(v.body));
+  const p=await c.post("/api/auth/password/set",{token:v.body.setupToken,password,confirmPassword:password});
+  if(p.status!==200)throw new Error("password "+p.status+" "+JSON.stringify(p.body));
+  return c;
+}
+export async function customerLogin(email,password=TEST_PASSWORD){
+  const c=new Client(email);
+  const r=await c.post("/api/auth/login",{email,password});
+  if(r.status!==200)throw new Error("login "+r.status+" "+JSON.stringify(r.body));
   return c;
 }

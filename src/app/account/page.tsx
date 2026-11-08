@@ -3,6 +3,7 @@ import {useCallback,useEffect,useState} from "react";
 import {InvoicePanel,type CustomerInvoice} from "./InvoicePanel";
 import {AccountSecurity,AttendanceHistory} from "./AccountSecurity";
 import {ActionNeeded} from "./ActionNeeded";
+import {AuthPanel} from "./AuthPanel";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
 type AccountData={phone?:string|null;id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
@@ -26,26 +27,15 @@ export default function AccountPage(){
    if(intent.unit){const u=plan.units?.find((x:{id:string;status:string})=>x.id===intent.unit);if(u&&u.status==="AVAILABLE"){setChosen([u.id]);setMessage("Your selected booth "+(u as {code?:string}).code+" is preselected. Complete the request below — it is a preference, not a reservation.")}else setMessage("The booth you selected is no longer available. Please choose another available unit.")}}catch{}
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[me,plan]);
+ const [registrationOpen,setRegistrationOpen]=useState(false);
+ useEffect(()=>{void request("/api/health").then(h=>setRegistrationOpen(Boolean(h.registrationEnabled))).catch(()=>{})},[]);
  useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>setSmsAvailable(Boolean(x.smsOtp))).catch(()=>{})},[reload]);
  async function doAction(task:()=>Promise<unknown>,success:string){setBusy(true);setMessage("");try{await task();setMessage(success);await reload()}catch(e){setMessage(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
  const event=events[0];
  const selectedConference=event?.conferences?.find(c=>c.id===conference);
  return <main className="portal-shell">
   <nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>Customer account / UAT</span><a href="/admin">Admin CMS</a></nav>
-  {loading?<section>Loading account information…</section>:!me?<section className="portal-auth"><p className="eyebrow">SECURE SIGN IN</p><h1>One account.<br/><em>Three experiences.</em></h1><p>Create an account to visit the exhibition, attend a conference and request exhibition space.</p>
-    {!challenge?<form onSubmit={e=>{e.preventDefault();void doAction(async()=>{const r=await send("/api/auth/request-otp",{mode,channel,...(channel==="EMAIL"?{email}:{phone}), ...(mode==="register"?{fullName:name,consent:true,consentVersion:"v1.4-UAT"}:{})});setChallenge(r.challengeId||"")},"Verification code requested.")}}>
-      <div className="tabline"><button type="button" className={mode==="register"?"chosen":""} onClick={()=>setMode("register")}>Create account</button><button type="button" className={mode==="login"?"chosen":""} onClick={()=>setMode("login")}>Sign in</button></div>
-      {mode==="register"&&<label>Full name<input required value={name} onChange={e=>setName(e.target.value)} minLength={2}/></label>}
-      <label>Verification channel<select value={channel} onChange={e=>setChannel(e.target.value as "EMAIL"|"SMS")}><option value="EMAIL">Email OTP</option><option value="SMS" disabled={!smsAvailable}>SMS OTP {!smsAvailable?"(not configured)":""}</option></select></label>
-      {channel==="EMAIL"?<label>Email address<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>:<label>Mobile phone (+62...)<input required type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+628123456789"/></label>}
-      <p className="micro">OTP expires in five minutes. SMS is offered only after the approved provider is configured.</p>
-      <label className="consent"><input type="checkbox" required/> I agree to the privacy and registration terms for UAT testing.</label>
-      <button disabled={busy} type="submit">{busy?"Requesting…":"Send verification code"}</button>
-    </form>:<form onSubmit={e=>{e.preventDefault();void doAction(async()=>{const v=await send("/api/auth/verify-otp",{challengeId:challenge,code:otp,returnTo:window.location.pathname+window.location.search+window.location.hash});setChallenge("");if(v?.next&&v.next!==window.location.pathname+window.location.search+window.location.hash)window.history.replaceState(null,"",v.next)},"Account verified.")}}>
-     <label>6-digit verification code<input value={otp} pattern="[0-9]{6}" inputMode="numeric" onChange={e=>setOtp(e.target.value)} required/></label><button disabled={busy} type="submit">Verify & sign in</button><button type="button" className="ghost" onClick={()=>setChallenge("")}>Change contact</button>
-    </form>}
-   {message&&<div className="notice" role="status">{message}</div>}
-  </section>:<>
+  {loading?<section>Loading account information…</section>:!me?<AuthPanel registrationOpen={registrationOpen} onSignedIn={()=>void reload()}/>:<>
     <header className="portal-heading"><p className="eyebrow">ACCOUNT DASHBOARD / IMDX 2027</p><h1>Welcome, <em>{me.profile?.fullName||"participant"}</em></h1><p>Manage your exhibition visit, conference booking and booth requests from one account.</p></header>
     <div className="tabline portal-tabs">{[["overview","Overview"],["visit","Exhibition visitor"],["conference","Conferences"],["booth","My booth"],["payments","Invoices & payments"],["profile","Profile"]].map(([id,title])=><button key={id} className={tab===id?"chosen":""} onClick={()=>setTab(id)}>{title}</button>)}</div>
     {message&&<div className="notice" role="status">{message}</div>}

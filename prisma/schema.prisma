@@ -138,6 +138,13 @@ model CustomerAccount {
   verifiedPhoneAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  passwordHash String?
+  passwordSetAt DateTime?
+  failedLoginCount Int @default(0)
+  lockedUntil DateTime?
+  lastLoginAt DateTime?
+  termsVersion String?
+  termsAcceptedAt DateTime?
   profile CustomerProfile?
   challenges OtpChallenge[]
   sessions CustomerSession[]
@@ -621,6 +628,27 @@ model DataRequest {
   resolvedAt DateTime?
   resolvedBy String?
   @@index([status,createdAt])
+}
+model AuthToken {
+  id String @id @default(uuid())
+  accountId String
+  purpose String
+  tokenHash String @unique
+  expiresAt DateTime
+  usedAt DateTime?
+  createdAt DateTime @default(now())
+  ipHash String?
+  @@index([accountId,purpose,createdAt])
+}
+model LoginAttempt {
+  id String @id @default(uuid())
+  accountId String?
+  emailHash String
+  ipHash String
+  success Boolean
+  createdAt DateTime @default(now())
+  @@index([ipHash,createdAt])
+  @@index([emailHash,createdAt])
 }
 model InternalNote {
   id String @id @default(uuid())
