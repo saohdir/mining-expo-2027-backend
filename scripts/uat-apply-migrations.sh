@@ -32,6 +32,7 @@ MIGRATIONS=(
  "20261110020000_page_builder|SELECT to_regclass('public.\"PageLayout\"') IS NOT NULL"
  "20261110030000_p1_p2_extensions|SELECT to_regclass('public.\"Invitation\"') IS NOT NULL"
  "20261111010000_p0_remaining|SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='InvoiceItem' AND column_name='kind')"
+ "20261112010000_analytics|SELECT to_regclass('public.\"AnalyticsDaily\"') IS NOT NULL"
 )
 q(){ "${DC[@]}" exec -T postgres psql -U "$DBU" -d "$DBN" -tAq -c "$1" 2>/dev/null | tr -d '[:space:]'; }
 

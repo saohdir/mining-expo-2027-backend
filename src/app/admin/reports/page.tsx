@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useState} from "react";
 import {ReportsExtras} from "./ReportsExtras";
+import {FunnelAnalytics} from "./FunnelAnalytics";
 import {useCmsSession} from "../components/CmsShell";
 type Attendance={event:string;registeredUnique:number;eligibleUnique:number;arrivedUnique:number;admissionEntries:number;scanAttempts:number;byGate:{gate:string;count:number}[]};
 const get=async(url:string)=>{const res=await fetch(url,{cache:"no-store"});const data=await res.json().catch(()=>({}));if(!res.ok)throw Error(data.message||data.error||"Report is unavailable");return data};
@@ -16,7 +17,7 @@ export default function Reports(){
  <nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX 2027"/></a><span>IMDX 2027 / REPORTS CMS</span><a href="/admin">Back to dashboard ↗</a></nav>
  <header className="portal-heading"><p className="eyebrow">05 / EVENT ANALYTICS</p><h1>Registration &amp; <em>attendance.</em></h1><p>Compare registrations with real gate attendance. Unique people and scan attempts are tracked separately, and exports use an explicit WIB submission period.</p></header>
  {message&&<div className="notice" role="alert">{message}</div>}
- <ReportsExtras canExport={Boolean(canExport)} exportQuery={{dataset,basis,...(from?{from}:{}),...(to?{to}:{}),...(type&&dataset==="registrations"?{type}:{})}}/>
+ <ReportsExtras canExport={Boolean(canExport)} exportQuery={{dataset,basis,...(from?{from}:{}),...(to?{to}:{}),...(type&&dataset==="registrations"?{type}:{})}}/><FunnelAnalytics/>
  <section className="cms-panel reports-surface">
  <div className="reports-toolbar"><div><p className="eyebrow">ATTENDANCE MONITOR</p><h2>Event overview</h2></div><label>Attendance date (WIB)<input type="date" value={day} onChange={e=>{setDay(e.target.value);void reload(e.target.value)}}/></label></div>
  <p className="micro">Registered and eligible counts refer to the entire event; attendance and scan counts follow the selected date. Leave the date blank for event-wide totals.</p>
