@@ -70,7 +70,8 @@ export default function BoothManagement(){
   useEffect(()=>{let alive=true;(async()=>{try{
     const person=await api("/api/admin/me");
     if(!alive)return;setActor(person);
-    const result=await api("/api/admin/booth-requests");
+    const target=new URLSearchParams(window.location.search).get("request");
+    const result=await api("/api/admin/booth-requests"+(target?"?id="+encodeURIComponent(target):""));
     if(!alive)return;const next=(result.records||[]) as Booth[];setRecords(next);
     if(next[0])updateSelection(next[0]);
   }catch(e){if(alive)setMessage(e instanceof Error?e.message:"Unable to load CMS")}
