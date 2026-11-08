@@ -77,6 +77,7 @@ const navGroups:Group[]=[
     {label:"Booth Units & Assignments",href:"/admin/booths",icon:"box",roles:OPS},
     {label:"Gate QR Scanner",href:"/admin/check-in",icon:"scan",roles:["SUPER_ADMIN","OPERATIONS","CHECKIN_STAFF"]},
     {label:"Gates & Passes",href:"/admin/check-in/settings",icon:"settings",roles:["SUPER_ADMIN","OPERATIONS"]},
+    {label:"Pre-registration & Badges",href:"/admin/bulk",icon:"users",roles:["SUPER_ADMIN","OPERATIONS"]},
     {label:"Check-ins",href:"/admin/reports",icon:"activity",roles:["SUPER_ADMIN","OPERATIONS","VIEWER"]}
   ]},
   {title:"Insights",items:[

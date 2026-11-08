@@ -20,12 +20,13 @@ export async function expireStale(tx: Tx | typeof db = db) {
   await tx.invitation.updateMany({where: {status: "INVITED", expiresAt: {lt: new Date()}}, data: {status: "EXPIRED"}});
 }
 
+export const inviteLink = (token: string) => portal() + "/account/invitation?token=" + encodeURIComponent(token);
 /** Creates invitations and emails the links. On mail failure the invitation is revoked so no dead seat is held. */
 export async function createInvitations(rows: Prisma.InvitationUncheckedCreateInput[], subject: string, intro: (r: {fullName: string}) => string) {
   const tokens = rows.map(() => randomToken());
   const created = await db.$transaction(rows.map((r, i) => db.invitation.create({data: {...r, email: safeEmail(r.email), tokenHash: hashToken(tokens[i]), expiresAt: new Date(Date.now() + INVITE_TTL_MS)}})));
   for (let i = 0; i < created.length; i++) {
-    const link = portal() + "/account/invitation?token=" + encodeURIComponent(tokens[i]);
+    const link = inviteLink(tokens[i]);
     try {
       await sendMail(created[i].email, subject, intro(created[i]) + "\n\nAccept the invitation (valid 7 days, sign in or create your account with this email address):\n" + link +
         "\n\nIf you did not expect this, ignore this email.");
@@ -51,10 +52,11 @@ export const maskEmail = (e: string) => e.replace(/^(.)(.*)(@.*)$/, (_, a, b, c)
 export async function previewInvitation(token: string) {
   const inv = await findByToken(token);
   const booth = inv.boothRequestId ? await db.boothRequest.findUnique({where: {id: inv.boothRequestId}, select: {companySnapshot: true}}) : null;
+  const ev = inv.eventId ? await db.event.findUnique({where: {id: inv.eventId}, select: {title: true}}) : null;
   const conf = inv.conferenceId ? await db.conference.findUnique({where: {id: inv.conferenceId}, select: {title: true, startsAt: true}}) : null;
   const company = (booth?.companySnapshot as {name?: string} | null);
   return {kind: inv.kind, status: inv.status, email: maskEmail(inv.email), fullName: inv.fullName, expiresAt: inv.expiresAt,
-    company: company?.name || null, programme: conf?.title || null, programmeStartsAt: conf?.startsAt || null};
+    company: company?.name || null, event: ev?.title || null, programme: conf?.title || null, programmeStartsAt: conf?.startsAt || null};
 }
 
 async function issueExpoPass(tx: Tx, accountId: string, enrollmentId: string, eventId: string, endsAt: Date) {
@@ -87,6 +89,17 @@ export async function acceptInvitation(token: string, account: {id: string; emai
           await issueExpoPass(tx, account.id, e.id, booth.eventId, booth.event.endsAt);
           await tx.notificationOutbox.create({data: {topic: "PASS_READY", dedupeKey: "pass-ready:" + e.id, payload: {enrollmentId: e.id}}});
           enrollmentId = e.id;
+        } else if (inv.kind === "PREREGISTERED_VISITOR") {
+          const event = await tx.event.findUniqueOrThrow({where: {id: inv.eventId!}});
+          if (!event.published) throw new HttpError(409, "EVENT_NOT_FOUND", "Event is not open.");
+          const existing = await tx.enrollment.findFirst({where: {accountId: account.id, eventId: event.id, type: "VISITOR", status: {notIn: ["CANCELLED", "REJECTED"]}}});
+          const e = existing ?? await tx.enrollment.create({data: {accountId: account.id, eventId: event.id, type: "VISITOR", status: "CONFIRMED", confirmedAt: new Date(), consentAt: new Date(),
+            profileSnapshot: {...snapshot, role: "PREREGISTERED_VISITOR", invitationId: inv.id}}});
+          if (!existing) {
+            await issueExpoPass(tx, account.id, e.id, event.id, event.endsAt);
+            await tx.notificationOutbox.create({data: {topic: "PASS_READY", dedupeKey: "pass-ready:" + e.id, payload: {enrollmentId: e.id}}});
+          }
+          enrollmentId = e.id;
         } else {
           const conf = await tx.conference.findUniqueOrThrow({where: {id: inv.conferenceId!}});
           if (!conf.published) throw new HttpError(409, "CONFERENCE_NOT_FOUND", "Programme is no longer available.");
@@ -115,7 +128,9 @@ export async function acceptInvitation(token: string, account: {id: string; emai
 export async function revokeInvitation(tx: Tx, id: string, reason: string) {
   const inv = await tx.invitation.findUniqueOrThrow({where: {id}});
   if (!OPEN.includes(inv.status)) return inv;
-  if (inv.status === "ACCEPTED" && inv.enrollmentId) {
+  const own = inv.enrollmentId ? await tx.enrollment.findUnique({where: {id: inv.enrollmentId}, select: {profileSnapshot: true}}) : null;
+  // Only an enrollment created by this invitation is cancelled (never a registration the person made themselves).
+  if (inv.status === "ACCEPTED" && inv.enrollmentId && (own?.profileSnapshot as {invitationId?: string} | null)?.invitationId === inv.id) {
     await tx.enrollment.update({where: {id: inv.enrollmentId}, data: {status: "CANCELLED"}});
     await tx.eventPass.updateMany({where: {enrollmentId: inv.enrollmentId, status: "ACTIVE"}, data: {status: "REVOKED", revokedAt: new Date(), revokeReason: reason}});
   }

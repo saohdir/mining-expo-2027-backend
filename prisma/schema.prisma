@@ -685,6 +685,7 @@ model Invitation {
   enrollmentId String?
   groupId String?
   conferenceId String?
+  eventId String?
   email String
   fullName String
   tokenHash String @unique

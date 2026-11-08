@@ -2,7 +2,7 @@
 import {useEffect, useState} from "react";
 import {AuthPanel} from "../AuthPanel";
 
-type Preview = {kind: string; status: string; email: string; fullName: string; expiresAt: string; company: string | null; programme: string | null};
+type Preview = {kind: string; status: string; email: string; fullName: string; expiresAt: string; company: string | null; event: string | null; programme: string | null};
 const KEY = "imdx-invite";
 /** FR-156/FR-059: accept an invitation with your own account. The token is moved out of the address bar into
  * this tab's session storage so it survives sign-in/sign-up without leaking via history or referrers. */
@@ -29,21 +29,21 @@ export default function InvitationPage() {
       setState("done");
     } finally { setBusy(false); }
   };
-  const staff = p?.kind === "EXHIBITOR_STAFF";
+  const staff = p?.kind === "EXHIBITOR_STAFF", prereg = p?.kind === "PREREGISTERED_VISITOR";
   return <main className="portal-shell"><section className="portal-auth" aria-live="polite">
     <p className="eyebrow">IMDX 2027 INVITATION</p>
     {state === "checking" && <p role="status">Checking your invitation…</p>}
     {state === "invalid" && <><h1>Invitation not found.</h1><p>This link is invalid. Ask the person who invited you to send a new invitation.</p><a className="button-link" href="/account">Go to my account</a></>}
     {(state === "ready" || state === "login") && p && <>
-      <h1>{staff ? "Booth representative" : "Conference delegate"}</h1>
-      <p>{staff ? <>{p.company || "An exhibitor"} invited <strong>{p.fullName}</strong> to represent their booth at IMDX 2027. You will receive your own expo entry QR pass.</>
+      <h1>{staff ? "Booth representative" : prereg ? "You are pre-registered" : "Conference delegate"}</h1>
+      <p>{prereg ? <>The organizer pre-registered <strong>{p.fullName}</strong> as a visitor of {p.event || "IMDX 2027"}. Accept to receive your personal expo entry QR pass.</> : staff ? <>{p.company || "An exhibitor"} invited <strong>{p.fullName}</strong> to represent their booth at IMDX 2027. You will receive your own expo entry QR pass.</>
         : <><strong>{p.fullName}</strong> was registered as a delegate for <strong>{p.programme}</strong>. Your seat is confirmed by the organizer after review and payment.</>}</p>
       <p className="micro">Invitation for {p.email} · valid until {new Date(p.expiresAt).toLocaleString("en-GB", {timeZone: "Asia/Jakarta", dateStyle: "medium", timeStyle: "short"})} WIB · status {p.status}</p>
       {p.status !== "INVITED" ? <p role="alert">This invitation is {p.status.toLowerCase()} and can no longer be accepted.</p>
         : state === "login" ? <><p role="alert">Sign in, or create your account, with the invited email address ({p.email}).</p><AuthPanel registrationOpen={regOpen} onSignedIn={() => { setState("ready"); void accept(); }} /></>
         : <button disabled={busy} onClick={() => void accept()}>{busy ? "Accepting…" : "Accept invitation"}</button>}
     </>}
-    {state === "done" && <><h1>Invitation accepted.</h1><p>{staff ? "Your expo QR pass is in your account." : "Your registration is waiting for organizer confirmation."}</p><a className="button-link" href="/account">Open my account</a></>}
+    {state === "done" && <><h1>Invitation accepted.</h1><p>{staff || prereg ? "Your expo QR pass is in your account." : "Your registration is waiting for organizer confirmation."}</p><a className="button-link" href="/account">Open my account</a></>}
     {msg && <p role="alert" className="micro">{msg}</p>}
   </section></main>;
 }
