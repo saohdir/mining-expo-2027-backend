@@ -20,6 +20,18 @@ async function processJob(topic:string,p:Payload){
  if(topic==="BOOTH_REQUEST_RECEIVED")return deliver(toAdmin,"IMDX 2027 — new exhibitor booth request","A new exhibitor booth request requires review in the secure CMS. Reference: "+id+"\nOpen: "+portal+"/admin");
  if(b.account.email)return deliver(b.account.email,"IMDX booth request status","Your IMDX 2027 booth request status changed to "+b.status+". Sign in to view details: "+portal+"/account");return;
  }
+ if(["BOOTH_OFFER_READY","BOOTH_ASSIGNED"].includes(topic)){
+  const requestId=p.boothRequestId;
+  if(!requestId)throw Error("Missing booth request reference");
+  const booking=await db.boothRequest.findUnique({where:{id:requestId},include:{account:true}});
+  if(!booking)throw Error("Booth request missing");
+  if(!booking.account.email)return;
+  return deliver(booking.account.email,
+    topic==="BOOTH_OFFER_READY"?"IMDX — revised booth quotation":"IMDX — booth allocation update",
+    topic==="BOOTH_OFFER_READY"?
+      "An organizer quotation is ready for your review. Sign in to view the latest revision and accept it if appropriate: "+portal+"/account":
+      "Your IMDX booth allocation has been updated. Sign in to view the approved units: "+portal+"/account");
+ }
  if(topic==="ENROLLMENT_REVIEWED"){const id=(p as Payload & {enrollmentId?:string}).enrollmentId;if(!id)throw Error("Registration id missing");const r=await db.enrollment.findUnique({where:{id},include:{account:true}});if(!r||!r.account.email)throw Error("Missing registration email");return deliver(r.account.email,"IMDX registration decision","Your "+r.type+" registration is now "+r.status+". Sign in to your dashboard: "+portal+"/account");}
  if(topic==="MANUAL_PAYMENT_REQUEST"){if(!p.id)throw Error("Missing payment request id");return deliver(toAdmin,"IMDX 2027 — manual invoice requested","A customer has requested manual bank-transfer billing. Open CMS to review and issue an invoice. Reference: "+p.id+"\n"+portal+"/admin");}
  if(["INVOICE_ISSUED","INVOICE_EMAIL_SEND","PAYMENT_VERIFIED"].includes(topic)){if(!p.invoiceId)throw Error("Missing invoice id");
