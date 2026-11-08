@@ -3,7 +3,9 @@ import {useCallback,useEffect,useState} from "react";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
 type AccountData={id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
- enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:{id:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]}[];invoices:{id:string;number:string;status:string;totalMinor:string}[]};
+ enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:CustomerBooth[];invoices:{id:string;number:string;status:string;totalMinor:string}[]};
+type BoothOfferView={id:string;revision:number;offeredUnits:{id:string;code:string;hall:string|null;zone:string|null;areaSqm:string}[];offeredAreaSqm:string;quotedPriceMinor:string;expiresAt:string|null;acceptedAt:string|null;createdAt:string};
+type CustomerBooth={id:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];floorplan:{versionNo:number;units:{id:string;code:string;hall:string|null}[]};offers:BoothOfferView[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]};
 type Floorplan={state:string;id?:string;version?:number;title?:string;canvas?:{width:number;height:number};backgroundUrl?:string;units?:{id:string;code:string;category:string;hall?:string;areaSqm:string;status:string;x:number;y:number;w:number;h:number}[]};
 async function request(path:string,options:RequestInit={}){const res=await fetch(path,{...options,headers:{...(options.body?{"Content-Type":"application/json"}:{}),...options.headers},cache:"no-store"});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error((data as ApiError).message||(data as ApiError).issues?.map(i=>i.message).join(", ")||"Request failed");return data;}
 const send=(path:string,data:unknown)=>request(path,{method:"POST",body:JSON.stringify(data)});
@@ -62,10 +64,21 @@ export default function AccountPage(){
        <button disabled={busy||!selectedConference||selectedConference.registrationState!=="AVAILABLE"}>Submit conference registration</button></form>:<p>Conference registration has not been published by the organizer yet.</p>}
     </section>}
     {tab==="booth"&&<section><h2>Exhibitor booth request</h2><p>Choose preferred units on the published floorplan. Your selections are <strong>not a reservation</strong> until operations approve and assign them.</p>
-     {me.requests.map(x=><div className="record" key={x.id}><div><strong>{x.requestedAreaSqm} m² requested</strong><p className="micro">Request {x.id.slice(0,8)} · {x.status}{x.assignments?.length?" · Assigned: "+x.assignments.map(a=>a.boothUnit.code).join(", "):""}</p></div><div className="cms-row-actions">
- {x.status==="OFFERED"&&<button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/booth-requests/"+x.id+"/accept",{}),"Organizer offer accepted. Invoice can now be prepared.")}>Accept organizer offer</button>}
- {["ACCEPTED","WAITING_INVOICE","INVOICED","ALLOCATION_PENDING","CONFIRMED"].includes(x.status)&&<button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/manual-payment-request",{boothRequestId:x.id}),"Invoice request submitted.")}>Request invoice</button>}
- </div></div>)}
+     {me.requests.map(x=>{const offer=x.offers[0];return <article className="booth-customer-card" key={x.id}>
+       <div className="booth-card-top"><div><p className="eyebrow">BOOTH REQUEST / {x.id.slice(0,8)}</p><h3>Requested {x.requestedAreaSqm} m²</h3></div><span className="status">{x.status.replaceAll("_"," ")}</span></div>
+       <p className="micro">Preferred: {x.preferredUnitIds.map(id=>x.floorplan.units.find(u=>u.id===id)?.code||id.slice(0,8)).join(", ")} · Floorplan v{x.floorplan.versionNo}</p>
+       {offer?<div className="booth-quotation"><span className="eyebrow">ORGANIZER QUOTATION / REVISION {offer.revision}</span>
+        <strong>{money(offer.quotedPriceMinor)}</strong>
+        <p>Offered {offer.offeredAreaSqm} m² · {offer.offeredUnits.map(u=>u.code+(u.hall?" ("+u.hall+")":"")).join(", ")}</p>
+        <p className="micro">Issued {new Date(offer.createdAt).toLocaleDateString("en-GB",{timeZone:"Asia/Jakarta"})}{offer.expiresAt?" · Expires "+new Date(offer.expiresAt).toLocaleDateString("en-GB",{timeZone:"Asia/Jakarta"}):""}</p>
+        {offer.acceptedAt?<p className="micro"><strong>Accepted:</strong> {new Date(offer.acceptedAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})} WIB</p>:<p className="micro">Offer is not a reservation. Operations will allocate only after approved payment verification.</p>}
+       </div>:<p className="micro">Awaiting organizer review and quotation. Your preferred units are not held.</p>}
+       {x.assignments.length>0&&<p><strong>Assigned units:</strong> {x.assignments.map(a=>a.boothUnit.code).join(", ")}</p>}
+       <div className="cms-row-actions">
+       {x.status==="OFFERED"&&offer&&!offer.acceptedAt&&<button disabled={busy||Boolean(offer.expiresAt&&new Date(offer.expiresAt)<=new Date())}
+         onClick={()=>void doAction(()=>send("/api/customer/booth-requests/"+x.id+"/accept",{offerId:offer.id}),"Organizer quotation accepted. Final allocation requires verified payment.")}>Accept quotation revision {offer.revision}</button>}
+       {["ACCEPTED","WAITING_INVOICE","INVOICED","ALLOCATION_PENDING"].includes(x.status)&&offer?.acceptedAt&&<button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/manual-payment-request",{boothRequestId:x.id}),"Invoice request submitted.")}>Request manual invoice</button>}
+       </div></article>})}
      {plan?.state==="PUBLISHED"&&plan.canvas?<>
       <div className="floorplan-frame"><svg role="group" aria-label="Available booth preferences" viewBox={"0 0 "+plan.canvas.width+" "+plan.canvas.height}>
         <rect x={0} y={0} width={plan.canvas.width} height={plan.canvas.height} fill="#fff3e9"/>
