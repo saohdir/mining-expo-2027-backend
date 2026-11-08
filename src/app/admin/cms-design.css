@@ -388,3 +388,42 @@ body:has(.imdx-cms){background:var(--color-bg-page,#F9F0E2)}
 .imdx-cms-payment-guide p{margin:4px 0 0;font-size:13px;color:var(--color-text-secondary)}
 @media(max-width:1100px){.imdx-cms-booth-compare{grid-template-columns:1fr}.imdx-cms-payment-guide{align-items:start}}
 @media(max-width:767px){.imdx-cms-booth-status-row{align-items:start}.imdx-cms-booth-compare{grid-template-columns:1fr}.imdx-cms-payment-guide{padding:16px}}
+
+/* PRD v1.4 regression fixes: restored operational tabs and floorplan canvas affordances. */
+.imdx-cms .cms-workspace-tabs{
+ display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+ padding:0 0 16px;margin:0 0 24px;border-bottom:1px solid var(--color-border-default)
+}
+.imdx-cms .cms-workspace-tabs button{
+ min-height:44px;padding:10px 15px!important;
+ background:var(--color-surface-card)!important;
+ color:var(--color-text-primary)!important;
+ border:1px solid var(--color-border-default)!important;
+ border-radius:4px!important;
+ font-size:13px;font-weight:500
+}
+.imdx-cms .cms-workspace-tabs button.chosen,
+.imdx-cms .cms-workspace-tabs button[aria-current="page"]{
+ background:var(--color-brand-soft-16)!important;
+ border-color:var(--color-brand-600)!important;
+ font-weight:700
+}
+.imdx-cms #cms-payment-requests,.imdx-cms #cms-invoices{scroll-margin-top:135px}
+.imdx-cms .floorplan-frame{background:var(--color-surface-card-soft);min-height:340px}
+.imdx-cms .floorplan-frame>p.micro{margin:0 0 8px;color:var(--color-text-secondary)}
+.imdx-cms .floorplan-frame svg{
+ width:100%;min-width:350px;min-height:260px;
+ touch-action:pan-y;user-select:none
+}
+.imdx-cms .floorplan-frame [role=button]{
+ cursor:move;outline-offset:3px
+}
+.imdx-cms .floorplan-publish-review{margin:20px 0}
+.imdx-cms .cms-review-form{display:grid;grid-template-columns:minmax(180px,.5fr) minmax(240px,1fr) auto;gap:14px;align-items:end}
+.imdx-cms .cms-review-form button{margin:12px 0;min-height:45px}
+@media(max-width:1000px){.imdx-cms .cms-review-form{grid-template-columns:1fr}}
+@media(max-width:767px){
+ .imdx-cms .cms-workspace-tabs{flex-wrap:nowrap;overflow:auto;scrollbar-width:thin;padding-bottom:14px}
+ .imdx-cms .cms-workspace-tabs button{white-space:nowrap;flex-shrink:0}
+ .imdx-cms .floorplan-frame{min-height:240px}
+}
