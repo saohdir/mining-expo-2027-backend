@@ -16,11 +16,11 @@ UAT verification of all rows is **pending** (S0-01 DB migration state unknown). 
 
 ## Summary (updated per slice — see bottom changelog)
 
-Snapshot after slices F, G, E, B/C, H/I/A and frontend PR #1 (150 FR rows listed; P1/P2 items not listed are out of MVP):
+Snapshot after slices F, G, E, B/C, H/I/A and frontend PR #1 (151 FR rows listed; P1/P2 items not listed are out of MVP):
 
 | Priority | VERIFIED | UNVERIFIED | PARTIAL | NOT |
 | --- | --- | --- | --- | --- |
-| P0 (139 rows) | 103 | 8 | 27 | 1 (FR-110, depends on P1 directory) |
+| P0 (140 rows) | 103 | 8 | 28 | 1 (FR-110, depends on P1 directory) |
 | P1/P2 (11 rows) | 1 | 0 | 2 | 8 |
 
 Many PARTIAL P0 rows are blocked only by owner content/legal decisions (D-01/D-02/D-04/D-12) or need device/UAT evidence.
