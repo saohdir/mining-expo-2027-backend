@@ -622,6 +622,30 @@ model DataRequest {
   resolvedBy String?
   @@index([status,createdAt])
 }
+model PageLayout {
+  id String @id @default(uuid())
+  pageKey String
+  locale String @default("en")
+  draft Json
+  published Json?
+  version Int @default(0)
+  draftUpdatedAt DateTime @default(now())
+  draftUpdatedBy String
+  publishedAt DateTime?
+  publishedBy String?
+  @@unique([pageKey,locale])
+}
+model PageRevision {
+  id String @id @default(uuid())
+  pageKey String
+  locale String
+  version Int
+  layout Json
+  reason String
+  publishedBy String
+  publishedAt DateTime @default(now())
+  @@unique([pageKey,locale,version])
+}
 model InternalNote {
   id String @id @default(uuid())
   resourceType String
