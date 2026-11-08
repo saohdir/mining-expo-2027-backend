@@ -63,6 +63,17 @@ export default function AccountPage(){
          <text x={u.x+5} y={u.y+17} fontSize={13} fill="#351109">{u.code}</text></g>)}
        </svg></div>
       <p className="micro">{chosen.length} preferred booth(s) selected. Green = available; gray = unavailable; orange = selected.</p>
+      <div className="booth-choices-heading"><div><h3>Choose by booth list</h3><p className="micro">Accessible alternative to the interactive map. These are preferences only; no space is held or reserved.</p></div><span className="status">{chosen.length} SELECTED</span></div>
+      <div className="booth-choice-list" role="group" aria-label="Preferred booth units">
+        {plan.units?.length?plan.units.map(u=><button type="button" key={u.id}
+          className={"booth-choice"+(chosen.includes(u.id)?" is-selected":"")}
+          disabled={u.status!=="AVAILABLE"} aria-pressed={chosen.includes(u.id)}
+          onClick={()=>setChosen(prev=>prev.includes(u.id)?prev.filter(id=>id!==u.id):[...prev,u.id])}>
+          <strong>{u.code}</strong>
+          <small>{u.hall||"Hall to be confirmed"} · {u.areaSqm} m²</small>
+          <span>{u.status==="AVAILABLE"?(chosen.includes(u.id)?"Selected ✓":"Available"):"Unavailable"}</span>
+        </button>):<p className="micro">No booth units have been published yet.</p>}
+      </div>
       <form onSubmit={e=>{e.preventDefault();void doAction(()=>send("/api/customer/booth-requests",{eventCode:event?.code||"IMDX-2027",floorplanId:plan.id,preferredUnitIds:chosen,requestedAreaSqm:Number(area),company,notes,consent:true}),"Booth preference received. Organizer will review availability.")}}>
        <div className="form-grid"><label>Company name<input value={company} required minLength={2} onChange={e=>setCompany(e.target.value)}/></label><label>Requested area (m²)<input type="number" step="0.1" min="1" max="10000" value={area} required onChange={e=>setArea(e.target.value)}/></label></div>
        <label>Notes / preferred arrangement<textarea value={notes} onChange={e=>setNotes(e.target.value)} maxLength={1000}/></label><button disabled={busy||chosen.length===0} type="submit">Submit booth request</button></form></>:<p>The organizer has not published a booth floorplan. You can return after publication.</p>}
