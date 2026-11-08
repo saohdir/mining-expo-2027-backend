@@ -10,10 +10,18 @@ const draft=(v:Conference):FormFields=>({title:v.title,slug:v.slug,feeMinor:v.fe
 export default function ConferencesCms(){
  const [items,setItems]=useState<Conference[]>([]),[id,setId]=useState(""),[form,setForm]=useState<FormFields>({title:"",slug:"",feeMinor:"",capacity:"",startsAt:""}),[newForm,setNewForm]=useState({title:"",slug:""}),[reason,setReason]=useState(""),[approved,setApproved]=useState(false),[message,setMessage]=useState(""),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[role,setRole]=useState("");
  const selected=useMemo(()=>items.find(x=>x.id===id)||null,[items,id]);const canEdit=role==="SUPER_ADMIN"||role==="OPERATIONS";
- const load=async(preserve=true)=>{const d=await req("/api/admin/conferences");setItems(d.records||[]);const next=(d.records as Conference[]).find(x=>x.id===(preserve?id:""))||d.records[0];if(next){setId(next.id);setForm(draft(next))}};
- useEffect(()=>{(async()=>{try{const a=await req("/api/admin/me");setRole(a.role);await load(false)}catch(e){setMessage(e instanceof Error?e.message:"Unable to load")}finally{setLoading(false)}})()},[]);
+ const load=async(preferredId?:string)=>{const d=await req("/api/admin/conferences");const records=(d.records||[]) as Conference[];setItems(records);
+   const next=records.find(x=>x.id===(preferredId||id))||records[0];
+   if(next){setId(next.id);setForm(draft(next))}
+   else{setId("");setForm({title:"",slug:"",feeMinor:"",capacity:"",startsAt:""})}
+ };
+ useEffect(()=>{(async()=>{try{const a=await req("/api/admin/me");setRole(a.role);await load()}catch(e){setMessage(e instanceof Error?e.message:"Unable to load")}finally{setLoading(false)}})()},[]);
  const change=(key:keyof FormFields,value:string)=>setForm(old=>({...old,[key]:value}));
- const run=async(fn:()=>Promise<void>)=>{setSaving(true);setMessage("");try{await fn();setMessage("Saved in CMS and recorded in the audit log.");await load();setReason("");setApproved(false)}catch(e){setMessage(e instanceof Error?e.message:"Unable to save")}finally{setSaving(false)}};
+ const run=async(fn:()=>Promise<void|string>)=>{setSaving(true);setMessage("");try{
+   const target=await fn();
+   await load(typeof target==="string"?target:undefined);
+   setMessage("Saved in CMS and recorded in the audit log.");setReason("");setApproved(false);
+ }catch(e){setMessage(e instanceof Error?e.message:"Unable to save")}finally{setSaving(false)}};
  const save=async(publish?:boolean)=>{
   if(!selected)return;if(reason.trim().length<8)throw Error("Please give a reason with at least 8 characters.");
   if(publish&&(!approved||form.feeMinor===""))throw Error("Before publication, explicitly confirm organizer approval and set the approved fee (0 for free).");
@@ -32,7 +40,7 @@ export default function ConferencesCms(){
  {loading?<section className="cms-panel">Loading programmes…</section>:<div className="program-layout">
  <section className="cms-panel program-list"><div className="payment-heading-row"><h2>Conference programmes</h2><small>{items.length} programs</small></div>
  {items.map((r,i)=><button key={r.id} type="button" onClick={()=>{setId(r.id);setForm(draft(r));setReason("");setApproved(false);setMessage("")}} className={"program-item "+(id===r.id?"selected":"")}><span className="eyebrow">{String(i+1).padStart(2,"0")} / {r.published?"PUBLISHED":"DRAFT"}</span><strong>{r.title}</strong><small>{r.startsAt?new Date(r.startsAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB":"Schedule TBA"} · {r.activeEnrollmentCount} active / {r.capacity??"TBA"} capacity</small></button>)}
- {canEdit&&<form className="program-new" onSubmit={e=>{e.preventDefault();void run(async()=>{await req("/api/admin/conferences","POST",{title:newForm.title,slug:newForm.slug,eventCode:"IMDX-2027",feeMinor:null,capacity:null,startsAt:null});setNewForm({title:"",slug:""})})}}>
+ {canEdit&&<form className="program-new" onSubmit={e=>{e.preventDefault();void run(async()=>{const created=await req("/api/admin/conferences","POST",{title:newForm.title,slug:newForm.slug,eventCode:"IMDX-2027",feeMinor:null,capacity:null,startsAt:null});setNewForm({title:"",slug:""});return created.id as string})}}>
  <h3>Create a draft programme</h3><label>Programme title<input required minLength={10} value={newForm.title} onChange={e=>setNewForm(f=>({...f,title:e.target.value,slug:slug(e.target.value)}))}/></label>
  <label>URL slug<input required pattern="[a-z0-9-]+" minLength={3} value={newForm.slug} onChange={e=>setNewForm(f=>({...f,slug:e.target.value}))}/></label><button disabled={saving}>Create draft ↗</button></form>}
  </section>
