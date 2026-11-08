@@ -9,7 +9,7 @@ test("every protected admin page shares one responsive shell",()=>{
   const css=read("src/app/admin/cms-design.css");
   assert.match(layout,/<CmsShell>/);
   for(const name of ["Main","Finance","Operations","Insights","Content","System"]) assert.ok(shell.includes('title:"'+name+'"'));
-  assert.match(shell,/item\.roles\.includes\(actor\.role\)/);
+  assert.match(shell,/i\.roles\.includes\(actor\.role\)/);
   assert.match(css,/width:260px/);
   assert.match(css,/max-width:1279px/);
   assert.match(css,/max-width:767px/);
