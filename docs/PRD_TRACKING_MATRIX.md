@@ -263,6 +263,43 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-041 | P2 | VERIFIED (config) | `ACTIVE_EVENT_CODE`, edition create with setup clone, four-eyes page approval (E2E) | role approval for non-page content (news/partners) not covered |
 | FR-017 | P1 | PARTIAL | see section A | D-02 packages |
 
+## NFR (PRD v1.4 §8) — evidence
+
+| NFR | Status | Evidence | Remaining / owner |
+| --- | --- | --- | --- |
+| NFR-01 Responsive | VERIFIED | all 13 public pages + /account at 360 px: no horizontal scroll (`public-quality.browser.mjs`); mobile flows in UI/floorplan browser tests | — |
+| NFR-02 Accessibility | PARTIAL | lang, single h1, image alt, named controls, labelled inputs on every public page (BR); keyboard floorplan viewer (BR) | full WCAG 2.2 AA audit with screen reader on devices |
+| NFR-03 Performance | NOT MEASURED | static site, lazy images, WebP assets | Lighthouse/CrUX on the production host (deployment-dependent) |
+| NFR-04 SEO | PARTIAL | per page/locale title+description (CMS), canonical, OG, JSON-LD, sitemap/robots | separate /id URLs + hreflang after ID copy (D-12), canonical domain at go-live |
+| NFR-05 Security | VERIFIED | zod validation, rate limits, RBAC per endpoint, same-origin checks, upload sniffing/encryption, secrets only in env (E2E across suites) | external pentest before go-live |
+| NFR-06 Data privacy | PARTIAL | consent version/time, restricted PII, data requests, retention engine (E2E) | privacy text + PDP review (D-12/D-13) |
+| NFR-07 Reliability | VERIFIED | versioned additive SQL migrations + UAT runner, backup script, restore drill, ops status (E2E + local drill) | install cron on VPS, off-site copy |
+| NFR-08 Availability | OPS | `/api/health?deep=1` for uptime monitoring | choose monitor + alert recipient |
+| NFR-09 i18n | PARTIAL | EN/ID switch, ID layouts with EN fallback, CMS-editable text per locale | Indonesian copy (D-12) |
+| NFR-10 Analytics | VERIFIED | trigger-maintained daily counters for all listed events, no PII columns (`analytics.e2e.mjs`) | — |
+| NFR-11 Maintainability | PARTIAL | TypeScript strict, typecheck + unit + E2E in CI, docs | no ESLint config yet |
+| NFR-12 Compliance | OWNER | rights gate on partner logos/assets, media credits | image/logo/legal permissions (D-12) |
+| NFR-13 Payment security | VERIFIED | manual transfer only, no gateway secrets/webhooks, finance verification (E2E) | — |
+| NFR-14 Payment reliability | VERIFIED | idempotent requests, append-only ledger, outbox retries (E2E) | — |
+| NFR-15 Transactional UX | VERIFIED | DP vs paid vs cancelled states in account/invoice UI (E2E + BR) | — |
+| NFR-16 QR privacy | VERIFIED | opaque tokens, hash lookup, sealed render token, revoke/reissue, no PII on invalid scan (E2E, AT-077) | — |
+| NFR-17 Gate reliability | VERIFIED | CMS-only scanner, atomic once/day, offline fail-closed, manual code fallback (E2E + BR) | device test (FR-089) |
+| NFR-18 Account security | VERIFIED | password + OTP-for-registration, throttling, session separation (CR-AUTH-01 E2E) | — |
+| NFR-19 Viewer performance | PARTIAL | 500-unit floorplan render in browser test | fps measurement on mid-range device |
+| NFR-20 Data integrity | VERIFIED | partial unique indexes (one active assignment/hold, one published plan), atomic publish (E2E) | — |
+| NFR-21 Upload security | VERIFIED | SVG sanitiser/rasterise, MIME + magic sniffing, size limits (E2E, UT) | — |
+| NFR-22 Public privacy | VERIFIED | public endpoints return no PII/prices/notes (E2E) | — |
+| NFR-23 OTP security | VERIFIED | hashed OTP, 5-min expiry, attempt cooldown, per destination/IP throttles, non-enumerating (E2E) | — |
+| NFR-24 Admin financial security | VERIFIED | role scopes, maker-checker threshold, immutable ledger, versioned invoices, audited exports (E2E) | D-11 threshold value |
+| NFR-25 Report accuracy | VERIFIED | WIB day semantics, unique registrants vs attendees vs entries (E2E) | — |
+| NFR-26 Export performance | PARTIAL | queued export jobs, private expiring downloads, formula-safe cells (E2E) | 100k-row load test |
+| NFR-27 Data consistency | VERIFIED | serializable transactions, idempotency keys on critical writes (E2E) | — |
+| NFR-28 Personal data | PARTIAL | consent version, encrypted private files, retention engine | PDP legal review, breach procedure (D-13) |
+| NFR-29 Backups & observability | VERIFIED | backup + restore drill scripts, worker heartbeat, outbox/finance alerts (E2E) | schedule on VPS, alert channel |
+| NFR-30 Mobile scanner | PARTIAL | camera + manual fallback in CMS scanner (BR desktop) | Android Chrome / iOS Safari device test |
+| NFR-31 Customer experience | VERIFIED | login before intent, return URL keeps programme/booth (AT-057 E2E + BR) | — |
+| NFR-32 Owner approval gates | VERIFIED | flags default off; bank, prices, tax, retention only via approved config | owner approvals |
+
 ## Blocked by owner decisions (fail-closed defaults in code)
 D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056/131 payout), D-04 SMS provider (FR-068/AT-060), D-05 WhatsApp API (FR-158), D-09 reentry default (FR-085), D-10 proof policy (FR-128 size/retention), D-11 maker-checker threshold (FR-132), D-12 legal/content (FR-012/005/009), D-13 retention (FR-150), D-14 hosting.
 
@@ -279,5 +316,6 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - CR-AUTH-01 (approved change request): customer sign-in moved from passwordless OTP to email + password; OTP only for registration. See `docs/CR-AUTH-01_CUSTOMER_PASSWORD_AUTH.md`. Migration `20261110010000_customer_password_auth`.
 - CMS Pages & layout builder (FR-034/038, NFR-04 SEO per page): `docs/CMS_PAGE_BUILDER.md`. Migration `20261110020000_page_builder`.
 - Public conference pages (FR-006) and EN/ID language switch (FR-001/NFR-09 infrastructure).
+- CMS field editing (designed-section text/links/images + header/footer), NFR-10 analytics, NFR-07/29 backups/drill/ops status, NFR-01/02 public quality test; NFR table added. Migration `20261112010000_analytics` (additive).
 - Remaining technical P0 (branch `feat/prd14-p0-remaining`): AT-077 E2E; FR-125 configured taxes/fees; FR-150 retention engine → VERIFIED (values still owner decisions D-01/D-13, engines off until saved). Migration `20261111010000_p0_remaining` (additive).
 - P1/P2 extensions (branch `feat/prd14-p1-p2`): FR-157/156/059/154/113/032/159/158/041 built behind flags (default off). Migration `20261110030000_p1_p2_extensions` (additive). See `docs/P1_P2_EXTENSIONS.md`.
