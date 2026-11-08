@@ -19,6 +19,7 @@ async function processJob(topic:string,p:Payload){
  if(topic==="BOOTH_REQUEST_RECEIVED")return deliver(toAdmin,"IMDX 2027 — new exhibitor booth request","A new exhibitor booth request requires review in the secure CMS. Reference: "+id+"\nOpen: "+portal+"/admin");
  if(b.account.email)return deliver(b.account.email,"IMDX booth request status","Your IMDX 2027 booth request status changed to "+b.status+". Sign in to view details: "+portal+"/account");return;
  }
+ if(topic==="ENROLLMENT_REVIEWED"){const id=(p as Payload & {enrollmentId?:string}).enrollmentId;if(!id)throw Error("Registration id missing");const r=await db.enrollment.findUnique({where:{id},include:{account:true}});if(!r||!r.account.email)throw Error("Missing registration email");return deliver(r.account.email,"IMDX registration decision","Your "+r.type+" registration is now "+r.status+". Sign in to your dashboard: "+portal+"/account");}
  if(topic==="MANUAL_PAYMENT_REQUEST"){if(!p.id)throw Error("Missing payment request id");return deliver(toAdmin,"IMDX 2027 — manual invoice requested","A customer has requested manual bank-transfer billing. Open CMS to review and issue an invoice. Reference: "+p.id+"\n"+portal+"/admin");}
  if(["INVOICE_ISSUED","INVOICE_EMAIL_SEND","PAYMENT_VERIFIED"].includes(topic)){if(!p.invoiceId)throw Error("Missing invoice id");
  const inv=await db.invoice.findUnique({where:{id:p.invoiceId},include:{account:true}});if(!inv||!inv.account.email)throw Error("Invoice/customer email unavailable");

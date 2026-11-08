@@ -51,7 +51,10 @@ export default function AccountPage(){
        <label>Select conference<select required value={conference} onChange={e=>setConference(e.target.value)}><option value="">Choose an available conference</option>{event.conferences.map(c=><option key={c.id} value={c.id}>{c.title}</option>)}</select></label><button disabled={busy||!conference}>Submit conference registration</button></form>:<p>Conference registration has not been published by the organizer yet.</p>}
     </section>}
     {tab==="booth"&&<section><h2>Exhibitor booth request</h2><p>Choose preferred units on the published floorplan. Your selections are <strong>not a reservation</strong> until operations approve and assign them.</p>
-     {me.requests.map(x=><div className="record" key={x.id}><div><strong>{x.requestedAreaSqm} m² requested</strong><p className="micro">Request {x.id.slice(0,8)} · {x.status}{x.assignments?.length?" · Assigned: "+x.assignments.map(a=>a.boothUnit.code).join(", "):""}</p></div><button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/manual-payment-request",{boothRequestId:x.id}),"Invoice request submitted.")}>Request invoice</button></div>)}
+     {me.requests.map(x=><div className="record" key={x.id}><div><strong>{x.requestedAreaSqm} m² requested</strong><p className="micro">Request {x.id.slice(0,8)} · {x.status}{x.assignments?.length?" · Assigned: "+x.assignments.map(a=>a.boothUnit.code).join(", "):""}</p></div><div className="cms-row-actions">
+ {x.status==="OFFERED"&&<button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/booth-requests/"+x.id+"/accept",{}),"Organizer offer accepted. Invoice can now be prepared.")}>Accept organizer offer</button>}
+ {["ACCEPTED","WAITING_INVOICE","INVOICED","ALLOCATION_PENDING","CONFIRMED"].includes(x.status)&&<button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/manual-payment-request",{boothRequestId:x.id}),"Invoice request submitted.")}>Request invoice</button>}
+ </div></div>)}
      {plan?.state==="PUBLISHED"&&plan.canvas?<>
       <div className="floorplan-frame"><svg role="group" aria-label="Available booth preferences" viewBox={"0 0 "+plan.canvas.width+" "+plan.canvas.height}>
         <rect x={0} y={0} width={plan.canvas.width} height={plan.canvas.height} fill="#fff3e9"/>
