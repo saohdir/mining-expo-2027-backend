@@ -13,6 +13,7 @@ export default function NotificationsPage(){
   const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState("");
   const canInspect=actor?.role==="SUPER_ADMIN"||actor?.role==="OPERATIONS";
   const reload=useCallback(async()=>{
+    setError("");
     try{
       const [r,o]=await Promise.all([
         fetch("/api/admin/notifications",{cache:"no-store"}),
@@ -27,12 +28,15 @@ export default function NotificationsPage(){
   },[canInspect]);
   useEffect(()=>{void reload()},[reload]);
   const read=async(ids:string[])=>{
+    if(!ids.length||saving)return;
     setSaving(true);setError("");
     try{
-      for(const id of ids){
-        const r=await fetch("/api/admin/notifications",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
-        if(!r.ok)throw Error("Unable to mark notification as read");
-      }
+      const response=await fetch("/api/admin/notifications",{
+        method:"PATCH",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(ids.length===1?{id:ids[0]}:{ids})
+      });
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.message||"Unable to update notifications.");
       await reload();
     }catch(e){setError(e instanceof Error?e.message:"Unable to update")}
     finally{setSaving(false)}
