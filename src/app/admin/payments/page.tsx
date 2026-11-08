@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
+import CmsStatus from "../components/CmsStatus";
 type Invoice={id:string;number:string;status:string;paymentStatus:string;customerName:string;organization:string|null;email:string|null;bookingType:string;bookingLabel:string;totalMinor:string;paidMinor:string;outstandingMinor:string;minimumDpMinor:string;verifiedReceiptCount:number;createdAt:string};
 type Payload={records:Invoice[];total:number;page:number};
 const rp=(n:string)=>"Rp "+Number(n).toLocaleString("id-ID");
@@ -37,30 +38,31 @@ export default function PaymentManagement(){
  };
  return <main className="portal-shell portal-payments">
  <nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>IMDX 2027 / ORGANIZER CMS</span><a href="/admin">Back to dashboard ↗</a></nav>
- <header className="portal-heading cms-editorial-heading"><p className="eyebrow">04 / FINANCE OPERATIONS</p><h1>Payment <em>management.</em></h1><p>Manual bank transfer only. Manage invoice status after checking payment outside the website; no payment gateway or automatic checkout.</p></header>
+ <header className="portal-heading cms-editorial-heading"><p className="eyebrow">04 / FINANCE OPERATIONS</p><h1>Payments <em>& reconciliation.</em></h1><p>Manual bank transfer only. Manage invoice status after checking payment outside the website; no payment gateway or automatic checkout.</p></header>
  {message&&<div className="notice" role="status">{message}</div>}
  {loading?<section className="cms-panel">Loading invoices…</section>:!me?<section className="cms-panel"><p>Sign in to the CMS first.</p><a className="button-link" href="/admin">CMS sign in</a></section>:
  <>
- <div className="payment-summary" aria-label="Payment status definitions">
- {["AWAITING_PAYMENT","DP_RECEIVED","PAID_IN_FULL","CANCELLED"].map((k,i)=><div className="payment-stat" key={k}><span>0{i+1} / STATUS</span><strong>{labels[k]}</strong><small>{["Invoice issued; no confirmed funds","Partial funds verified by Finance","Outstanding balance is zero","Cancelled without unresolved receipts"][i]}</small></div>)}
+ <div className="imdx-cms-payment-guide" aria-label="Payment status definitions">
+  <div><strong>Manual bank transfer verification</strong><p>Proof of transfer is not confirmation of funds. Only Finance may verify bank receipts and update the payment ledger.</p></div>
+  <div><CmsStatus domain="Payment" value="AWAITING_PAYMENT"/><CmsStatus domain="Payment" value="DP_RECEIVED"/><CmsStatus domain="Payment" value="PAID_IN_FULL"/></div>
  </div>
  <div className="payment-layout">
  <section className="cms-panel payment-list-panel">
  <div className="payment-heading-row"><div><p className="eyebrow">INVOICE REGISTER</p><h2>Customer payments</h2></div><small>{payload.total} records</small></div>
  <form className="payment-filter-row" onSubmit={e=>{e.preventDefault();setPage(1);setSearch(query)}}><label>Search invoice or customer<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Name, email or invoice number"/></label><label>Invoice status<select value={filter} onChange={e=>{setFilter(e.target.value);setPage(1)}}><option value="">All</option>{["DRAFT","ISSUED","SENT","PARTIALLY_PAID","PAID","OVERDUE","CANCELLED"].map(s=><option key={s}>{s}</option>)}</select></label><button type="submit" className="cms-small">Search ↗</button></form>
  {payload.records.length?payload.records.map(inv=><button type="button" className={"payment-record "+(chosen===inv.id?"selected":"")} key={inv.id} onClick={()=>select(inv.id)}>
- <div className="payment-record-top"><small>{inv.number}</small><span className={"payment-pill "+inv.paymentStatus.toLowerCase()}>{labels[inv.paymentStatus]||inv.paymentStatus}</span></div>
+ <div className="payment-record-top"><small>{inv.number}</small><CmsStatus domain="Payment" value={inv.paymentStatus}/></div>
  <strong>{inv.customerName}</strong><span>{inv.bookingType} {inv.bookingLabel?"· "+inv.bookingLabel:""}</span>
  <div className="payment-record-bottom"><b>{rp(inv.totalMinor)}</b><small>Remaining {rp(inv.outstandingMinor)}</small></div></button>):
  <div className="payment-empty">No invoices found. Create and issue an invoice from the CMS finance menu first.</div>}
  <div className="payment-pagination"><button className="ghost cms-small" disabled={page===1} onClick={()=>setPage(n=>Math.max(1,n-1))}>← Previous</button><span>Page {page} / {Math.max(1,Math.ceil(payload.total/30))}</span><button className="ghost cms-small" disabled={page*30>=payload.total} onClick={()=>setPage(n=>n+1)}>Next →</button></div>
  </section>
  <section className="cms-panel payment-detail-panel">
- {!selected?<div className="payment-empty payment-placeholder"><span className="eyebrow">PAYMENT DETAIL</span><h2>Select an invoice.</h2><p>Choose a customer invoice to view the balance and update its verified payment status.</p><a href="/admin?section=finance">Create invoice in CMS ↗</a></div>:<>
+ {!selected?<div className="payment-empty payment-placeholder"><span className="eyebrow">PAYMENT DETAIL</span><h2>Select an invoice.</h2><p>Choose a customer invoice to view the balance and update its verified payment status.</p><a href="/admin/workspace?section=finance">Create invoice in CMS ↗</a></div>:<>
  <p className="eyebrow">CUSTOMER PAYMENT DETAIL</p><h2>{selected.customerName}</h2>
  <p className="payment-subtitle">{selected.organization||selected.bookingType} · {selected.email||"No email provided"}</p>
  <div className="payment-balance-grid"><div><span>Invoice total</span><strong>{rp(selected.totalMinor)}</strong></div><div><span>Confirmed received</span><strong>{rp(selected.paidMinor)}</strong></div><div><span>Outstanding</span><strong>{rp(selected.outstandingMinor)}</strong></div></div>
- <div className="payment-current-state"><span>Current status</span><span className={"payment-pill "+selected.paymentStatus.toLowerCase()}>{labels[selected.paymentStatus]||selected.paymentStatus}</span></div>
+ <div className="payment-current-state"><span>Current statuses</span><div className="cms-row-actions"><CmsStatus domain="Invoice" value={selected.status}/><CmsStatus domain="Payment" value={selected.paymentStatus}/></div></div>
  {finance?<form onSubmit={submit} className="payment-form">
  <h3>Update payment status</h3>
  <label>New status<select value={action} required onChange={e=>{setAction(e.target.value);setConfirmed(false)}}>
