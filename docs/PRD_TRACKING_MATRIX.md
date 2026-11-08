@@ -20,7 +20,7 @@ Snapshot after slices F, G, E, B/C, H/I/A and frontend PR #1 (151 FR rows listed
 
 | Priority | VERIFIED | UNVERIFIED | PARTIAL | NOT |
 | --- | --- | --- | --- | --- |
-| P0 (140 rows) | 128 | 2 | 10 | 0 |
+| P0 (140 rows) | 130 | 2 | 8 | 0 |
 | P1/P2 (19 rows) | 15 | 1 | 3 | 0 |
 
 Many PARTIAL P0 rows are blocked only by owner content/legal decisions (D-01/D-02/D-04/D-12) or need device/UAT evidence.
@@ -77,7 +77,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-117 | P0 | VERIFIED | account hub three journeys after OTP sign-in (BR) | — | — | — |
 | FR-118 | P0 | VERIFIED | profile edits audited before/after; enrollment snapshots; customer timeline API (E2E) | — | — | — |
 | FR-119 | P0 | VERIFIED | tabs + "Action needed" banners from server state (BR) | — | — | — |
-| FR-150 | P0 | PARTIAL | consent version/time, export minimisation, access logs, data-request intake + resolution (E2E) | retention/purge schedule (D-13) | — | — |
+| FR-150 | P0 | VERIFIED | consent version/time, export minimisation, access logs, data-request intake + resolution; **retention/purge rules engine** with minimums, dry run, daily worker run, audit (E2E, UT) | actual retention periods to be entered once D-13/D-10 approved (engine is off until then) | D-13 | — |
 | FR-152 | P0 | VERIFIED | notification preference EMAIL/WHATSAPP (WhatsApp requires verified phone) (E2E) | automated WhatsApp sending: FR-158 (built, off) | — | — |
 | AT-057 | — | VERIFIED | E2E safe return path + account intent restore (selected booth preselected after OTP) | — | — | — |
 
@@ -165,7 +165,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-057 | P0 | VERIFIED | `ENABLE_INVOICES` + bank env gate; no PSP | — | — | — |
 | FR-123 | P0 | VERIFIED | manual payment request persisted + CMS notification + outbox, idempotent (E2E AT-062) | — | — | — |
 | FR-124 | P0 | VERIFIED | E2E notifications list + bulk read role-scoped | overdue alerts | — | — |
-| FR-125 | P0 | PARTIAL | line items, DP, due date, numbering, PDF, revision chain (VOID + linked draft) (E2E) | tax lines need D-01 | — | — |
+| FR-125 | P0 | VERIFIED | line items, DP, due date, numbering, PDF, revision chain (VOID + linked draft); **fees/taxes if configured** as labelled lines, recomputed on revision (E2E, UT) | rates/semantics to be entered once D-01 approved (none added until then) | D-01 | — |
 | FR-126 | P0 | VERIFIED | `send` route + InvoiceDelivery + worker SENT/FAILED; ledger API deliveries | Business API (P2) | — | — |
 | FR-127 | P0 | VERIFIED | bank details only on issued/payable invoices; drafts hidden; none after cancellation (E2E finance-controls) | approved bank data | D-01 | — |
 | FR-128 | P0 | VERIFIED | `POST /api/customer/invoices/[id]/payment-proof` (magic-byte check, 5MB, AES-GCM private storage); E2E: proof keeps AWAITING_PAYMENT, Finance verifies via proofTransferId; Sales 403 on proof file | size/retention policy | D-10 | — |
@@ -247,7 +247,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | AT-082 | — | VERIFIED | E2E + BR (draft save, preview report, publish, clone rollback) | — | — | — |
 | AT-091 | — | VERIFIED | BR 360px no horizontal scroll, zoom, list | real-device check | — | — |
 | AT-092 | — | VERIFIED | COMING_SOON + "no booth available" notice | — | — | — |
-| AT-077 | — | PARTIAL | E2E revoked/expired logic; unpaid conference pass → slice C | — | — | — |
+| AT-077 | — | VERIFIED | expired / revoked / cancelled / unpaid conference pass → reason, no admission, no identity, attempt logged (`at077-pass-states.e2e.mjs`) | — | — | — |
 
 ## P1/P2 extensions (built behind flags, default off — see `docs/P1_P2_EXTENSIONS.md`)
 
@@ -279,4 +279,5 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - CR-AUTH-01 (approved change request): customer sign-in moved from passwordless OTP to email + password; OTP only for registration. See `docs/CR-AUTH-01_CUSTOMER_PASSWORD_AUTH.md`. Migration `20261110010000_customer_password_auth`.
 - CMS Pages & layout builder (FR-034/038, NFR-04 SEO per page): `docs/CMS_PAGE_BUILDER.md`. Migration `20261110020000_page_builder`.
 - Public conference pages (FR-006) and EN/ID language switch (FR-001/NFR-09 infrastructure).
+- Remaining technical P0 (branch `feat/prd14-p0-remaining`): AT-077 E2E; FR-125 configured taxes/fees; FR-150 retention engine → VERIFIED (values still owner decisions D-01/D-13, engines off until saved). Migration `20261111010000_p0_remaining` (additive).
 - P1/P2 extensions (branch `feat/prd14-p1-p2`): FR-157/156/059/154/113/032/159/158/041 built behind flags (default off). Migration `20261110030000_p1_p2_extensions` (additive). See `docs/P1_P2_EXTENSIONS.md`.

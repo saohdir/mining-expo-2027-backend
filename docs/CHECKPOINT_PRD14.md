@@ -3,8 +3,8 @@
 Use this file to resume work in a new Claude Code session. Requirement-level status: `docs/PRD_TRACKING_MATRIX.md`.
 
 ## Merge order (latest)
-`main` ← #11 `feat/prd14-completion` ← #13 `feat/customer-password-auth` (CR-AUTH-01) ← #15 `feat/cms-page-builder-v2` ← #16 `feat/public-conference-pages` ← `feat/prd14-p1-p2` (P1/P2 extensions, all flags off — `docs/P1_P2_EXTENSIONS.md`).
-#14 is superseded by #15 (same feature, rebased). Frontend: saohdir/mining-expo-2027-demo#1. Last full run on `feat/prd14-p1-p2`: E2E 106/106, unit 82/82. Earlier on #16: E2E 93/93 (API + Playwright incl. static site via local proxy), unit 70/70.
+`main` ← #11 `feat/prd14-completion` ← #13 `feat/customer-password-auth` (CR-AUTH-01) ← #15 `feat/cms-page-builder-v2` ← #16 `feat/public-conference-pages` ← #17 `feat/prd14-p1-p2` (P1/P2 extensions, all flags off — `docs/P1_P2_EXTENSIONS.md`) ← `feat/prd14-p0-remaining` (AT-077, FR-125 taxes/fees if configured, FR-150 retention engine).
+#14 is superseded by #15 (same feature, rebased). Frontend: saohdir/mining-expo-2027-demo#1. Last full run on `feat/prd14-p0-remaining`: E2E 109/109, unit 84/84 (on `feat/prd14-p1-p2`: 106/106, 82/82). Earlier on #16: E2E 93/93 (API + Playwright incl. static site via local proxy), unit 70/70.
 
 ## Branches & PRs (backend `saohdir/mining-expo-2027-backend`)
 | PR | Branch | Content | State |
@@ -25,6 +25,7 @@ Use this file to resume work in a new Claude Code session. Requirement-level sta
 | Governance (OTP switches, receipts, revisions, data requests, assets) | see log | `20261109070000_governance` |
 | CR-AUTH-01 / page builder | see PR #13/#15 | `20261110010000_customer_password_auth`, `20261110020000_page_builder` |
 | P1/P2 extensions | branch `feat/prd14-p1-p2` | `20261110030000_p1_p2_extensions` |
+| Remaining P0 (FR-125/150) | branch `feat/prd14-p0-remaining` | `20261111010000_p0_remaining` |
 
 All SQL is additive. Replay of all SQL on a `db push` of the pre-PR#3 schema (40f2ce8) gives **zero drift** against `prisma/schema.prisma` (`prisma migrate diff`).
 
@@ -44,7 +45,7 @@ P1/P2 (all optional, default off): `ENABLE_EXHIBITOR_STAFF`, `EXHIBITOR_STAFF_LI
 After deploying Slice G, Operations must create gates and assign CHECKIN_STAFF in `/admin/check-in/settings`.
 
 ## Remaining backlog
-All remaining P0 gaps need owner input or devices: EN/ID copy & locale routes (FR-001/006/011, D-12), venue/category content check (FR-004/008), partner logos & downloads (FR-005/009), legal text (FR-012), SMS provider (FR-068, D-04), tax lines (FR-125, D-01), retention schedule (FR-150, D-13), scanner device tests (FR-089).
+All remaining P0 gaps need owner input or devices: EN/ID copy & locale routes (FR-001/011, D-12), exhibition category wording (FR-004), partner logos & downloads (FR-005/009), legal text (FR-012), scanner device tests (FR-089). Tax/fee rates (FR-125, D-01) and retention periods (FR-150, D-13) are now entered in CMS (Invoice Taxes & Fees, Data Retention) once approved.
 P1/P2: FR-032/041/059/113/154/156/157/158/159 are built behind flags (default off) — switching on needs PO approval; still open: FR-017 packages (D-02), FR-059 discounts, FR-154 scheduled mailouts/ID reconciliation, FR-158 live provider (D-05) and SMS (D-04).
 Then: apply migrations on UAT (backup → preflight → SQL in order), set canonical/sitemap domain at go-live, UAT sign-off.
 
