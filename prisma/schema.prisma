@@ -271,7 +271,27 @@ model BoothRequest {
   assignments BoothAssignment[]
   invoices Invoice[]
   paymentRequests ManualPaymentRequest[]
+  offers BoothOffer[]
   @@index([accountId,createdAt])
+}
+model BoothOffer {
+  id String @id @default(uuid())
+  boothRequestId String
+  boothRequest BoothRequest @relation(fields:[boothRequestId],references:[id])
+  revision Int
+  floorplanVersionNo Int
+  offeredUnitIds Json
+  offeredUnits Json
+  offeredAreaSqm Decimal @db.Decimal(10,1)
+  quotedPriceMinor BigInt
+  currency String @default("IDR")
+  notes String?
+  expiresAt DateTime?
+  acceptedAt DateTime?
+  offeredBy String
+  createdAt DateTime @default(now())
+  @@unique([boothRequestId,revision])
+  @@index([boothRequestId,createdAt])
 }
 model BoothAssignment {
   id String @id @default(uuid())

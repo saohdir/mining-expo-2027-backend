@@ -103,3 +103,39 @@
 .conference-availability strong{font-size:19px;letter-spacing:-.025em}
 .conference-availability span{font-size:14px;font-weight:600}
 .conference-availability small{font-size:12px;color:#88584b;line-height:1.55}
+
+/* Exhibitor quote and inventory workspace — UAT design tokens shared with public IMDX site. */
+.booth-admin-layout{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(0,1.8fr);gap:24px;align-items:start;margin:28px 0 65px}
+.booth-admin-layout>.cms-panel{margin:0}
+.booth-admin-record{width:100%;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:7px;padding:17px;margin:10px 0;border:1px solid #ecd5c2;border-radius:7px;background:#fffdfb;color:#520f00}
+.booth-admin-record strong{font-size:18px;line-height:1.25;overflow-wrap:anywhere}
+.booth-admin-record>span:last-child{font-size:12px;color:#88584b}
+.booth-admin-record:hover,.booth-admin-record.selected{background:#fff1e7;border-color:#ff5912;color:#520f00}
+.booth-admin-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:22px 0}
+.booth-admin-summary>div{background:#fff8f2;border:1px solid #ecd5c2;padding:14px;border-radius:6px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.booth-admin-summary span{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#88584b}
+.booth-admin-summary strong{font-size:16px;overflow-wrap:anywhere}
+.booth-quotation{display:flex;flex-direction:column;gap:6px;padding:18px 20px;margin:17px 0;background:#fff6ed;border-left:3px solid #ff5912;border-radius:6px}
+.booth-quotation>strong{font-size:27px;letter-spacing:-.05em}
+.booth-quotation>p{margin:0}
+.booth-admin-units{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:15px 0}
+.booth-admin-option{display:flex!important;flex-direction:row!important;align-items:start;gap:12px;padding:13px!important;border:1px solid #ecd5c2;background:#fffdfb;border-radius:6px;margin:0!important}
+.booth-admin-option:has(input:checked){border-color:#ff5912;background:#fff3e9}
+.booth-admin-option.unavailable{opacity:.65;background:#f5f1ee}
+.booth-admin-option input{width:auto;min-width:0;margin-top:6px}
+.booth-admin-option span{display:flex;flex-direction:column;gap:3px}
+.booth-admin-option strong{font-size:15px}
+.booth-admin-option small{font-size:11px;color:#88584b}
+.booth-admin-actions{border-top:1px solid #ecd5c2;padding-top:22px;margin-top:30px;display:flex;flex-direction:column;align-items:start;gap:10px}
+.booth-admin-actions label{align-self:stretch}
+.booth-admin-assign{width:100%;background:#fff6ed;border:1px solid #ecd5c2;border-radius:7px;padding:15px;margin-top:10px}
+.booth-customer-card{border:1px solid #ecd5c2;border-radius:8px;padding:22px;margin:17px 0;background:#fffdfb}
+.booth-card-top{display:flex;align-items:start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.booth-card-top h3{margin:7px 0}
+@media(max-width:960px){.booth-admin-layout{grid-template-columns:1fr}.booth-admin-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.booth-admin-summary,.booth-admin-units{grid-template-columns:1fr}.booth-customer-card{padding:16px}}
+
+.booth-history{margin:14px 0;padding:12px 15px;border:1px solid #ecd5c2;border-radius:6px;background:#fffdfb}
+.booth-history summary{font-size:14px;font-weight:700;cursor:pointer;color:#520f00}
+.booth-history ol{padding-left:21px;margin:12px 0;color:#88584b;font-size:13px;line-height:1.8}
+.booth-history .micro{margin:0}

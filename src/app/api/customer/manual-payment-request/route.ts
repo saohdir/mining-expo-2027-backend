@@ -36,9 +36,15 @@ export async function POST(req: NextRequest) {
       }
     } else {
       const booth = await db.boothRequest.findFirst({
-        where: {id: input.boothRequestId, accountId: account.id}
+        where: {id: input.boothRequestId, accountId: account.id},
+        include: {offers: {orderBy: {revision: "desc"}, take: 1}}
       });
       if (!booth) throw new HttpError(404, "BOOKING_NOT_FOUND", "Booth request not found.");
+      if (!["ACCEPTED", "WAITING_INVOICE", "INVOICED", "ALLOCATION_PENDING"].includes(booth.status) ||
+          !booth.offers[0]?.acceptedAt) {
+        throw new HttpError(409, "OFFER_NOT_ACCEPTED",
+          "Accept the latest organizer quotation before requesting an invoice.");
+      }
     }
 
     const request = await db.$transaction(async tx => {
