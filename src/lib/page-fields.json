@@ -1,0 +1,4151 @@
+{
+ "site": {
+  "site-header": [
+   {
+    "key": "site-header.0",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/imd-logo-orange.webp",
+    "alt": "IMDX — Indonesia Mining & Downstream Industries Exhibition 2027"
+   },
+   {
+    "key": "site-header.1",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Home",
+    "href": "./"
+   },
+   {
+    "key": "site-header.2",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "About"
+   },
+   {
+    "key": "site-header.3",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Event Overview",
+    "href": "about/"
+   },
+   {
+    "key": "site-header.4",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Exhibition Scope",
+    "href": "exhibition/"
+   },
+   {
+    "key": "site-header.5",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Organizers & Partners",
+    "href": "partners/"
+   },
+   {
+    "key": "site-header.6",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "The Venue",
+    "href": "the-venue/"
+   },
+   {
+    "key": "site-header.7",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Exhibit"
+   },
+   {
+    "key": "site-header.8",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Why Exhibit",
+    "href": "exhibitors/"
+   },
+   {
+    "key": "site-header.9",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Booth Reservation",
+    "href": "exhibitors/#exhibitors"
+   },
+   {
+    "key": "site-header.10",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Visit"
+   },
+   {
+    "key": "site-header.11",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Visitor Information",
+    "href": "visitors/"
+   },
+   {
+    "key": "site-header.12",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Visitor Registration",
+    "href": "visitors/#visitor"
+   },
+   {
+    "key": "site-header.13",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "The Venue",
+    "href": "the-venue/"
+   },
+   {
+    "key": "site-header.14",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Visitor FAQ",
+    "href": "visitors/#faq"
+   },
+   {
+    "key": "site-header.15",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Programme"
+   },
+   {
+    "key": "site-header.16",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Conferences",
+    "href": "programme/"
+   },
+   {
+    "key": "site-header.17",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Networking Reception",
+    "href": "programme/#conference"
+   },
+   {
+    "key": "site-header.18",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Media"
+   },
+   {
+    "key": "site-header.19",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "News & Updates",
+    "href": "news/"
+   },
+   {
+    "key": "site-header.20",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Photo & Motion Highlights",
+    "href": "highlights/"
+   },
+   {
+    "key": "site-header.21",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Contact",
+    "href": "contact/"
+   },
+   {
+    "key": "site-header.22",
+    "kind": "text",
+    "tag": "button",
+    "mode": "plain",
+    "text": "REGISTER / MY PASS ↗"
+   }
+  ],
+  "site-footer": [
+   {
+    "key": "site-footer.0",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/imd-logo-orange.webp",
+    "alt": "IMDX — Indonesia Mining & Downstream Industries Exhibition 2027"
+   },
+   {
+    "key": "site-footer.1",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "About",
+    "href": "#about"
+   },
+   {
+    "key": "site-footer.2",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Exhibition",
+    "href": "#sectors"
+   },
+   {
+    "key": "site-footer.3",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Conference",
+    "href": "#conference"
+   },
+   {
+    "key": "site-footer.4",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Venue",
+    "href": "#venue"
+   },
+   {
+    "key": "site-footer.5",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Event Overview ↗",
+    "href": "#about"
+   },
+   {
+    "key": "site-footer.6",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "© 2026 IMDX 2027 · PRE-GO-LIVE UAT. NOT PUBLICLY LIVE."
+   },
+   {
+    "key": "site-footer.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "UAT BUILD · SUBJECT TO ORGANIZER APPROVAL"
+   },
+   {
+    "key": "site-footer.8",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "BACK TO TOP ↑",
+    "href": "#home"
+   },
+   {
+    "key": "site-footer.9",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Privacy notice",
+    "href": "/privacy/"
+   },
+   {
+    "key": "site-footer.10",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Registration & payment terms",
+    "href": "/terms/"
+   }
+  ]
+ },
+ "about": {
+  "where-possibility-meets": [
+   {
+    "key": "where-possibility-meets.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ THE EXHIBITION"
+   },
+   {
+    "key": "where-possibility-meets.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01"
+   },
+   {
+    "key": "where-possibility-meets.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "A GLOBAL INDUSTRY MEETING POINT"
+   },
+   {
+    "key": "where-possibility-meets.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "INTRODUCING IMDX 2027"
+   },
+   {
+    "key": "where-possibility-meets.4",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "Where possibility meets"
+   },
+   {
+    "key": "where-possibility-meets.5",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "progress."
+   },
+   {
+    "key": "where-possibility-meets.6",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "A dedicated platform connecting upstream mining, mineral processing, smart technology and high-value downstream opportunities."
+   },
+   {
+    "key": "where-possibility-meets.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "WHAT IS THE EXHIBITION?"
+   },
+   {
+    "key": "where-possibility-meets.8",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "One meeting place for the entire mining and downstream value chain."
+   },
+   {
+    "key": "where-possibility-meets.9",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Indonesia Mining & Downstream Industries Exhibition 2027 brings together industry players, technology providers and decision-makers to exchange ideas, explore partnerships and shape what's next for the sector."
+   },
+   {
+    "key": "where-possibility-meets.10",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Designed as a business-to-business exhibition, IMDX 2027 connects the sectors behind the industry's transformation — from exploration and extraction to mineral processing, metallurgy, automation, responsible mining and high-value downstream applications."
+   },
+   {
+    "key": "where-possibility-meets.11",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Exhibitors can introduce equipment, services and practical solutions to potential partners, while industry professionals can discover emerging technologies and exchange perspectives. Planned conference and networking activities provide further opportunities for dialogue and collaboration."
+   },
+   {
+    "key": "where-possibility-meets.12",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "Explore the eight exhibition sectors",
+    "href": "../exhibition/"
+   },
+   {
+    "key": "where-possibility-meets.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "WHEN"
+   },
+   {
+    "key": "where-possibility-meets.14",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "26–28 May 2027"
+   },
+   {
+    "key": "where-possibility-meets.15",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "WHERE"
+   },
+   {
+    "key": "where-possibility-meets.16",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "JIEXPO Kemayoran, Jakarta"
+   },
+   {
+    "key": "where-possibility-meets.17",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EXPERIENCE"
+   },
+   {
+    "key": "where-possibility-meets.18",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Exhibition · Conference · Networking"
+   },
+   {
+    "key": "where-possibility-meets.19",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/where-progress-hero.webp",
+    "alt": "Speaker at an industry conference opening ceremony with an audience"
+   },
+   {
+    "key": "where-possibility-meets.20",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "JIEXPO KEMAYORAN · JAKARTA 2027"
+   },
+   {
+    "key": "where-possibility-meets.21",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "EXHIBITION SHOWCASE**Connecting the Complete Mining & Downstream Value Chain**"
+   },
+   {
+    "key": "where-possibility-meets.22",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "3 Days of Innovation"
+   },
+   {
+    "key": "where-possibility-meets.23",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "THE EXHIBITION EXPERIENCE"
+   },
+   {
+    "key": "where-possibility-meets.24",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "rich",
+    "text": "Discover. Connect. *Collaborate.*"
+   },
+   {
+    "key": "where-possibility-meets.25",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Explore solutions on the exhibition floor, meet industry stakeholders and take part in conversations about the sector's future."
+   },
+   {
+    "key": "where-possibility-meets.26",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/where-progress-connect.webp",
+    "alt": "Delegates connecting on a mining exhibition floor"
+   },
+   {
+    "key": "where-possibility-meets.27",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01 / CONNECT"
+   },
+   {
+    "key": "where-possibility-meets.28",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Industry connections"
+   },
+   {
+    "key": "where-possibility-meets.29",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Meet stakeholders across mining, equipment, services, processing and downstream value chains."
+   },
+   {
+    "key": "where-possibility-meets.30",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/where-progress-discover.webp",
+    "alt": "Mining equipment and industrial technology presented to exhibition visitors"
+   },
+   {
+    "key": "where-possibility-meets.31",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02 / DISCOVER"
+   },
+   {
+    "key": "where-possibility-meets.32",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Technology discovery"
+   },
+   {
+    "key": "where-possibility-meets.33",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Explore emerging solutions in automation, processing equipment and responsible operations."
+   },
+   {
+    "key": "where-possibility-meets.34",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/where-progress-dialogue.webp",
+    "alt": "Coal industry speakers participating in a panel discussion"
+   },
+   {
+    "key": "where-possibility-meets.35",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03 / COLLABORATE"
+   },
+   {
+    "key": "where-possibility-meets.36",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Strategic dialogue"
+   },
+   {
+    "key": "where-possibility-meets.37",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Take part in conference discussions and conversations that move the industry forward."
+   }
+  ],
+  "indonesia-a-core-hub-in-the": [
+   {
+    "key": "indonesia-a-core-hub-in-the.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ THE MARKET"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "INDONESIA / GLOBAL MINING"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Indonesia — A Core Hub in the *Global Mining Landscape*"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Coal production exceeds"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.6",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "800 million tonnes"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.8",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "World's largest exporter of"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.9",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "thermal coal"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.10",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.11",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Nickel output accounts for about"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.12",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "67% of global production"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "04"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.14",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Gold, copper and tin reserves"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.15",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "rank among the world's largest"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.16",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-04.webp",
+    "alt": "Aerial view of a large industrial mineral processing complex"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.17",
+    "kind": "text",
+    "tag": "figcaption",
+    "mode": "rich",
+    "text": "MINING & DOWNSTREAM INDUSTRIES**Turning resources into new possibilities.**"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.18",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "In recent years, the Indonesian government has continued to advance its mineral downstreaming strategy, including export restrictions on raw nickel, bauxite and tin concentrates and requirements for domestic smelting and processing. This has rapidly increased demand for smelting, beneficiation and deep-processing equipment. At the same time, mining areas are accelerating electrification and intelligent transformation, with photovoltaic microgrids and heavy-equipment electrification projects being deployed in major mining regions such as Sulawesi and Kalimantan. Indonesia's annual mining-equipm"
+   },
+   {
+    "key": "indonesia-a-core-hub-in-the.19",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "Source: organizer market overview (concept data — to be verified before publication)."
+   }
+  ],
+  "exhibition": [
+   {
+    "key": "exhibition.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ HIGHLIGHTS"
+   },
+   {
+    "key": "exhibition.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03"
+   },
+   {
+    "key": "exhibition.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "SIX AREAS OF FOCUS"
+   },
+   {
+    "key": "exhibition.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Exhibition *Highlights*"
+   },
+   {
+    "key": "exhibition.4",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Mining solutions, downstream innovation and professional connections."
+   },
+   {
+    "key": "exhibition.5",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "IMDX 2027"
+   },
+   {
+    "key": "exhibition.6",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Targeted professional visitor outreach covers 70% of Indonesia's coal mining output."
+   },
+   {
+    "key": "exhibition.7",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Targeted professional visitor outreach covers 80% of Indonesia's nickel mining output."
+   },
+   {
+    "key": "exhibition.8",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Full-chain new energy solutions for mining areas."
+   },
+   {
+    "key": "exhibition.9",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Mineral downstream processing and clean utilization technologies."
+   },
+   {
+    "key": "exhibition.10",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Full-chain smart mine solutions."
+   },
+   {
+    "key": "exhibition.11",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Special exhibition area for Indonesian mineral cooperation projects."
+   }
+  ]
+ },
+ "contact": {
+  "indonesia-mining-downstream-industries-e": [
+   {
+    "key": "indonesia-mining-downstream-industries-e.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EXHIBITION & CONFERENCE ENQUIRIES"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Indonesia Mining & Downstream Industries Exhibition 2027"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "With growing economic and trade ties between China and ASEAN, and continued cooperation between China and Indonesia, this exhibition presents opportunities to connect and advance the mining, energy, and downstream industries in Southeast Asia."
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.3",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Office Address"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.4",
+    "kind": "text",
+    "tag": "p",
+    "mode": "rich",
+    "text": "Citra Tower Kemayoran 11C\nJl. Benyamin Sueb Kav. A6\nJakarta, Indonesia"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.5",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Contact Information"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.6",
+    "kind": "text",
+    "tag": "p",
+    "mode": "own",
+    "text": "+86 010-62933331"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Telephone"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.8",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "+62 822 9705 0908",
+    "href": "tel:+6282297050908"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Ella"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.10",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "+86 158 5902 7494",
+    "href": "tel:+8615859027494"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Email"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.12",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "NIC@shixin-expo.com",
+    "href": "mailto:NIC@shixin-expo.com"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Fax"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.14",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "CONFERENCE COMMUNICATION"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.15",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/conference-whatsapp-qr.png",
+    "alt": "QR code shown in the supplied Indonesia Conference WhatsApp reference"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.16",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Focus on Indonesia Conference WhatsApp"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.17",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Scan for the conference contact channel shown in the supplied reference."
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.18",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "OFFICIAL CHANNELS"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.19",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Stay connected."
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.20",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/exhibition-wechat-qr.png",
+    "alt": "Exhibition Official WeChat QR Code"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.21",
+    "kind": "text",
+    "tag": "figcaption",
+    "mode": "rich",
+    "text": "Exhibition Official\nWeChat QR Code"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.22",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/wechat-qr.png",
+    "alt": "WeChat QR code"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.23",
+    "kind": "text",
+    "tag": "figcaption",
+    "mode": "plain",
+    "text": "WeChat"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.24",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/group-wechat-qr.png",
+    "alt": "Group Official WeChat QR Code"
+   },
+   {
+    "key": "indonesia-mining-downstream-industries-e.25",
+    "kind": "text",
+    "tag": "figcaption",
+    "mode": "rich",
+    "text": "Group Official\nWeChat QR Code"
+   }
+  ],
+  "organizer-contacts": [
+   {
+    "key": "organizer-contacts.0",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Organizer contacts"
+   }
+  ]
+ },
+ "exhibition": {
+  "a-world-of": [
+   {
+    "key": "a-world-of.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ EXHIBITION SCOPE"
+   },
+   {
+    "key": "a-world-of.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02"
+   },
+   {
+    "key": "a-world-of.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EIGHT INDUSTRY CATEGORIES"
+   },
+   {
+    "key": "a-world-of.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "A world of"
+   },
+   {
+    "key": "a-world-of.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "opportunity."
+   },
+   {
+    "key": "a-world-of.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "From extraction at the source to applications that create new value. Explore the sectors represented at the exhibition."
+   },
+   {
+    "key": "a-world-of.6",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01"
+   },
+   {
+    "key": "a-world-of.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Mining Extraction Equipment & Technology**Mining machinery, drilling, hauling and underground solutions"
+   },
+   {
+    "key": "a-world-of.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Full-process equipment for open-pit and underground mining, including excavators, haulage trucks, loaders, roadheaders, drill rigs and material transport systems."
+   },
+   {
+    "key": "a-world-of.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02"
+   },
+   {
+    "key": "a-world-of.10",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Mineral Processing & Beneficiation**Crushing, grinding, screening and separation technologies"
+   },
+   {
+    "key": "a-world-of.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Processing and beneficiation equipment for crushing, grinding, classification, screening, flotation, filtration and material-handling operations."
+   },
+   {
+    "key": "a-world-of.12",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03"
+   },
+   {
+    "key": "a-world-of.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Metallurgy & Deep Processing**Smelting, refining, casting and high-value processing"
+   },
+   {
+    "key": "a-world-of.14",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Furnaces, converters, kilns, refining and smelting systems, metallurgy solutions, casting, rolling, heat treatment and advanced manufacturing."
+   },
+   {
+    "key": "a-world-of.15",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "04"
+   },
+   {
+    "key": "a-world-of.16",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Downstream Materials & Applications**Nickel, copper, batteries and industrial applications"
+   },
+   {
+    "key": "a-world-of.17",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Nickel, copper, tin, aluminum, battery materials, stainless steel, alloys, industrial components and downstream partnership opportunities."
+   },
+   {
+    "key": "a-world-of.18",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "05"
+   },
+   {
+    "key": "a-world-of.19",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Digital Intelligence & Automation**Smart mining, industrial data and automation"
+   },
+   {
+    "key": "a-world-of.20",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Digital intelligence, industrial IoT, monitoring, connected systems and automation. Details subject to organizer confirmation."
+   },
+   {
+    "key": "a-world-of.21",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "06"
+   },
+   {
+    "key": "a-world-of.22",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Safety, Environment & Green Mining**Safer, cleaner and more sustainable operations"
+   },
+   {
+    "key": "a-world-of.23",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Safety equipment, environmental protection, green mine management and responsible operations. Details subject to organizer confirmation."
+   },
+   {
+    "key": "a-world-of.24",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "07"
+   },
+   {
+    "key": "a-world-of.25",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Supporting Equipment & Consumables**Components, spare parts and critical support systems"
+   },
+   {
+    "key": "a-world-of.26",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Supporting equipment, spare parts, consumables and technologies for mining and downstream industrial facilities."
+   },
+   {
+    "key": "a-world-of.27",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "08"
+   },
+   {
+    "key": "a-world-of.28",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Exploration, Engineering & Investment**Testing, services, financing and partnerships"
+   },
+   {
+    "key": "a-world-of.29",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Exploration, testing, project engineering, services and investment or financing support for the mining value chain."
+   }
+  ]
+ },
+ "exhibitors": {
+  "make-your-next-connection": [
+   {
+    "key": "make-your-next-connection.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "FOR EXHIBITORS"
+   },
+   {
+    "key": "make-your-next-connection.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Make your next\nconnection *count.*"
+   },
+   {
+    "key": "make-your-next-connection.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Showcase your capabilities, introduce your solutions and begin meaningful conversations with the industry."
+   },
+   {
+    "key": "make-your-next-connection.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "AVAILABLE REQUEST AREAS"
+   },
+   {
+    "key": "make-your-next-connection.4",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Flexible booth areas"
+   },
+   {
+    "key": "make-your-next-connection.5",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "Booth selection is subject to organizer confirmation."
+   },
+   {
+    "key": "make-your-next-connection.6",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Reserve Booth Space"
+   },
+   {
+    "key": "make-your-next-connection.7",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/imdx-exhibitor-opportunity.webp",
+    "alt": "Mining equipment on display at an industry exhibition"
+   },
+   {
+    "key": "make-your-next-connection.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "YOUR SPACE.\nYOUR OPPORTUNITY."
+   }
+  ],
+  "a-world-of-opportunity": [
+   {
+    "key": "a-world-of-opportunity.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ EXHIBITION SCOPE"
+   },
+   {
+    "key": "a-world-of-opportunity.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02"
+   },
+   {
+    "key": "a-world-of-opportunity.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EIGHT INDUSTRY CATEGORIES"
+   },
+   {
+    "key": "a-world-of-opportunity.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "A world of"
+   },
+   {
+    "key": "a-world-of-opportunity.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "opportunity."
+   },
+   {
+    "key": "a-world-of-opportunity.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "From extraction at the source to applications that create new value. Explore the sectors represented at the exhibition."
+   },
+   {
+    "key": "a-world-of-opportunity.6",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01"
+   },
+   {
+    "key": "a-world-of-opportunity.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Mining Extraction Equipment & Technology**Mining machinery, drilling, hauling and underground solutions"
+   },
+   {
+    "key": "a-world-of-opportunity.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Full-process equipment for open-pit and underground mining, including excavators, haulage trucks, loaders, roadheaders, drill rigs and material transport systems."
+   },
+   {
+    "key": "a-world-of-opportunity.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02"
+   },
+   {
+    "key": "a-world-of-opportunity.10",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Mineral Processing & Beneficiation**Crushing, grinding, screening and separation technologies"
+   },
+   {
+    "key": "a-world-of-opportunity.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Processing and beneficiation equipment for crushing, grinding, classification, screening, flotation, filtration and material-handling operations."
+   },
+   {
+    "key": "a-world-of-opportunity.12",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03"
+   },
+   {
+    "key": "a-world-of-opportunity.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Metallurgy & Deep Processing**Smelting, refining, casting and high-value processing"
+   },
+   {
+    "key": "a-world-of-opportunity.14",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Furnaces, converters, kilns, refining and smelting systems, metallurgy solutions, casting, rolling, heat treatment and advanced manufacturing."
+   },
+   {
+    "key": "a-world-of-opportunity.15",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "04"
+   },
+   {
+    "key": "a-world-of-opportunity.16",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Downstream Materials & Applications**Nickel, copper, batteries and industrial applications"
+   },
+   {
+    "key": "a-world-of-opportunity.17",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Nickel, copper, tin, aluminum, battery materials, stainless steel, alloys, industrial components and downstream partnership opportunities."
+   },
+   {
+    "key": "a-world-of-opportunity.18",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "05"
+   },
+   {
+    "key": "a-world-of-opportunity.19",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Digital Intelligence & Automation**Smart mining, industrial data and automation"
+   },
+   {
+    "key": "a-world-of-opportunity.20",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Digital intelligence, industrial IoT, monitoring, connected systems and automation. Details subject to organizer confirmation."
+   },
+   {
+    "key": "a-world-of-opportunity.21",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "06"
+   },
+   {
+    "key": "a-world-of-opportunity.22",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Safety, Environment & Green Mining**Safer, cleaner and more sustainable operations"
+   },
+   {
+    "key": "a-world-of-opportunity.23",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Safety equipment, environmental protection, green mine management and responsible operations. Details subject to organizer confirmation."
+   },
+   {
+    "key": "a-world-of-opportunity.24",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "07"
+   },
+   {
+    "key": "a-world-of-opportunity.25",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Supporting Equipment & Consumables**Components, spare parts and critical support systems"
+   },
+   {
+    "key": "a-world-of-opportunity.26",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Supporting equipment, spare parts, consumables and technologies for mining and downstream industrial facilities."
+   },
+   {
+    "key": "a-world-of-opportunity.27",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "08"
+   },
+   {
+    "key": "a-world-of-opportunity.28",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**Exploration, Engineering & Investment**Testing, services, financing and partnerships"
+   },
+   {
+    "key": "a-world-of-opportunity.29",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Exploration, testing, project engineering, services and investment or financing support for the mining value chain."
+   }
+  ],
+  "exhibitor-downloads": [
+   {
+    "key": "exhibitor-downloads.0",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Exhibitor downloads"
+   }
+  ],
+  "exhibitor-directory-2": [
+   {
+    "key": "exhibitor-directory-2.0",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "View the published floorplan",
+    "href": "/floorplan"
+   }
+  ],
+  "exhibitor-directory": [
+   {
+    "key": "exhibitor-directory.0",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Exhibitor directory"
+   },
+   {
+    "key": "exhibitor-directory.1",
+    "kind": "text",
+    "tag": "label",
+    "mode": "own",
+    "text": "Search exhibitor or booth"
+   },
+   {
+    "key": "exhibitor-directory.2",
+    "kind": "text",
+    "tag": "label",
+    "mode": "own",
+    "text": "Category"
+   },
+   {
+    "key": "exhibitor-directory.3",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "No approved exhibitors are listed yet."
+   }
+  ]
+ },
+ "highlights": {
+  "the-industry-in": [
+   {
+    "key": "the-industry-in.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "VISUAL SHOWCASE"
+   },
+   {
+    "key": "the-industry-in.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "The industry in *motion.*"
+   },
+   {
+    "key": "the-industry-in.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "A photographic concept of the mining and downstream industries. Stock footage and images are illustrative, not photographs of IMDX 2027."
+   },
+   {
+    "key": "the-industry-in.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "INDUSTRY SHOWCASE / CONCEPT REEL"
+   },
+   {
+    "key": "the-industry-in.4",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Technology. Transformation. Opportunity."
+   },
+   {
+    "key": "the-industry-in.5",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "Animated photo sequence • illustrative media"
+   },
+   {
+    "key": "the-industry-in.6",
+    "kind": "text",
+    "tag": "button",
+    "mode": "plain",
+    "text": "❚❚ Pause motion"
+   },
+   {
+    "key": "the-industry-in.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "OPEN-PIT MINING **01**"
+   },
+   {
+    "key": "the-industry-in.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "DOWNSTREAM PROCESSING **02**"
+   },
+   {
+    "key": "the-industry-in.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "EQUIPMENT & ENGINEERING **03**"
+   },
+   {
+    "key": "the-industry-in.10",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "RESOURCE OPERATIONS **04**"
+   },
+   {
+    "key": "the-industry-in.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "IMAGERY FOR DESIGN PRESENTATION ONLY"
+   },
+   {
+    "key": "the-industry-in.12",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Official exhibition photography & videos can be inserted once the organizer provides usage-approved assets."
+   }
+  ],
+  "approved-event-photos": [
+   {
+    "key": "approved-event-photos.0",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Approved event photos"
+   }
+  ]
+ },
+ "home": {
+  "indonesia-mining-downstream": [
+   {
+    "key": "indonesia-mining-downstream.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "INDONESIA · MINING & DOWNSTREAM INDUSTRIES · 2027"
+   },
+   {
+    "key": "indonesia-mining-downstream.1",
+    "kind": "text",
+    "tag": "h1",
+    "mode": "rich",
+    "text": "Indonesia Mining\n& Downstream\n*Industries Exhibition 2027.*"
+   },
+   {
+    "key": "indonesia-mining-downstream.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "A major business gathering for mining extraction, mineral processing, advanced technology and downstream industrial solutions in Indonesia."
+   },
+   {
+    "key": "indonesia-mining-downstream.3",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Exhibition"
+   },
+   {
+    "key": "indonesia-mining-downstream.4",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Conference / Visit"
+   },
+   {
+    "key": "indonesia-mining-downstream.5",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "26—28 MAY 2027"
+   },
+   {
+    "key": "indonesia-mining-downstream.6",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "JIEXPO, JAKARTA"
+   }
+  ],
+  "icee-facts": [
+   {
+    "key": "icee-facts.0",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "EVENT DATES"
+   },
+   {
+    "key": "icee-facts.1",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "26–28"
+   },
+   {
+    "key": "icee-facts.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "May 2027"
+   },
+   {
+    "key": "icee-facts.3",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "LOCATION"
+   },
+   {
+    "key": "icee-facts.4",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "JIEXPO"
+   },
+   {
+    "key": "icee-facts.5",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Kemayoran, Jakarta"
+   },
+   {
+    "key": "icee-facts.6",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "EXHIBITION SCOPE"
+   },
+   {
+    "key": "icee-facts.7",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "08"
+   },
+   {
+    "key": "icee-facts.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Industry sectors"
+   },
+   {
+    "key": "icee-facts.9",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "BUSINESS PROGRAMME"
+   },
+   {
+    "key": "icee-facts.10",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "03"
+   },
+   {
+    "key": "icee-facts.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Proposed programme formats"
+   }
+  ],
+  "sector-strip": [
+   {
+    "key": "sector-strip.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "MINING TECHNOLOGY"
+   },
+   {
+    "key": "sector-strip.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "MINERAL PROCESSING"
+   },
+   {
+    "key": "sector-strip.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "METALLURGY"
+   },
+   {
+    "key": "sector-strip.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "DOWNSTREAM INDUSTRIES"
+   },
+   {
+    "key": "sector-strip.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "GREEN MINING"
+   },
+   {
+    "key": "sector-strip.5",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "INDUSTRIAL AUTOMATION"
+   }
+  ],
+  "where-possibility-meets": [
+   {
+    "key": "where-possibility-meets.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ THE EXHIBITION"
+   },
+   {
+    "key": "where-possibility-meets.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01"
+   },
+   {
+    "key": "where-possibility-meets.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "A GLOBAL INDUSTRY MEETING POINT"
+   },
+   {
+    "key": "where-possibility-meets.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "Where possibility meets"
+   },
+   {
+    "key": "where-possibility-meets.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "progress."
+   },
+   {
+    "key": "where-possibility-meets.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "A dedicated platform connecting upstream mining, mineral processing, smart technology and high-value downstream opportunities."
+   },
+   {
+    "key": "where-possibility-meets.6",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Indonesia Mining & Downstream Industries Exhibition 2027 brings together industry players, technology providers and decision-makers to exchange ideas, explore partnerships and shape what's next for the sector."
+   },
+   {
+    "key": "where-possibility-meets.7",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "Explore exhibition scope",
+    "href": "#sectors"
+   },
+   {
+    "key": "where-possibility-meets.8",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/where-progress-hero.webp",
+    "alt": "Speaker at an industry conference opening ceremony with an audience"
+   },
+   {
+    "key": "where-possibility-meets.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "JIEXPO KEMAYORAN · JAKARTA 2027"
+   },
+   {
+    "key": "where-possibility-meets.10",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "EXHIBITION SHOWCASE**Connecting the Complete Mining & Downstream Value Chain**"
+   },
+   {
+    "key": "where-possibility-meets.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "3 Days of Innovation"
+   },
+   {
+    "key": "where-possibility-meets.12",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/where-progress-connect.webp",
+    "alt": "Delegates connecting on a mining exhibition floor"
+   },
+   {
+    "key": "where-possibility-meets.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01 / CONNECT"
+   },
+   {
+    "key": "where-possibility-meets.14",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Industry connections"
+   },
+   {
+    "key": "where-possibility-meets.15",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Meet stakeholders across mining, equipment, services, processing and downstream value chains."
+   },
+   {
+    "key": "where-possibility-meets.16",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/where-progress-discover.webp",
+    "alt": "Mining equipment and industrial technology presented to exhibition visitors"
+   },
+   {
+    "key": "where-possibility-meets.17",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02 / DISCOVER"
+   },
+   {
+    "key": "where-possibility-meets.18",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Technology discovery"
+   },
+   {
+    "key": "where-possibility-meets.19",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Explore emerging solutions in automation, processing equipment and responsible operations."
+   },
+   {
+    "key": "where-possibility-meets.20",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/where-progress-dialogue.webp",
+    "alt": "Coal industry speakers participating in a panel discussion"
+   },
+   {
+    "key": "where-possibility-meets.21",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03 / COLLABORATE"
+   },
+   {
+    "key": "where-possibility-meets.22",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Strategic dialogue"
+   },
+   {
+    "key": "where-possibility-meets.23",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Take part in conference discussions and conversations that move the industry forward."
+   }
+  ],
+  "a-world-of": [
+   {
+    "key": "a-world-of.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ EXHIBITION SCOPE"
+   },
+   {
+    "key": "a-world-of.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02"
+   },
+   {
+    "key": "a-world-of.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EIGHT INDUSTRY CATEGORIES"
+   },
+   {
+    "key": "a-world-of.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "A world of"
+   },
+   {
+    "key": "a-world-of.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "opportunity."
+   },
+   {
+    "key": "a-world-of.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "From extraction at the source to applications that create new value. Explore the sectors represented at the exhibition."
+   },
+   {
+    "key": "a-world-of.6",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/industry-01.webp",
+    "alt": "Mining Extraction Equipment & Technology — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01 / 08"
+   },
+   {
+    "key": "a-world-of.8",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Mining Extraction Equipment & Technology"
+   },
+   {
+    "key": "a-world-of.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Mining machinery, drilling, hauling and underground solutions"
+   },
+   {
+    "key": "a-world-of.10",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of.11",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/industry-02.webp",
+    "alt": "Mineral Processing & Beneficiation — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of.12",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02 / 08"
+   },
+   {
+    "key": "a-world-of.13",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Mineral Processing & Beneficiation"
+   },
+   {
+    "key": "a-world-of.14",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Crushing, grinding, screening and separation technologies"
+   },
+   {
+    "key": "a-world-of.15",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of.16",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/industry-03.webp",
+    "alt": "Metallurgy & Deep Processing — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of.17",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03 / 08"
+   },
+   {
+    "key": "a-world-of.18",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Metallurgy & Deep Processing"
+   },
+   {
+    "key": "a-world-of.19",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Smelting, refining, casting and high-value processing"
+   },
+   {
+    "key": "a-world-of.20",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of.21",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/industry-04.webp",
+    "alt": "Downstream Materials & Applications — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of.22",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "04 / 08"
+   },
+   {
+    "key": "a-world-of.23",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Downstream Materials & Applications"
+   },
+   {
+    "key": "a-world-of.24",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Nickel, copper, batteries and industrial applications"
+   },
+   {
+    "key": "a-world-of.25",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of.26",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/industry-05.webp",
+    "alt": "Digital Intelligence & Automation — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of.27",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "05 / 08"
+   },
+   {
+    "key": "a-world-of.28",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Digital Intelligence & Automation"
+   },
+   {
+    "key": "a-world-of.29",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Smart mining, industrial data and automation"
+   },
+   {
+    "key": "a-world-of.30",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of.31",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/industry-06.webp",
+    "alt": "Safety, Environment & Green Mining — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of.32",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "06 / 08"
+   },
+   {
+    "key": "a-world-of.33",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Safety, Environment & Green Mining"
+   },
+   {
+    "key": "a-world-of.34",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Safer, cleaner and more sustainable operations"
+   },
+   {
+    "key": "a-world-of.35",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of.36",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/industry-07.webp",
+    "alt": "Supporting Equipment & Consumables — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of.37",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "07 / 08"
+   },
+   {
+    "key": "a-world-of.38",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Supporting Equipment & Consumables"
+   },
+   {
+    "key": "a-world-of.39",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Components, spare parts and critical support systems"
+   },
+   {
+    "key": "a-world-of.40",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of.41",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/industry-08.webp",
+    "alt": "Exploration, Engineering & Investment — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of.42",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "08 / 08"
+   },
+   {
+    "key": "a-world-of.43",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Exploration, Engineering & Investment"
+   },
+   {
+    "key": "a-world-of.44",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Testing, services, financing and partnerships"
+   },
+   {
+    "key": "a-world-of.45",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   }
+  ],
+  "exhibition": [
+   {
+    "key": "exhibition.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "WHAT'S HAPPENING"
+   },
+   {
+    "key": "exhibition.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Exhibition *insights & updates.*"
+   },
+   {
+    "key": "exhibition.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Explore the themes behind the upcoming exhibition. These editorial previews reflect the event invitation; official news will be supplied by the organizing committee."
+   },
+   {
+    "key": "exhibition.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EVENT PREVIEW · 2027"
+   },
+   {
+    "key": "exhibition.4",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Mining, metallurgy and downstream industries meet in Jakarta"
+   },
+   {
+    "key": "exhibition.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Discover the equipment, technologies and industrial solutions represented across the exhibition's eight major focus areas."
+   },
+   {
+    "key": "exhibition.6",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "Explore the exhibit scope",
+    "href": "#sectors"
+   },
+   {
+    "key": "exhibition.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "INDUSTRY FOCUS"
+   },
+   {
+    "key": "exhibition.8",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "From raw resources to higher-value manufacturing"
+   },
+   {
+    "key": "exhibition.9",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Mineral processing, metallurgy, and downstream end-use applications."
+   },
+   {
+    "key": "exhibition.10",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Read overview ↗",
+    "href": "#about"
+   },
+   {
+    "key": "exhibition.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EXHIBITOR OPPORTUNITIES"
+   },
+   {
+    "key": "exhibition.12",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Showcase solutions across the mining value chain"
+   },
+   {
+    "key": "exhibition.13",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Equipment, digital automation, services and environmental technologies."
+   },
+   {
+    "key": "exhibition.14",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Explore exhibiting ↗",
+    "href": "#exhibitors"
+   }
+  ],
+  "make-your-next-connection": [
+   {
+    "key": "make-your-next-connection.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "FOR EXHIBITORS"
+   },
+   {
+    "key": "make-your-next-connection.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Make your next\nconnection *count.*"
+   },
+   {
+    "key": "make-your-next-connection.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Showcase your capabilities, introduce your solutions and begin meaningful conversations with the industry."
+   },
+   {
+    "key": "make-your-next-connection.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "AVAILABLE REQUEST AREAS"
+   },
+   {
+    "key": "make-your-next-connection.4",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Flexible booth areas"
+   },
+   {
+    "key": "make-your-next-connection.5",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "Booth selection is subject to organizer confirmation."
+   },
+   {
+    "key": "make-your-next-connection.6",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Reserve Booth Space"
+   },
+   {
+    "key": "make-your-next-connection.7",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/imdx-exhibitor-opportunity.webp",
+    "alt": "Mining equipment on display at an industry exhibition"
+   },
+   {
+    "key": "make-your-next-connection.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "YOUR SPACE.\nYOUR OPPORTUNITY."
+   }
+  ],
+  "ideas-that": [
+   {
+    "key": "ideas-that.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ CONFERENCES & NETWORKING"
+   },
+   {
+    "key": "ideas-that.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03"
+   },
+   {
+    "key": "ideas-that.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "DISCUSS · EXCHANGE · CONNECT"
+   },
+   {
+    "key": "ideas-that.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "Ideas that"
+   },
+   {
+    "key": "ideas-that.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "move industries."
+   },
+   {
+    "key": "ideas-that.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Connect with industry peers through expert dialogues and business-focused conversations. Detailed sessions will be announced."
+   },
+   {
+    "key": "ideas-that.6",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/conference-keynote.webp",
+    "alt": "Keynote presentation on a conference stage"
+   },
+   {
+    "key": "ideas-that.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "CONFERENCE"
+   },
+   {
+    "key": "ideas-that.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01 / 03"
+   },
+   {
+    "key": "ideas-that.9",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Mining Downstream Industry & Green Mining Conference"
+   },
+   {
+    "key": "ideas-that.10",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Policy perspectives, sustainable solutions and supply-demand matchmaking."
+   },
+   {
+    "key": "ideas-that.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "2027 · SCHEDULE TBA"
+   },
+   {
+    "key": "ideas-that.12",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/china-indonesia-forum.webp",
+    "alt": "Audience attending a professional forum"
+   },
+   {
+    "key": "ideas-that.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "MAIN FORUM"
+   },
+   {
+    "key": "ideas-that.14",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02 / 03"
+   },
+   {
+    "key": "ideas-that.15",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "China–Indonesia Coal & Energy Conference"
+   },
+   {
+    "key": "ideas-that.16",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Industry trends, policy dialogue and bilateral business exchange."
+   },
+   {
+    "key": "ideas-that.17",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "2027 · SCHEDULE TBA"
+   },
+   {
+    "key": "ideas-that.18",
+    "kind": "image",
+    "tag": "img",
+    "src": "assets/networking-reception.webp",
+    "alt": "Business professionals discussing around a meeting table"
+   },
+   {
+    "key": "ideas-that.19",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "NETWORKING"
+   },
+   {
+    "key": "ideas-that.20",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03 / 03"
+   },
+   {
+    "key": "ideas-that.21",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Indonesia Mining Industry Networking Reception"
+   },
+   {
+    "key": "ideas-that.22",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Connect with mine owners, contractors, manufacturers and industry organizations."
+   },
+   {
+    "key": "ideas-that.23",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "2027 · SCHEDULE TBA"
+   }
+  ],
+  "your-access": [
+   {
+    "key": "your-access.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ YOUR EVENT EXPERIENCE"
+   },
+   {
+    "key": "your-access.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "04"
+   },
+   {
+    "key": "your-access.2",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "Your access."
+   },
+   {
+    "key": "your-access.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "All in one place."
+   },
+   {
+    "key": "your-access.4",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Experience a concept of the future participant journey, from registration to your personalized QR event pass—all from the same website."
+   },
+   {
+    "key": "your-access.5",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Register / Sign in"
+   },
+   {
+    "key": "your-access.6",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "IMDX"
+   },
+   {
+    "key": "your-access.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "27"
+   },
+   {
+    "key": "your-access.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**** ACCOUNT PASS"
+   },
+   {
+    "key": "your-access.9",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Welcome to your event dashboard"
+   },
+   {
+    "key": "your-access.10",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EVENT ACCESS"
+   },
+   {
+    "key": "your-access.11",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "rich",
+    "text": "Indonesia Mining &\nDownstream 2027"
+   },
+   {
+    "key": "your-access.12",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "26–28 MAY 2027 · JIEXPO JAKARTA"
+   },
+   {
+    "key": "your-access.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "PERSONAL QR PASS\nISSUED AFTER REGISTRATION APPROVAL"
+   },
+   {
+    "key": "your-access.14",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "One account. One event journey."
+   },
+   {
+    "key": "your-access.15",
+    "kind": "text",
+    "tag": "button",
+    "mode": "plain",
+    "text": "View Dashboard ↗"
+   }
+  ],
+  "from-interest-to": [
+   {
+    "key": "from-interest-to.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ HOW IT WORKS"
+   },
+   {
+    "key": "from-interest-to.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "05"
+   },
+   {
+    "key": "from-interest-to.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "SEAMLESS BY DESIGN"
+   },
+   {
+    "key": "from-interest-to.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "From interest to"
+   },
+   {
+    "key": "from-interest-to.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "entry."
+   },
+   {
+    "key": "from-interest-to.5",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "STEP 01"
+   },
+   {
+    "key": "from-interest-to.6",
+    "kind": "text",
+    "tag": "b",
+    "mode": "plain",
+    "text": "01"
+   },
+   {
+    "key": "from-interest-to.7",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Register online"
+   },
+   {
+    "key": "from-interest-to.8",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Create an event account and choose your visitor or conference experience."
+   },
+   {
+    "key": "from-interest-to.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "STEP 02"
+   },
+   {
+    "key": "from-interest-to.10",
+    "kind": "text",
+    "tag": "b",
+    "mode": "plain",
+    "text": "02"
+   },
+   {
+    "key": "from-interest-to.11",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Confirm your place"
+   },
+   {
+    "key": "from-interest-to.12",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Review your booking and request a manual bank-transfer invoice in your account."
+   },
+   {
+    "key": "from-interest-to.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "STEP 03"
+   },
+   {
+    "key": "from-interest-to.14",
+    "kind": "text",
+    "tag": "b",
+    "mode": "plain",
+    "text": "03"
+   },
+   {
+    "key": "from-interest-to.15",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Get your QR pass"
+   },
+   {
+    "key": "from-interest-to.16",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Receive your personal pass after registration approval. Admission is checked only in the secured CMS."
+   }
+  ],
+  "the-industry-in": [
+   {
+    "key": "the-industry-in.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "VISUAL SHOWCASE"
+   },
+   {
+    "key": "the-industry-in.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "The industry in *motion.*"
+   },
+   {
+    "key": "the-industry-in.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "A photographic concept of the mining and downstream industries. Stock footage and images are illustrative, not photographs of IMDX 2027."
+   },
+   {
+    "key": "the-industry-in.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "INDUSTRY SHOWCASE / CONCEPT REEL"
+   },
+   {
+    "key": "the-industry-in.4",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Technology. Transformation. Opportunity."
+   },
+   {
+    "key": "the-industry-in.5",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "Animated photo sequence • illustrative media"
+   },
+   {
+    "key": "the-industry-in.6",
+    "kind": "text",
+    "tag": "button",
+    "mode": "plain",
+    "text": "❚❚ Pause motion"
+   },
+   {
+    "key": "the-industry-in.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "OPEN-PIT MINING **01**"
+   },
+   {
+    "key": "the-industry-in.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "DOWNSTREAM PROCESSING **02**"
+   },
+   {
+    "key": "the-industry-in.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "EQUIPMENT & ENGINEERING **03**"
+   },
+   {
+    "key": "the-industry-in.10",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "RESOURCE OPERATIONS **04**"
+   },
+   {
+    "key": "the-industry-in.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "IMAGERY FOR DESIGN PRESENTATION ONLY"
+   },
+   {
+    "key": "the-industry-in.12",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Official exhibition photography & videos can be inserted once the organizer provides usage-approved assets."
+   }
+  ],
+  "the-venue": [
+   {
+    "key": "the-venue.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ LOCATION"
+   },
+   {
+    "key": "the-venue.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "06"
+   },
+   {
+    "key": "the-venue.2",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "THE VENUE"
+   },
+   {
+    "key": "the-venue.3",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "rich",
+    "text": "JAKARTA INTERNATIONAL EXPO (JIEXPO), KEMAYORAN\nHOME OF INDONESIA MINING & DOWNSTREAM INDUSTRIES EXHIBITION 2027"
+   },
+   {
+    "key": "the-venue.4",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Jakarta International Expo (JIExpo) Kemayoran is located strategically in the heart of Jakarta, offering exceptional accessibility that makes it Indonesia’s premier destination for massive international trade shows, concerts, and conventions."
+   },
+   {
+    "key": "the-venue.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "The landmark brings together thousands of industry professionals, exhibitors and buyers to accelerate networking and business opportunities. The venue offers familiarity amongst the food and beverage industry, with business facilitation, easy transportation access and spacious parking area."
+   },
+   {
+    "key": "the-venue.6",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Jakarta International Expo (JIExpo) Kemayoran is one of the leading venues in Jakarta, and provide the best solution for Meetings Convention Conference Exhibition (MICE) in Indonesia."
+   },
+   {
+    "key": "the-venue.7",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "JIExpo Kemayoran has an area up to 44 hectares, with 100,000 sqm exhibition area, consist of 50,000 sqm of indoor and more than 50,000 sqm of open space or outdoor area. Over the years, JIEXPO has hosted various exhibitions and events across multi sectors."
+   },
+   {
+    "key": "the-venue.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "26—28 MAY 2027 · JAKARTA, INDONESIA"
+   },
+   {
+    "key": "the-venue.9",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "GETTING TO JIEXPO",
+    "href": "https://www.google.com/maps/search/?api=1&query=JIEXPO+Kemayoran+Jakarta"
+   },
+   {
+    "key": "the-venue.10",
+    "kind": "image",
+    "tag": "img",
+    "src": "./assets/jiexpo-kemayoran-aerial.jpg",
+    "alt": "Aerial photograph of Jakarta International Expo (JIExpo), Kemayoran"
+   }
+  ],
+  "questions": [
+   {
+    "key": "questions.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ GOOD TO KNOW"
+   },
+   {
+    "key": "questions.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "07"
+   },
+   {
+    "key": "questions.2",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "Questions?"
+   },
+   {
+    "key": "questions.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "We've got you."
+   },
+   {
+    "key": "questions.4",
+    "kind": "text",
+    "tag": "summary",
+    "mode": "own",
+    "text": "When and where will the event be held?"
+   },
+   {
+    "key": "questions.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Indonesia Mining & Downstream Industries Exhibition 2027 is scheduled for 26–28 May 2027 at JIEXPO, Jakarta, Indonesia."
+   },
+   {
+    "key": "questions.6",
+    "kind": "text",
+    "tag": "summary",
+    "mode": "own",
+    "text": "Can I request a specific booth size?"
+   },
+   {
+    "key": "questions.7",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Yes. Sign in, choose preferred available units on the published floorplan and enter the area you need in m². Your selection is a request only — the organizer confirms the final booth, area and quotation."
+   },
+   {
+    "key": "questions.8",
+    "kind": "text",
+    "tag": "summary",
+    "mode": "own",
+    "text": "How do I register for a conference?"
+   },
+   {
+    "key": "questions.9",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Create a verified account and select a published conference. Paid bookings use a manually issued invoice and organizer-confirmed bank transfer."
+   },
+   {
+    "key": "questions.10",
+    "kind": "text",
+    "tag": "summary",
+    "mode": "own",
+    "text": "Are payments available on this website?"
+   },
+   {
+    "key": "questions.11",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Paid conference and booth bookings use organizer-issued invoices and manual bank transfers. Finance confirms payments in CMS; no automatic checkout is available."
+   }
+  ],
+  "built-around": [
+   {
+    "key": "built-around.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "ORGANIZERS & INDUSTRY NETWORK"
+   },
+   {
+    "key": "built-around.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Built around *industry collaboration.*"
+   },
+   {
+    "key": "built-around.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Selected institutions and organizers mentioned in the preliminary event invitation. Names, logos and involvement are subject to organizer confirmation."
+   }
+  ],
+  "be-part-of-what-s": [
+   {
+    "key": "be-part-of-what-s.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "NEXT MAY. NEW POSSIBILITIES."
+   },
+   {
+    "key": "be-part-of-what-s.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Be part of\nwhat's *next.*"
+   },
+   {
+    "key": "be-part-of-what-s.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Build connections. Explore opportunities. Shape the next chapter of the mining value chain."
+   },
+   {
+    "key": "be-part-of-what-s.3",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Become an Exhibitor"
+   },
+   {
+    "key": "be-part-of-what-s.4",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Explore Registration"
+   },
+   {
+    "key": "be-part-of-what-s.5",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "IMDX / 2027"
+   }
+  ]
+ },
+ "news": {
+  "exhibition": [
+   {
+    "key": "exhibition.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "WHAT'S HAPPENING"
+   },
+   {
+    "key": "exhibition.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Exhibition *insights & updates.*"
+   },
+   {
+    "key": "exhibition.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Explore the themes behind the upcoming exhibition. These editorial previews reflect the event invitation; official news will be supplied by the organizing committee."
+   },
+   {
+    "key": "exhibition.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EVENT PREVIEW · 2027"
+   },
+   {
+    "key": "exhibition.4",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Mining, metallurgy and downstream industries meet in Jakarta"
+   },
+   {
+    "key": "exhibition.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Discover the equipment, technologies and industrial solutions represented across the exhibition's eight major focus areas."
+   },
+   {
+    "key": "exhibition.6",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "Explore the exhibit scope",
+    "href": "#sectors"
+   },
+   {
+    "key": "exhibition.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "INDUSTRY FOCUS"
+   },
+   {
+    "key": "exhibition.8",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "From raw resources to higher-value manufacturing"
+   },
+   {
+    "key": "exhibition.9",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Mineral processing, metallurgy, and downstream end-use applications."
+   },
+   {
+    "key": "exhibition.10",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Read overview ↗",
+    "href": "#about"
+   },
+   {
+    "key": "exhibition.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EXHIBITOR OPPORTUNITIES"
+   },
+   {
+    "key": "exhibition.12",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Showcase solutions across the mining value chain"
+   },
+   {
+    "key": "exhibition.13",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Equipment, digital automation, services and environmental technologies."
+   },
+   {
+    "key": "exhibition.14",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Explore exhibiting ↗",
+    "href": "#exhibitors"
+   }
+  ],
+  "latest-news": [
+   {
+    "key": "latest-news.0",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Latest news"
+   },
+   {
+    "key": "latest-news.1",
+    "kind": "text",
+    "tag": "button",
+    "mode": "plain",
+    "text": "Load more"
+   }
+  ]
+ },
+ "partners": {
+  "built-around": [
+   {
+    "key": "built-around.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "ORGANIZERS & INDUSTRY NETWORK"
+   },
+   {
+    "key": "built-around.1",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Built around *industry collaboration.*"
+   },
+   {
+    "key": "built-around.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Selected institutions and organizers mentioned in the preliminary event invitation. Names, logos and involvement are subject to organizer confirmation."
+   }
+  ],
+  "confirmed-organizers-partners": [
+   {
+    "key": "confirmed-organizers-partners.0",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Confirmed organizers & partners"
+   }
+  ],
+  "partner-or-sponsor-imdx-2027": [
+   {
+    "key": "partner-or-sponsor-imdx-2027.0",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Partner or sponsor IMDX 2027"
+   },
+   {
+    "key": "partner-or-sponsor-imdx-2027.1",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Packages are confirmed by the organizer. Tell us about your goals and we will contact you."
+   },
+   {
+    "key": "partner-or-sponsor-imdx-2027.2",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "Enquire about partnership",
+    "href": "/contact/?topic=PARTNER#imdx-contact-form"
+   },
+   {
+    "key": "partner-or-sponsor-imdx-2027.3",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "Sponsorship enquiry",
+    "href": "/contact/?topic=SPONSOR#imdx-contact-form"
+   }
+  ]
+ },
+ "privacy": {
+  "privacy-notice": [
+   {
+    "key": "privacy-notice.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "LEGAL · DRAFT"
+   },
+   {
+    "key": "privacy-notice.1",
+    "kind": "text",
+    "tag": "h1",
+    "mode": "plain",
+    "text": "Privacy notice"
+   },
+   {
+    "key": "privacy-notice.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "DRAFT FOR UAT — this notice is pending review and approval by the organizer's Legal team (decision D-12/D-13). It is not yet the final legal text."
+   },
+   {
+    "key": "privacy-notice.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "What we collect"
+   },
+   {
+    "key": "privacy-notice.4",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "When you create an account, register, request a booth, send a contact message or attend the event we process: your name, verified email or phone, company, job title and country; your registrations, booth requests, invoices and verified payments; your consent version and time; and check-in records at event gates."
+   },
+   {
+    "key": "privacy-notice.5",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Why"
+   },
+   {
+    "key": "privacy-notice.6",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "To verify your account, manage registrations and booth requests, issue invoices for manual bank transfer, confirm payments, issue and validate personal QR passes, respond to enquiries and report anonymised attendance. Your QR code contains only a random token, never your name or contact details."
+   },
+   {
+    "key": "privacy-notice.7",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Who can see it"
+   },
+   {
+    "key": "privacy-notice.8",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Only authorised organizer staff, according to their role (for example, Finance sees invoices and payments; gate staff see only what is needed to admit you). Exhibitor names are published on the floorplan only after approval."
+   },
+   {
+    "key": "privacy-notice.9",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Retention and your rights"
+   },
+   {
+    "key": "privacy-notice.10",
+    "kind": "text",
+    "tag": "p",
+    "mode": "own",
+    "text": "Retention periods and the procedure for access, correction and deletion requests will be published here once approved. Until then, contact the organizer through the ."
+   },
+   {
+    "key": "privacy-notice.11",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "contact page",
+    "href": "/contact/"
+   }
+  ]
+ },
+ "programme": {
+  "ideas-that": [
+   {
+    "key": "ideas-that.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ CONFERENCES & NETWORKING"
+   },
+   {
+    "key": "ideas-that.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03"
+   },
+   {
+    "key": "ideas-that.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "DISCUSS · EXCHANGE · CONNECT"
+   },
+   {
+    "key": "ideas-that.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "Ideas that"
+   },
+   {
+    "key": "ideas-that.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "move industries."
+   },
+   {
+    "key": "ideas-that.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Connect with industry peers through expert dialogues and business-focused conversations. Detailed sessions will be announced."
+   },
+   {
+    "key": "ideas-that.6",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/conference-keynote.webp",
+    "alt": "Keynote presentation on a conference stage"
+   },
+   {
+    "key": "ideas-that.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "CONFERENCE"
+   },
+   {
+    "key": "ideas-that.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "01 / 03"
+   },
+   {
+    "key": "ideas-that.9",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Mining Downstream Industry & Green Mining Conference"
+   },
+   {
+    "key": "ideas-that.10",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Policy perspectives, sustainable solutions and supply-demand matchmaking."
+   },
+   {
+    "key": "ideas-that.11",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "2027 · SCHEDULE TBA"
+   },
+   {
+    "key": "ideas-that.12",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/china-indonesia-forum.webp",
+    "alt": "Audience attending a professional forum"
+   },
+   {
+    "key": "ideas-that.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "MAIN FORUM"
+   },
+   {
+    "key": "ideas-that.14",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "02 / 03"
+   },
+   {
+    "key": "ideas-that.15",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "China–Indonesia Coal & Energy Conference"
+   },
+   {
+    "key": "ideas-that.16",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Industry trends, policy dialogue and bilateral business exchange."
+   },
+   {
+    "key": "ideas-that.17",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "2027 · SCHEDULE TBA"
+   },
+   {
+    "key": "ideas-that.18",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/networking-reception.webp",
+    "alt": "Business professionals discussing around a meeting table"
+   },
+   {
+    "key": "ideas-that.19",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "NETWORKING"
+   },
+   {
+    "key": "ideas-that.20",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "03 / 03"
+   },
+   {
+    "key": "ideas-that.21",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Indonesia Mining Industry Networking Reception"
+   },
+   {
+    "key": "ideas-that.22",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Connect with mine owners, contractors, manufacturers and industry organizations."
+   },
+   {
+    "key": "ideas-that.23",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "2027 · SCHEDULE TBA"
+   }
+  ],
+  "confirmed-schedule": [
+   {
+    "key": "confirmed-schedule.0",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Confirmed schedule"
+   },
+   {
+    "key": "confirmed-schedule.1",
+    "kind": "text",
+    "tag": "label",
+    "mode": "own",
+    "text": "Day"
+   }
+  ],
+  "all-programmes": [
+   {
+    "key": "all-programmes.0",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "See all published programmes",
+    "href": "/conferences"
+   }
+  ]
+ },
+ "terms": {
+  "registration-payment-terms": [
+   {
+    "key": "registration-payment-terms.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "LEGAL · DRAFT"
+   },
+   {
+    "key": "registration-payment-terms.1",
+    "kind": "text",
+    "tag": "h1",
+    "mode": "plain",
+    "text": "Registration & payment terms"
+   },
+   {
+    "key": "registration-payment-terms.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "DRAFT FOR UAT — pending approval of prices, deposit, cancellation and refund policy (decisions D-01, D-02, D-03, D-12). No live sales are accepted until approved."
+   },
+   {
+    "key": "registration-payment-terms.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Payments"
+   },
+   {
+    "key": "registration-payment-terms.4",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "There is no online card or payment-gateway checkout. Paid conference seats and booths are invoiced by the organizer and paid by manual bank transfer to the account shown on your official invoice in your account. Uploading a transfer receipt does not confirm payment; Finance confirms receipt from the bank statement."
+   },
+   {
+    "key": "registration-payment-terms.5",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Booths"
+   },
+   {
+    "key": "registration-payment-terms.6",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Choosing booths on the floorplan and entering a requested area is a request only. The organizer confirms booth units, area and price in a quotation you accept; booth allocation is confirmed separately by Operations."
+   },
+   {
+    "key": "registration-payment-terms.7",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Cancellations and refunds"
+   },
+   {
+    "key": "registration-payment-terms.8",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "The cancellation and refund policy will be published here once approved by the organizer."
+   }
+  ]
+ },
+ "the-venue": {
+  "jakarta-international-expo-jiexpo-kemayo": [
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.0",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "JAKARTA INTERNATIONAL EXPO (JIEXPO), KEMAYORAN\nHOME OF INDONESIA MINING & DOWNSTREAM INDUSTRIES EXHIBITION 2027"
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.1",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Jakarta International Expo (JIExpo) Kemayoran is located strategically in the heart of Jakarta, offering exceptional accessibility that makes it Indonesia’s premier destination for massive international trade shows, concerts, and conventions."
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.2",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "The landmark brings together thousands of industry professionals, exhibitors and buyers to accelerate networking and business opportunities. The venue offers familiarity amongst the food and beverage industry, with business facilitation, easy transportation access and spacious parking area."
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.3",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Jakarta International Expo (JIExpo) Kemayoran is one of the leading venues in Jakarta, and provide the best solution for Meetings Convention Conference Exhibition (MICE) in Indonesia."
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.4",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "JIExpo Kemayoran has an area up to 44 hectares, with 100,000 sqm exhibition area, consist of 50,000 sqm of indoor and more than 50,000 sqm of open space or outdoor area. Over the years, JIEXPO has hosted various exhibitions and events across multi sectors."
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.5",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "26—28 MAY 2027 · JAKARTA, INDONESIA"
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.6",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "GETTING TO JIEXPO",
+    "href": "https://www.google.com/maps/search/?api=1&query=JIEXPO+Kemayoran+Jakarta"
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.7",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/jiexpo-kemayoran-aerial.jpg",
+    "alt": "Aerial photograph of Jakarta International Expo (JIExpo), Kemayoran"
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.8",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Address"
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.9",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Jakarta International Expo, Kemayoran, Jakarta, Indonesia."
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.10",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "GETTING TO JIEXPO ↗",
+    "href": "https://www.google.com/maps/search/?api=1&query=JIEXPO+Kemayoran+Jakarta"
+   }
+  ]
+ },
+ "visitors": {
+  "your-access": [
+   {
+    "key": "your-access.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ YOUR EVENT EXPERIENCE"
+   },
+   {
+    "key": "your-access.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "04"
+   },
+   {
+    "key": "your-access.2",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "Your access."
+   },
+   {
+    "key": "your-access.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "All in one place."
+   },
+   {
+    "key": "your-access.4",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Experience a concept of the future participant journey, from registration to your personalized QR event pass—all from the same website."
+   },
+   {
+    "key": "your-access.5",
+    "kind": "text",
+    "tag": "button",
+    "mode": "own",
+    "text": "Register / Sign in"
+   },
+   {
+    "key": "your-access.6",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "IMDX"
+   },
+   {
+    "key": "your-access.7",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "27"
+   },
+   {
+    "key": "your-access.8",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "**** ACCOUNT PASS"
+   },
+   {
+    "key": "your-access.9",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Welcome to your event dashboard"
+   },
+   {
+    "key": "your-access.10",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "EVENT ACCESS"
+   },
+   {
+    "key": "your-access.11",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "rich",
+    "text": "Indonesia Mining &\nDownstream 2027"
+   },
+   {
+    "key": "your-access.12",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "26–28 MAY 2027 · JIEXPO JAKARTA"
+   },
+   {
+    "key": "your-access.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "PERSONAL QR PASS\nISSUED AFTER REGISTRATION APPROVAL"
+   },
+   {
+    "key": "your-access.14",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "One account. One event journey."
+   },
+   {
+    "key": "your-access.15",
+    "kind": "text",
+    "tag": "button",
+    "mode": "plain",
+    "text": "View Dashboard ↗"
+   }
+  ],
+  "from-interest-to-entry": [
+   {
+    "key": "from-interest-to-entry.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ HOW IT WORKS"
+   },
+   {
+    "key": "from-interest-to-entry.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "05"
+   },
+   {
+    "key": "from-interest-to-entry.2",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "SEAMLESS BY DESIGN"
+   },
+   {
+    "key": "from-interest-to-entry.3",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "From interest to"
+   },
+   {
+    "key": "from-interest-to-entry.4",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "entry."
+   },
+   {
+    "key": "from-interest-to-entry.5",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "STEP 01"
+   },
+   {
+    "key": "from-interest-to-entry.6",
+    "kind": "text",
+    "tag": "b",
+    "mode": "plain",
+    "text": "01"
+   },
+   {
+    "key": "from-interest-to-entry.7",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Register online"
+   },
+   {
+    "key": "from-interest-to-entry.8",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Create an event account and choose your visitor or conference experience."
+   },
+   {
+    "key": "from-interest-to-entry.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "STEP 02"
+   },
+   {
+    "key": "from-interest-to-entry.10",
+    "kind": "text",
+    "tag": "b",
+    "mode": "plain",
+    "text": "02"
+   },
+   {
+    "key": "from-interest-to-entry.11",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Confirm your place"
+   },
+   {
+    "key": "from-interest-to-entry.12",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Review your booking and request a manual bank-transfer invoice in your account."
+   },
+   {
+    "key": "from-interest-to-entry.13",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "STEP 03"
+   },
+   {
+    "key": "from-interest-to-entry.14",
+    "kind": "text",
+    "tag": "b",
+    "mode": "plain",
+    "text": "03"
+   },
+   {
+    "key": "from-interest-to-entry.15",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Get your QR pass"
+   },
+   {
+    "key": "from-interest-to-entry.16",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Receive your personal pass after registration approval. Admission is checked only in the secured CMS."
+   }
+  ],
+  "questions-we-ve-got-you": [
+   {
+    "key": "questions-we-ve-got-you.0",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "/ GOOD TO KNOW"
+   },
+   {
+    "key": "questions-we-ve-got-you.1",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "07"
+   },
+   {
+    "key": "questions-we-ve-got-you.2",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "own",
+    "text": "Questions?"
+   },
+   {
+    "key": "questions-we-ve-got-you.3",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "We've got you."
+   },
+   {
+    "key": "questions-we-ve-got-you.4",
+    "kind": "text",
+    "tag": "summary",
+    "mode": "own",
+    "text": "When and where will the event be held?"
+   },
+   {
+    "key": "questions-we-ve-got-you.5",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Indonesia Mining & Downstream Industries Exhibition 2027 is scheduled for 26–28 May 2027 at JIEXPO, Jakarta, Indonesia."
+   },
+   {
+    "key": "questions-we-ve-got-you.6",
+    "kind": "text",
+    "tag": "summary",
+    "mode": "own",
+    "text": "Can I request a specific booth size?"
+   },
+   {
+    "key": "questions-we-ve-got-you.7",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Yes. The demo reservation form offers 9, 18, 36, 72, 90, 108, 144, 180, and 240 m². Final availability and quotation are subject to confirmation by the event organizer."
+   },
+   {
+    "key": "questions-we-ve-got-you.8",
+    "kind": "text",
+    "tag": "summary",
+    "mode": "own",
+    "text": "How do I register for a conference?"
+   },
+   {
+    "key": "questions-we-ve-got-you.9",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Create a verified account and select a published conference. Paid bookings use a manually issued invoice and organizer-confirmed bank transfer."
+   },
+   {
+    "key": "questions-we-ve-got-you.10",
+    "kind": "text",
+    "tag": "summary",
+    "mode": "own",
+    "text": "Are payments available on this website?"
+   },
+   {
+    "key": "questions-we-ve-got-you.11",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Paid conference and booth bookings use organizer-issued invoices and manual bank transfers. Finance confirms payments in CMS; no automatic checkout is available."
+   }
+  ]
+ }
+}

@@ -24,3 +24,17 @@ Backend: `src/lib/page-layout.ts`, `src/lib/page-manifest.json` (section ids of 
 `src/app/api/public/pages/[key]`, `src/app/admin/pages/page.tsx`, migration `20261110020000_page_builder`.
 Frontend: `data-cms-page` / `data-cms-block` attributes and the renderer in `assets/platform.js`.
 When a new section is added to the static site, give it a `data-cms-block` id and add it to `page-manifest.json`.
+
+## Editing text, links and images inside designed sections (and header/footer)
+Every designed section's text leaves, links and images carry a stable key (`data-cms-f="block.N"`) stamped into the static HTML.
+In **Pages & layout**, a designed section shows **Edit content (n)**; the page **(all pages: header & footer)** edits the shared
+navigation and footer on every page. Overrides are stored in the page layout (`fields`), go through the same draft → preview →
+publish → rollback flow and are rendered by the frontend as text nodes only (no HTML). Field modes: `plain`; `rich` (new line =
+line break, `*x*` italic, `**x**` bold); `own` (text beside an icon — the icon is kept). Empty value = keep the designed text.
+
+When the static HTML changes, re-stamp and refresh the manifest (existing keys are never renumbered):
+
+    node scripts/cms-fields.mjs ../mining-expo-2027-demo --stamp   # writes keys into new elements + src/lib/page-fields.json
+    node scripts/cms-fields.mjs ../mining-expo-2027-demo           # check only (exit 1 if unstamped/stale)
+
+Commit the frontend HTML and `src/lib/page-fields.json` together. Overrides whose key disappears are rejected on the next save.
