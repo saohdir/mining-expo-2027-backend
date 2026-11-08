@@ -14,6 +14,9 @@ type EventPolicy={id:string;code:string;title:string;visitorOpen:boolean;publish
 function AdminWorkspace(){
  const searchParams=useSearchParams();
  const requestedSection=searchParams.get("section");
+ const requestedAccount=searchParams.get("accountId");
+ const requestedBooking=searchParams.get("bookingId");
+ const requestedKind=searchParams.get("kind");
  const [actor,setActor]=useState<Admin|null>(null),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[tab,setTab]=useState("registrations"),[busy,setBusy]=useState(false),[msg,setMsg]=useState(""),[loading,setLoading]=useState(true),[moduleErrors,setModuleErrors]=useState<string[]>([]);
  const [registrations,setRegistrations]=useState<Registration[]>([]),[bookings,setBookings]=useState<Booking[]>([]),[invoices,setInvoices]=useState<Invoice[]>([]),[requests,setRequests]=useState<PaymentRequest[]>([]),[notifications,setNotifications]=useState<Notification[]>([]),[events,setEvents]=useState<EventPolicy[]>([]),[attendance,setAttendance]=useState<Dict>({});
  const [from,setFrom]=useState(""),[to,setTo]=useState(""),[filterType,setFilterType]=useState(""),[invoiceAccount,setInvoiceAccount]=useState(""),[invoiceBooking,setInvoiceBooking]=useState(""),[invoiceKind,setInvoiceKind]=useState<"enrollmentId"|"boothRequestId">("enrollmentId"),[invoiceAmount,setInvoiceAmount]=useState(""),[invoiceDP,setInvoiceDP]=useState("0"),[invoiceTitle,setInvoiceTitle]=useState("IMDX 2027 booking");
@@ -23,6 +26,14 @@ function AdminWorkspace(){
  setRegistrations(values[0].rows||[]);setBookings(values[1].records||[]);setInvoices(values[2].records||[]);setRequests(values[3].records||[]);setNotifications(values[4].notifications||[]);setAttendance(values[5]||{});setEvents(values[6].events||[])}catch(e){setActor(null)}finally{setLoading(false)}},[]);
  useEffect(()=>{void reload()},[reload]);
  useEffect(()=>{if(requestedSection&&["overview","registrations","bookings","finance","notifications","settings"].includes(requestedSection))setTab(requestedSection)},[requestedSection]);
+ useEffect(()=>{
+   if(requestedSection==="finance"&&requestedAccount&&requestedBooking&&
+      (requestedKind==="enrollmentId"||requestedKind==="boothRequestId")){
+     setInvoiceAccount(requestedAccount);
+     setInvoiceBooking(requestedBooking);
+     setInvoiceKind(requestedKind);
+   }
+ },[requestedSection,requestedAccount,requestedBooking,requestedKind]);
  const permittedTabs=[["registrations","Registrations"],["bookings","Booth Requests"],["finance","Invoices & Finance"],["notifications","Notifications"],["settings","Event Settings"]].filter(([id])=>
    id==="notifications"||
    (id==="settings"&&actor?.role==="SUPER_ADMIN")||
