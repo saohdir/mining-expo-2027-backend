@@ -42,3 +42,14 @@ Requires the CR-AUTH-01 release (PR #13 or later) to be deployed and its migrati
 Creates `uat-customer01@imdx-uat.test` … (options `--prefix`, `--domain`, `--count` ≤ 50), email-verified, with a random password each and a
 "UAT Customer NN" profile. Existing emails are skipped. Passwords exist only in that private file (mode 600) — copy them, then delete it.
 Refuses to run with `APP_STAGE=production`. Use `--domain` with a real mailbox domain only if you want reset emails outside Mailpit.
+
+## Applying pending SQL migrations (UAT has no _prisma_migrations table)
+Read-only status first, then apply with a fresh backup. SQL is read from a git ref, so the checkout and running containers are untouched:
+
+    git fetch origin feat/prd14-p0-remaining:refs/remotes/origin/feat/prd14-p0-remaining
+    git show origin/feat/prd14-p0-remaining:scripts/uat-apply-migrations.sh > /root/uat-apply-migrations.sh
+    MIGRATIONS_REF=origin/feat/prd14-p0-remaining bash /root/uat-apply-migrations.sh
+    MIGRATIONS_REF=origin/feat/prd14-p0-remaining bash /root/uat-apply-migrations.sh --apply --backup /root/<fresh>.dump
+
+All migrations are additive (new tables/columns/indexes with defaults), so the currently deployed code keeps working after they
+are applied. After everything is merged, the default ref `origin/main` can be used.
