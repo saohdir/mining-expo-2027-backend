@@ -2,6 +2,8 @@
 -- IMPORTANT: apply against an approved, backed-up UAT PostgreSQL first.
 -- This project was initially provisioned with Prisma db push. Reconcile the
 -- migration baseline before using prisma migrate deploy in production.
+BEGIN;
+
 CREATE TABLE "BoothOffer" (
     "id" TEXT NOT NULL,
     "boothRequestId" TEXT NOT NULL,
@@ -34,3 +36,5 @@ CREATE INDEX "BoothOffer_boothRequestId_createdAt_idx"
 -- create and those must be reconciled by Operations BEFORE applying the migration.
 CREATE UNIQUE INDEX "BoothAssignment_one_active_per_unit"
   ON "BoothAssignment"("boothUnitId") WHERE "active" = TRUE;
+
+COMMIT;
