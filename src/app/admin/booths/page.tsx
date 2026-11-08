@@ -66,7 +66,7 @@ export default function BoothManagement(){
   finally{if(alive)setLoading(false)}})();return()=>{alive=false}},[]);
   const run=async(action:()=>Promise<unknown>,success:string)=>{
     setSaving(true);setMessage("");
-    try{await action();setMessage(success);const current=id;await load(current)}
+    try{await action();const current=id;await load(current);setMessage(success)}
     catch(e){setMessage(e instanceof Error?e.message:"Unable to complete action")}
     finally{setSaving(false)}
   };
