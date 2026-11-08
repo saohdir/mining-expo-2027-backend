@@ -6,6 +6,7 @@ type Offer = {id:string;revision:number;offeredUnits:OfferedUnit[];offeredUnitId
 type Unit = OfferedUnit & {status:string};
 type Booth = {id:string;accountId:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];account:{email:string|null;profile:{fullName:string;organization:string|null}|null};floorplan:{title:string;versionNo:number;status:string;units:Unit[]};offers:Offer[];assignments:{id:string;boothUnit:{code:string;hall:string|null}}[]};
 type Actor = {role:string;email:string};
+type HoldView={id:string;status:string;expiresAt:string;endedAt:string|null;boothUnit:{code:string;hall:string|null}};
 
 async function api(url:string, method="GET", body?:unknown) {
   const response = await fetch(url,{method,cache:"no-store",
@@ -33,6 +34,8 @@ export default function BoothManagement(){
   const [saving,setSaving]=useState(false);
   const [loading,setLoading]=useState(true);
   const [message,setMessage]=useState("");
+  const [holds,setHolds]=useState<HoldView[]>([]);
+  const [holdHours,setHoldHours]=useState("24"),[holdReason,setHoldReason]=useState("");
   const selected=useMemo(()=>records.find(r=>r.id===id)||null,[records,id]);
   const canOffer=actor?.role==="SALES"||actor?.role==="OPERATIONS"||actor?.role==="SUPER_ADMIN";
   const canAssign=actor?.role==="OPERATIONS"||actor?.role==="SUPER_ADMIN";
@@ -44,10 +47,12 @@ export default function BoothManagement(){
 
   const updateSelection=(record:Booth)=> {
     setId(record.id);
+    setHolds([]);
+    void api("/api/admin/booth-requests/"+record.id+"/holds").then((data:{holds:HoldView[]})=>setHolds(data.holds||[])).catch(()=>{});
     const proposal=record.offers[0]?.offeredUnitIds||record.preferredUnitIds;
     setUnits(proposal.filter(unitId=>record.floorplan.units.some(u=>u.id===unitId&&u.status==="AVAILABLE")));
     setPrice(record.offers[0]?.quotedPriceMinor||"");
-    setNotes("");setExpiresAt("");setReason("");setApproved(false);setPublicName(false);setMessage("");
+    setNotes("");setExpiresAt("");setReason("");setHoldReason("");setApproved(false);setPublicName(false);setMessage("");
   };
   const load=async(preserveId?:string)=>{
     const result=await api("/api/admin/booth-requests");
@@ -130,6 +135,20 @@ export default function BoothManagement(){
             <p className="micro">{latest.acceptedAt?"Accepted "+wib(latest.acceptedAt):"Awaiting customer acceptance"}</p>
           </div>}
           {selected.assignments.length>0&&<p><strong>Confirmed booth units:</strong> {selected.assignments.map(a=>a.boothUnit.code).join(", ")}</p>}
+          {canAssign&&latest?.acceptedAt&&<div className="booth-hold-panel">
+            <h3>Time-limited organizer holds</h3>
+            <p className="micro">Only Operations can hold every unit in an accepted quotation. A hold is not payment or final assignment.</p>
+            {holds.filter(h=>h.status==="ACTIVE").length>0?<div role="status">
+              {holds.filter(h=>h.status==="ACTIVE").map(h=><p className="micro" key={h.id}><strong>{h.boothUnit.code}</strong> · Reserved until {wib(h.expiresAt)}</p>)}
+            </div>:<p className="micro">No active holds recorded for this request.</p>}
+            {["ACCEPTED","WAITING_INVOICE","INVOICED","ALLOCATION_PENDING"].includes(selected.status)&&selected.floorplan.status==="PUBLISHED"&&
+              <div className="form-grid">
+                <label>Hold duration (hours, max 168)<input type="number" min="1" max="168" step="1" value={holdHours} onChange={e=>setHoldHours(e.target.value)}/></label>
+                <label>Hold or release reason<input value={holdReason} minLength={8} maxLength={500} onChange={e=>setHoldReason(e.target.value)}/></label>
+                <button type="button" disabled={saving||holds.some(h=>h.status==="ACTIVE")||holdReason.trim().length<8} onClick={()=>void run(()=>api("/api/admin/booth-requests/"+selected.id+"/holds","POST",{expiresInHours:Number(holdHours),reason:holdReason.trim()}),"A time-limited hold was created. Customer payment remains unverified until Finance confirms it.")}>Hold quoted booths</button>
+                <button type="button" className="ghost" disabled={saving||!holds.some(h=>h.status==="ACTIVE")||holdReason.trim().length<8} onClick={()=>void run(()=>api("/api/admin/booth-requests/"+selected.id+"/holds","DELETE",{reason:holdReason.trim()}),"Active holds released and inventory reconciled.")}>Release active holds</button>
+              </div>}
+          </div>}
 
           {canOffer&&eligibleForQuote&&<form onSubmit={event=>{event.preventDefault();void run(offer,"New quotation revision recorded. The customer must accept it before invoicing.")}}>
             <h3>Prepare a booth quotation</h3>
@@ -157,7 +176,7 @@ export default function BoothManagement(){
             <label>Reason for audit action<textarea minLength={8} value={reason} onChange={e=>setReason(e.target.value)}/></label>
             {selected.status==="OFFERED"&&<button className="ghost" disabled={saving} onClick={()=>void run(()=>status("UNDER_REVIEW"),"Returned to review.")}>Return to review</button>}
             {selected.status==="ACCEPTED"&&<button className="ghost" disabled={saving} onClick={()=>void run(()=>status("WAITING_INVOICE"),"Waiting for invoice.")}>Mark waiting for invoice</button>}
-            {canAssign&&["ACCEPTED","WAITING_INVOICE"].includes(selected.status)&&latest?.acceptedAt&&
+            {canAssign&&["ACCEPTED","WAITING_INVOICE","INVOICED","ALLOCATION_PENDING"].includes(selected.status)&&latest?.acceptedAt&&
               <div className="booth-admin-assign">
                 <label className="consent"><input type="checkbox" checked={publicName} onChange={e=>setPublicName(e.target.checked)}/> Public display of approved company name (only if organizer approved)</label>
                 <button disabled={saving} onClick={()=>void run(async()=>{if(reason.trim().length<8)throw Error("Provide an 8-character audit reason.");return api("/api/admin/booth-requests/"+selected.id+"/assign","POST",{reason:reason.trim(),approvedForPublic:publicName})},"Booth units assigned after finance and inventory validation.")}>Confirm assignment (Finance-gated) ↗</button>

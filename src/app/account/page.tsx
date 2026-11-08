@@ -5,7 +5,7 @@ type EventRecord={id:string;code:string;title:string;startsAt:string;venue:strin
 type AccountData={id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
  enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:CustomerBooth[];invoices:{id:string;boothRequestId:string|null;number:string;status:string;totalMinor:string}[]};
 type BoothOfferView={id:string;revision:number;offeredUnits:{id:string;code:string;hall:string|null;zone:string|null;areaSqm:string}[];offeredAreaSqm:string;quotedPriceMinor:string;expiresAt:string|null;acceptedAt:string|null;createdAt:string};
-type CustomerBooth={id:string;createdAt:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];floorplan:{versionNo:number;units:{id:string;code:string;hall:string|null}[]};offers:BoothOfferView[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]};
+type CustomerBooth={id:string;createdAt:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];holds:{id:string;expiresAt:string;boothUnit:{code:string;hall:string|null}}[];floorplan:{versionNo:number;units:{id:string;code:string;hall:string|null}[]};offers:BoothOfferView[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]};
 type Floorplan={state:string;id?:string;version?:number;title?:string;canvas?:{width:number;height:number};backgroundUrl?:string;units?:{id:string;code:string;category:string;hall?:string;areaSqm:string;status:string;x:number;y:number;w:number;h:number}[]};
 async function request(path:string,options:RequestInit={}){const res=await fetch(path,{...options,headers:{...(options.body?{"Content-Type":"application/json"}:{}),...options.headers},cache:"no-store"});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error((data as ApiError).message||(data as ApiError).issues?.map(i=>i.message).join(", ")||"Request failed");return data;}
 const send=(path:string,data:unknown)=>request(path,{method:"POST",body:JSON.stringify(data)});
@@ -74,6 +74,8 @@ export default function AccountPage(){
         {offer.acceptedAt?<p className="micro"><strong>Accepted:</strong> {new Date(offer.acceptedAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})} WIB</p>:<p className="micro">Offer is not a reservation. Operations will allocate only after approved payment verification.</p>}
        </div>:<p className="micro">Awaiting organizer review and quotation. Your preferred units are not held.</p>}
        {x.assignments.length>0&&<p><strong>Assigned units:</strong> {x.assignments.map(a=>a.boothUnit.code).join(", ")}</p>}
+       {x.holds.filter(h=>new Date(h.expiresAt)>new Date()).length>0&&
+        <p className="micro"><strong>Organizer temporary hold (not final booking):</strong> {x.holds.filter(h=>new Date(h.expiresAt)>new Date()).map(h=>h.boothUnit.code+" until "+new Date(h.expiresAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB").join("; ")}. Finance still verifies all payments manually.</p>}
        {me.invoices.filter(inv=>inv.boothRequestId===x.id).map(inv=><p className="micro" key={inv.id}>
          <strong>Invoice {inv.number}:</strong> {inv.status==="PAID"?"Paid in full":inv.status==="PARTIALLY_PAID"?"DP verified":inv.status.replaceAll("_"," ")}
        </p>)}

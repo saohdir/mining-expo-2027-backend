@@ -139,3 +139,20 @@
 .booth-history summary{font-size:14px;font-weight:700;cursor:pointer;color:#520f00}
 .booth-history ol{padding-left:21px;margin:12px 0;color:#88584b;font-size:13px;line-height:1.8}
 .booth-history .micro{margin:0}
+
+/* Conservative floorplan publication, rollback and temporary hold controls. */
+.floorplan-clone,.floorplan-publish-review,.floorplan-unblock,.booth-hold-panel{
+  padding:20px 22px;margin:20px 0;border:1px solid #ecd5c2;
+  border-radius:8px;background:#fffdfb;color:#520f00
+}
+.floorplan-publish-review{border-left:4px solid #ff5912;background:#fff7ee}
+.floorplan-clone h3,.booth-hold-panel h3{margin:0 0 12px;color:#17120f;letter-spacing:-.035em}
+.floorplan-publish-review>strong{display:block;font-size:17px;letter-spacing:-.025em}
+.floorplan-publish-review label{display:block;margin-top:12px}
+.booth-hold-panel{background:#fff6ed}
+.booth-hold-panel .form-grid{align-items:end}
+.floorplan-unblock .micro{line-height:1.55}
+@media(max-width:620px){
+ .floorplan-clone,.floorplan-publish-review,.floorplan-unblock,.booth-hold-panel{padding:15px}
+ .booth-hold-panel .form-grid{grid-template-columns:1fr}
+}

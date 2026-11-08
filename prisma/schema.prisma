@@ -249,6 +249,7 @@ model BoothUnit {
   status BoothUnitStatus @default(AVAILABLE)
   approvedPublicName String?
   assignments BoothAssignment[]
+  holds BoothHold[]
   @@unique([floorplanId,code])
   @@index([status])
 }
@@ -272,6 +273,7 @@ model BoothRequest {
   invoices Invoice[]
   paymentRequests ManualPaymentRequest[]
   offers BoothOffer[]
+  holds BoothHold[]
   @@index([accountId,createdAt])
 }
 model BoothOffer {
@@ -305,6 +307,22 @@ model BoothAssignment {
   assignedBy String
   approvedForPublic Boolean @default(false)
   @@index([boothUnitId,active])
+}
+model BoothHold {
+  id String @id @default(uuid())
+  boothUnitId String
+  boothUnit BoothUnit @relation(fields:[boothUnitId],references:[id])
+  boothRequestId String
+  boothRequest BoothRequest @relation(fields:[boothRequestId],references:[id])
+  status String @default("ACTIVE")
+  createdBy String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  endedAt DateTime?
+  endedBy String?
+  endReason String?
+  @@index([status,expiresAt])
+  @@index([boothRequestId,status])
 }
 model ManualPaymentRequest {
   id String @id @default(uuid())
