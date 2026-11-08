@@ -12,7 +12,9 @@ const raw=Buffer.from(await file.arrayBuffer());let meta:sharp.Metadata;
 try{meta=await sharp(raw,{failOn:"error",limitInputPixels:64e6}).metadata()}catch{throw new HttpError(400,"INVALID_IMAGE","Image could not be decoded.");}
 if(!["png","jpeg","webp"].includes(meta.format||"")||!meta.width||!meta.height||meta.width>8000||meta.height>8000)throw new HttpError(400,"IMAGE_LIMIT","Invalid image format or dimensions.");
 const key=randomUUID()+".webp";const dir=process.env.FLOORPLAN_UPLOAD_DIR||path.resolve(".data/floorplans");
-await mkdir(dir,{recursive:true});const optimized=await sharp(raw).rotate().resize({width:4000,height:4000,fit:"inside",withoutEnlargement:true}).webp({quality:85}).toBuffer();await writeFile(path.join(dir,key),optimized,{flag:"wx",mode:0o640});
+await mkdir(dir,{recursive:true});
+// A header can parse while the pixel data is corrupt: treat decode failures as client errors, not 500s.
+let optimized:Buffer;try{optimized=await sharp(raw,{failOn:"error",limitInputPixels:64e6}).rotate().resize({width:4000,height:4000,fit:"inside",withoutEnlargement:true}).webp({quality:85}).toBuffer()}catch{throw new HttpError(400,"INVALID_IMAGE","Image could not be decoded.");}await writeFile(path.join(dir,key),optimized,{flag:"wx",mode:0o640});
 await db.auditLog.create({data:{adminId:actor.id,action:"FLOORPLAN_IMAGE_UPLOADED",resourceType:"Floorplan",resourceId:id,afterState:{key,width:meta.width,height:meta.height,bytes:optimized.byteLength}}});
 return NextResponse.json({url:"/api/public/floorplan-media/"+key,bytes:optimized.byteLength},{status:201,headers:{"Cache-Control":"private,no-store"}});
 }catch(e){return failure(e)}}
