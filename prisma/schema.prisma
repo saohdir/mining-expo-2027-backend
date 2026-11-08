@@ -547,6 +547,59 @@ model AuditLog {
   createdAt DateTime @default(now())
   @@index([resourceType,resourceId,createdAt])
 }
+model Lead {
+  id String @id @default(uuid())
+  leadType String
+  name String
+  email String
+  company String?
+  phone String?
+  message String
+  consentVersion String
+  consentAt DateTime
+  utmSource String?
+  utmMedium String?
+  utmCampaign String?
+  status String @default("NEW")
+  ipHash String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([status,createdAt])
+  @@index([ipHash,createdAt])
+}
+model ContentItem {
+  id String @id @default(uuid())
+  kind String
+  locale String @default("en")
+  title String
+  slug String
+  summary String?
+  body String?
+  url String?
+  fileType String?
+  fileSizeBytes Int?
+  imageUrl String?
+  altText String?
+  rightsStatus String?
+  role String?
+  status String @default("DRAFT")
+  sortOrder Int @default(0)
+  publishedAt DateTime?
+  updatedBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([kind,locale,slug])
+  @@index([kind,locale,status,sortOrder])
+}
+model InternalNote {
+  id String @id @default(uuid())
+  resourceType String
+  resourceId String
+  body String
+  adminId String
+  createdAt DateTime @default(now())
+  @@index([resourceType,resourceId,createdAt])
+}
 model ExportJob {
   id String @id @default(uuid())
   adminId String

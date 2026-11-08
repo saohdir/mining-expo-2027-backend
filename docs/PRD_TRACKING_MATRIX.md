@@ -30,12 +30,12 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-002 | P0 | PARTIAL | index.html hero | CTAs must reach real `/account` flows | — | P0 |
 | FR-003 | P0 | NOT | — | WIB countdown with ongoing/ended states | — | P0 |
 | FR-004 | P0 | UNVERIFIED | exhibition/index.html | verify 8 categories vs source PDF | D-12 | P1 |
-| FR-005 | P0 | PARTIAL | partners/index.html static | CMS-editable organizers/partners with approval | content CMS | P0 |
+| FR-005 | P0 | PARTIAL | ContentItem PARTNER/ORGANIZER with role, rights gate, public API (E2E) | static partners page must render API data (frontend) | D-12 | P0 |
 | FR-006 | P0 | PARTIAL | programme/index.html + `/api/public/events` | detail pages from CMS data; no invented fields | — | P0 |
 | FR-007 | P0 | PARTIAL | exhibitors/index.html | CTA to account booth request | — | P0 |
 | FR-008 | P0 | UNVERIFIED | the-venue/index.html | Maps link check | — | P1 |
-| FR-009 | P0 | NOT | — | download center (label/type/size/updated) | content CMS, D-12 | P0 |
-| FR-010 | P0 | PARTIAL | contact/index.html static | contact form persists + notifies; contacts as CMS config | leads | P0 |
+| FR-009 | P0 | PARTIAL | ContentItem DOWNLOAD (url, type, size, updated) + public API (E2E) | static page rendering | D-12 | P0 |
+| FR-010 | P0 | PARTIAL | `/api/public/leads` persists + notifies (E2E); CONTACT content kind | static contact form wiring (frontend) | — | P0 |
 | FR-011 | P0 | PARTIAL | og:title present | per-locale description, canonical, JSON-LD Event, sitemap/robots | i18n | P0 |
 | FR-012 | P0 | PARTIAL | consent checkbox in account | privacy/terms pages + footer links | D-12 legal text | P0 (BLOCKED text) |
 | FR-013 | P1 | PARTIAL | news/index.html static | draft/published news CMS | content CMS | P1 |
@@ -44,14 +44,14 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-016 | P1 | PARTIAL | highlights/index.html | gallery categories/lightbox; rights | D-12 | P1 |
 | FR-017 | P1 | NOT | — | partner packages + lead CTA | leads | P1 |
 | FR-018 | P1 | NOT | — | schedule listing w/ date filter | D-02 | P1 |
-| FR-024 | P0 | NOT | — | contact/partnership lead form leadType CONTACT/PARTNER | — | P0 |
-| FR-027 | P0 | PARTIAL | OTP: honeypot + per-destination/IP rate limit (E2E) | public contact/lead form (Slice A) | — | P0 |
-| FR-030 | P1 | NOT | — | UTM capture | — | P1 |
-| FR-034 | P0 | PARTIAL | `PATCH /api/admin/events` publish flags | event settings/pages/content blocks CRUD | — | P0 |
-| FR-035 | P0 | PARTIAL | conferences CRUD | partners, exhibit scopes, downloads CRUD | — | P0 |
-| FR-036 | P0 | NOT | — | lead inbox NEW/CONTACTED/QUALIFIED/CLOSED + audit | FR-024 | P0 |
+| FR-024 | P0 | VERIFIED | leadType CONTACT/PARTNER/SPONSOR/EXHIBITOR (E2E) | — | — | — |
+| FR-027 | P0 | VERIFIED | honeypot + per-IP limits on OTP and leads → 429; duplicate submissions deduped (E2E) | optional CAPTCHA | — | — |
+| FR-030 | P1 | VERIFIED | UTM source/medium/campaign stored on leads (E2E) | — | — | — |
+| FR-034 | P0 | PARTIAL | event publish flags + ContentItem PAGE_BLOCK/CONTACT CRUD | static pages consuming blocks | — | P0 |
+| FR-035 | P0 | VERIFIED | conferences + partners/scopes/downloads CRUD with draft/published (E2E) | — | — | — |
+| FR-036 | P0 | VERIFIED | `/admin/leads` NEW/CONTACTED/QUALIFIED/CLOSED transitions + audit (E2E) | — | — | — |
 | FR-037 | P0 | PARTIAL | floorplan image upload (MIME/size/sharp) | general asset upload + alt text | — | P0 |
-| FR-038 | P0 | PARTIAL | conference draft/published | preview for authorized only | — | P0 |
+| FR-038 | P0 | VERIFIED | drafts only via authenticated CMS API (preview); public API published only (E2E) | — | — | — |
 | FR-039 | P1 | NOT | — | news/exhibitor/gallery CMS | — | P1 |
 
 ## B. Accounts, identity & customer (FR-019/020/025/026/043/068–070/114–119/150/152, AT-057–061/086/089)
@@ -106,7 +106,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-064 | P0 | VERIFIED | E2E status/offer/hold/assign independent + audit | — | — | — |
 | FR-065 | P0 | VERIFIED | E2E invoice must equal accepted quote | revision/void flow → FR-131 | — | — |
 | FR-066 | P0 | VERIFIED | identical booth retry within 10 min returns same request (E2E); duplicate units 400; registrations dedupe | email acknowledgement includes reference (outbox) | — | — |
-| FR-067 | P0 | PARTIAL | `/api/admin/reports/export` | booth-specific filters (zone, m², payment, assignment) | — | P0 |
+| FR-067 | P0 | VERIFIED | booths dataset: period (created/assigned), hall, zone, requested/offered/assigned m², payment columns (role-scoped) | — | — | — |
 | FR-099 | P0 | VERIFIED | E2E assign requires reason; payment cannot assign | — | — | — |
 | FR-100 | P0 | VERIFIED | DB partial unique index (migration #3) + E2E | — | — | — |
 | FR-101 | P0 | VERIFIED | assign → 409 AREA_MISMATCH unless override reason; audited (E2E) | — | — | — |
@@ -204,22 +204,25 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-033 | P0 | VERIFIED | E2E anon 401, scrypt, HttpOnly session | — | — | — |
 | FR-040 | P0 | PARTIAL | AuditLog on many actions (E2E) | check-in override, reissue | — | P0 |
 | FR-052 | P0 | VERIFIED | E2E lists per role | — | — | — |
-| FR-120 | P0 | PARTIAL | registrations/booths/payments lists + search (E2E) | customers list/detail drill-down | — | P0 |
-| FR-147 | P0 | PARTIAL | per-endpoint role guards (E2E RBAC) | settings/staff pages; field-level scope | — | P0 |
-| FR-148 | P0 | PARTIAL | audit before/after on key actions | internal notes; customer timeline | — | P0 |
-| FR-153 | P0 | NOT | — | admin corrections with reason + snapshot | — | P0 |
+| FR-120 | P0 | VERIFIED | `/admin/customers` search + drill-down (registrations, booths, invoices) role-scoped (E2E) | — | — | — |
+| FR-147 | P0 | VERIFIED | per-endpoint RBAC (all E2E suites); `/admin/staff` role/deactivate/reset with session revocation, last-Super-Admin guard; `/admin/settings` status (E2E) | field-level scope beyond role columns | — | — |
+| FR-148 | P0 | VERIFIED | InternalNote (staff-only, audited, never in customer APIs — E2E) + before/after audit on transitions | — | — | — |
+| FR-153 | P0 | VERIFIED | customer correction with reason (snapshots untouched), SA-only email correction forcing re-verification, duplicate registration cancel + pass revoke (E2E) | — | — | — |
 
 ## I. Reports, notifications & ops (FR-028, 031, 121, 122, 146, 149)
 
 | FR | P | Status | Evidence | Gap | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-028 | P0 | VERIFIED | outbox + worker isolation (UT), save independent of email | — | — | — |
-| FR-031 | P0 | PARTIAL | XLSX/PDF export, safeCell, RBAC (E2E) | date basis filters | — | P0 |
-| FR-121 | P0 | PARTIAL | from/to/type/status/q | date basis (created/confirmed/paid/checked-in), export job tracking | — | P0 |
-| FR-122 | P0 | PARTIAL | role guard + safeCell | signed expiring links, column minimization | — | P0 |
+| FR-031 | P0 | VERIFIED | XLSX/PDF exports: inclusive WIB dates, type/status filters, ExportJob + audit, formula-safe (E2E AT-070/071) | async jobs for >2,000 rows (NFR-26) | — | — |
+| FR-121 | P0 | VERIFIED | date basis created/confirmed/checkedIn, assigned, issued/paid; WIB inclusive; type/status/hall/zone filters; ExportJob (E2E) | amount filter | — | — |
+| FR-122 | P0 | PARTIAL | finance dataset Finance-only (403 others), contact columns role-scoped, logged, formula-safe (E2E) | signed expiring download links + streaming (NFR-26) | — | P1 |
 | FR-146 | P0 | PARTIAL | outbox topics | booking confirmed/cancelled, pass revoked emails | — | P0 |
 | FR-149 | P0 | PARTIAL | dashboard KPIs | period presets + unique counts | — | P0 |
 
+| AT-070 | — | VERIFIED | E2E cms-admin (inclusive WIB day, exact rows) | — | — | — |
+| AT-071 | — | VERIFIED | E2E cms-admin (XLSX cell escaped) | — | — | — |
+| AT-072 | — | VERIFIED | E2E cms-admin (Viewer/Sales finance export 403) | — | — | — |
 | AT-058 | — | VERIFIED | E2E one account visitor + conference (+ booth in business-flow) | — | — | — |
 | AT-059 | — | VERIFIED | E2E single-use hashed OTP | — | — | — |
 | AT-061 | — | VERIFIED | E2E brute force, reuse, rate limit, no enumeration | — | — | — |
@@ -248,3 +251,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - Slice G (admission): FR-075/076/080/081/085/086/087/134/136/137, AT-075/076 → VERIFIED. Migration `20261109020000_admission_controls`. **Operational note:** after deploy, Operations must create gates and assign CHECKIN_STAFF before scanning.
 - Slice E (floorplan): FR-015/092/094–098/101/103–107/109/111/112/144, AT-081/082/091/092 → VERIFIED; FR-091/093 PARTIAL. Migration `20261109030000_floorplan_editor`. Nginx routes `/floorplan` to the app.
 - Slice B/C (account & conference): FR-023/066/072/073/077/116/118/123/143, AT-057/058/059/061/062/066/086 → VERIFIED. Migration `20261109040000_account_security`. New env: `OTP_IP_LIMIT_PER_HOUR` (60), `OTP_DESTINATION_LIMIT_PER_HOUR` (5), `CONFERENCE_ACCESS_ON_DP` (false).
+- Slice H/I/A (CMS admin, reports, leads, content): FR-024/027/030/031/035/036/038/067/120/121/147/148/153, AT-070/071/072 → VERIFIED; FR-005/009/010/034/122 PARTIAL. Migration `20261109050000_cms_admin`.
