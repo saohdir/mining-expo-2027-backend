@@ -1,6 +1,10 @@
 import nodemailer from "nodemailer";
-export async function sendOtp(destination:string,code:string){
- if(process.env.EMAIL_PROVIDER!=="smtp"||!process.env.SMTP_HOST||!process.env.SMTP_FROM||!process.env.SMTP_USER||!process.env.SMTP_PASS)throw new Error("Email OTP provider not configured");
- const transport=nodemailer.createTransport({host:process.env.SMTP_HOST,port:Number(process.env.SMTP_PORT??587),secure:Number(process.env.SMTP_PORT??587)===465,auth:{user:process.env.SMTP_USER,pass:process.env.SMTP_PASS}});
- await transport.sendMail({from:process.env.SMTP_FROM,to:destination,subject:"Your IMDX verification code",text:"Your IMDX 2027 verification code is "+code+". It expires in 5 minutes. Never share this code. If you did not request it, ignore this email."});
+export async function sendMail(to:string,subject:string,body:string){
+ const host=process.env.SMTP_HOST,from=process.env.SMTP_FROM;
+ if(process.env.EMAIL_PROVIDER!=="smtp"||!host||!from)throw new Error("SMTP provider unavailable");
+ const port=Number(process.env.SMTP_PORT||587);
+ const auth=process.env.SMTP_USER&&process.env.SMTP_PASS?{user:process.env.SMTP_USER,pass:process.env.SMTP_PASS}:undefined;
+ const transport=nodemailer.createTransport({host,port,secure:port===465,...(auth?{auth}:{})});
+ await transport.sendMail({from,to,subject,text:body});
 }
+export async function sendOtp(destination:string,code:string){return sendMail(destination,"IMDX 2027 verification code","Your verification code is "+code+". Expires in five minutes. Never share this code.");}
