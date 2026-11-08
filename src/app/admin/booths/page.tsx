@@ -1,10 +1,11 @@
 "use client";
 import {useEffect, useMemo, useState} from "react";
+import CmsStatus from "../components/CmsStatus";
 
 type OfferedUnit = {id:string;code:string;hall:string|null;zone:string|null;areaSqm:string};
 type Offer = {id:string;revision:number;offeredUnits:OfferedUnit[];offeredUnitIds:string[];offeredAreaSqm:string;quotedPriceMinor:string;acceptedAt:string|null;expiresAt:string|null;createdAt:string};
 type Unit = OfferedUnit & {status:string};
-type Booth = {id:string;accountId:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];account:{email:string|null;profile:{fullName:string;organization:string|null}|null};floorplan:{title:string;versionNo:number;status:string;units:Unit[]};offers:Offer[];assignments:{id:string;boothUnit:{code:string;hall:string|null}}[]};
+type Booth = {id:string;accountId:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];invoices:{id:string;status:string}[];account:{email:string|null;profile:{fullName:string;organization:string|null}|null};floorplan:{title:string;versionNo:number;status:string;units:Unit[]};offers:Offer[];assignments:{id:string;boothUnit:{code:string;hall:string|null}}[]};
 type Actor = {role:string;email:string};
 type HoldView={id:string;status:string;expiresAt:string;endedAt:string|null;boothUnit:{code:string;hall:string|null}};
 
@@ -40,6 +41,11 @@ export default function BoothManagement(){
   const canOffer=actor?.role==="SALES"||actor?.role==="OPERATIONS"||actor?.role==="SUPER_ADMIN";
   const canAssign=actor?.role==="OPERATIONS"||actor?.role==="SUPER_ADMIN";
   const latest=selected?.offers[0];
+  const invoiceStatus=selected?.invoices[0]?.status;
+  const paymentStatus=invoiceStatus==="PAID"?"PAID_IN_FULL":
+    invoiceStatus==="PARTIALLY_PAID"?"DP_RECEIVED":
+    ["ISSUED","SENT","OVERDUE"].includes(invoiceStatus||"")?"AWAITING_PAYMENT":
+    invoiceStatus==="CANCELLED"?"CANCELLED":"NOT_INVOICED";
   const eligibleForQuote=selected&&["UNDER_REVIEW","OFFERED"].includes(selected.status)&&selected.floorplan.status==="PUBLISHED";
   const filtered=records.filter(r=>
     (r.account.profile?.fullName||r.account.email||"").toLowerCase().includes(search.toLowerCase())||
@@ -120,21 +126,34 @@ export default function BoothManagement(){
           <p className="eyebrow">CUSTOMER / QUOTATION REVIEW</p>
           <h2>{selected.account.profile?.fullName||selected.account.email||"Customer"}</h2>
           <p className="micro">{selected.account.profile?.organization||"Company not provided"} · Request {selected.id.slice(0,8)}</p>
-          <div className="booth-admin-summary">
-            <div><span>Requested area</span><strong>{selected.requestedAreaSqm} m²</strong></div>
-            <div><span>Request status</span><strong>{selected.status.replaceAll("_"," ")}</strong></div>
-            <div><span>Floorplan</span><strong>v{selected.floorplan.versionNo} · {selected.floorplan.status}</strong></div>
+          <div className="imdx-cms-booth-status-row" aria-label="Booking state by domain">
+            <CmsStatus domain="Booth request" value={selected.status}/>
+            <CmsStatus domain="Invoice" value={invoiceStatus||"NOT_ISSUED"}/>
+            <CmsStatus domain="Payment" value={paymentStatus}/>
+            <CmsStatus domain="Assignment" value={selected.assignments.length?"ASSIGNED":"NOT_ASSIGNED"}/>
           </div>
-          <p className="micro">Customer preferences: {selected.preferredUnitIds.map(unitId=>
-            selected.floorplan.units.find(u=>u.id===unitId)?.code||unitId.slice(0,8)).join(", ")}</p>
-
-          {latest&&<div className="booth-quotation">
-            <p className="eyebrow">LATEST QUOTATION / REVISION {latest.revision}</p>
-            <strong>{idr(latest.quotedPriceMinor)}</strong>
-            <p>{latest.offeredAreaSqm} m² · {latest.offeredUnits.map(u=>u.code).join(", ")}</p>
-            <p className="micro">{latest.acceptedAt?"Accepted "+wib(latest.acceptedAt):"Awaiting customer acceptance"}</p>
+          <div className="imdx-cms-booth-compare" aria-label="Requested versus offered versus assigned booth">
+            <article><span className="eyebrow">01 / REQUESTED</span><h3>{selected.requestedAreaSqm} m²</h3>
+              <p>{selected.preferredUnitIds.map(unitId=>
+                selected.floorplan.units.find(u=>u.id===unitId)?.code||unitId.slice(0,8)).join(", ")||"Unit preference not specified"}</p>
+              <small>Floorplan v{selected.floorplan.versionNo} · Customer preference only</small>
+            </article>
+            <article><span className="eyebrow">02 / OFFERED</span><h3>{latest?latest.offeredAreaSqm+" m²":"TBA"}</h3>
+              <p>{latest?latest.offeredUnits.map(u=>u.code).join(", "):"Awaiting organizer quotation"}</p>
+              <small>{latest?idr(latest.quotedPriceMinor)+" · Revision "+latest.revision:"No confirmed quotation"}</small>
+            </article>
+            <article><span className="eyebrow">03 / ASSIGNED</span><h3>{selected.assignments.length?selected.assignments.length+" unit(s)":"Not assigned"}</h3>
+              <p>{selected.assignments.length?selected.assignments.map(a=>a.boothUnit.code).join(", "):"Operations approval pending"}</p>
+              <small>Assignment requires Finance verification and an explicit Operations action</small>
+            </article>
+          </div>
+          <p className="micro">Requested m² is a non-binding preference, not the invoice basis. The approved offered quotation determines invoice value.</p>
+          {selected.floorplan.status!=="PUBLISHED"&&<div className="warning" role="status">Floorplan was updated — these preferences may be stale. Review the map before making changes.</div>}
+          {invoiceStatus==="PAID"&&!selected.assignments.length&&<div className="warning" role="status">Payment is confirmed but no unit is assigned. Operations must assign units separately.</div>}
+          {latest&&<div className="imdx-cms-booth-quote-note">
+            <strong>Quotation revision {latest.revision} · {idr(latest.quotedPriceMinor)}</strong>
+            <span>{latest.acceptedAt?"Accepted "+wib(latest.acceptedAt):"Awaiting customer acceptance"}</span>
           </div>}
-          {selected.assignments.length>0&&<p><strong>Confirmed booth units:</strong> {selected.assignments.map(a=>a.boothUnit.code).join(", ")}</p>}
           {canAssign&&latest?.acceptedAt&&<div className="booth-hold-panel">
             <h3>Time-limited organizer holds</h3>
             <p className="micro">Only Operations can hold every unit in an accepted quotation. A hold is not payment or final assignment.</p>
