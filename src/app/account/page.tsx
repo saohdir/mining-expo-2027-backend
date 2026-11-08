@@ -4,6 +4,7 @@ import {InvoicePanel,type CustomerInvoice} from "./InvoicePanel";
 import {AccountSecurity,AttendanceHistory} from "./AccountSecurity";
 import {ActionNeeded} from "./ActionNeeded";
 import {AuthPanel} from "./AuthPanel";
+import {BoothStaffPanel, GroupRegistrationPanel} from "./TeamPanels";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
 type AccountData={phone?:string|null;id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
@@ -29,8 +30,9 @@ export default function AccountPage(){
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[me,plan]);
  const [registrationOpen,setRegistrationOpen]=useState(false);
+ const [team,setTeam]=useState({staff:false,groups:false});
  useEffect(()=>{void request("/api/health").then(h=>setRegistrationOpen(Boolean(h.registrationEnabled))).catch(()=>{})},[]);
- useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>setSmsAvailable(Boolean(x.smsOtp))).catch(()=>{})},[reload]);
+ useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>{setSmsAvailable(Boolean(x.smsOtp));setTeam({staff:Boolean(x.exhibitorStaff),groups:Boolean(x.groupEnrollment)})}).catch(()=>{})},[reload]);
  async function doAction(task:()=>Promise<unknown>,success:string){setBusy(true);setMessage("");try{await task();setMessage(success);await reload()}catch(e){setMessage(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
  const event=events[0];
  const selectedConference=event?.conferences?.find(c=>c.id===conference);
@@ -65,6 +67,7 @@ export default function AccountPage(){
         <small>Seat counts are indicative and checked again when you submit. Payment is only confirmed by Finance.</small></div>}
        <button disabled={busy||!selectedConference||selectedConference.registrationState!=="AVAILABLE"}>Submit conference registration</button>
        {selectedConference?.registrationState==="FULL"&&<button type="button" className="ghost" disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/waitlist",{conferenceId:selectedConference.id}),"You are on the waitlist. This is not a booking; the organizer will contact you if a seat is released.")}>Join waitlist</button>}</form>:<p>Conference registration has not been published by the organizer yet.</p>}
+      {team.groups&&event?.conferences?.length?<GroupRegistrationPanel conferences={event.conferences}/>:null}
     </section>}
     {tab==="booth"&&<section><h2>Exhibitor booth request</h2><p>Choose preferred units on the published floorplan. Your selections are <strong>not a reservation</strong> until operations approve and assign them.</p>
      {me.requests.map(x=>{const offer=x.offers[0];return <article className="booth-customer-card" key={x.id}>
@@ -76,6 +79,7 @@ export default function AccountPage(){
         <p className="micro">Issued {new Date(offer.createdAt).toLocaleDateString("en-GB",{timeZone:"Asia/Jakarta"})}{offer.expiresAt?" · Expires "+new Date(offer.expiresAt).toLocaleDateString("en-GB",{timeZone:"Asia/Jakarta"}):""}</p>
         {offer.acceptedAt?<p className="micro"><strong>Accepted:</strong> {new Date(offer.acceptedAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})} WIB</p>:<p className="micro">Offer is not a reservation. Operations will allocate only after approved payment verification.</p>}
        </div>:<p className="micro">Awaiting organizer review and quotation. Your preferred units are not held.</p>}
+       {team.staff&&x.status==="CONFIRMED"&&<BoothStaffPanel boothRequestId={x.id}/>}
        {x.assignments.length>0&&<p><strong>Assigned units:</strong> {x.assignments.map(a=>a.boothUnit.code).join(", ")}</p>}
        {x.holds.filter(h=>new Date(h.expiresAt)>new Date()).length>0&&
         <p className="micro"><strong>Organizer temporary hold (not final booking):</strong> {x.holds.filter(h=>new Date(h.expiresAt)>new Date()).map(h=>h.boothUnit.code+" until "+new Date(h.expiresAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB").join("; ")}. Finance still verifies all payments manually.</p>}

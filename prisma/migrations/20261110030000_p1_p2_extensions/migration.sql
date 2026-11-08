@@ -5,7 +5,7 @@ CREATE UNIQUE INDEX "Conference_eventId_zoneCode_key" ON "Conference"("eventId",
 ALTER TABLE "Enrollment" ADD COLUMN "groupId" TEXT;
 CREATE INDEX "Enrollment_groupId_idx" ON "Enrollment"("groupId");
 CREATE TABLE "Invitation" (
-  "id" TEXT NOT NULL, "kind" TEXT NOT NULL, "inviterAccountId" TEXT NOT NULL, "boothRequestId" TEXT, "enrollmentId" TEXT, "groupId" TEXT,
+  "id" TEXT NOT NULL, "kind" TEXT NOT NULL, "inviterAccountId" TEXT NOT NULL, "boothRequestId" TEXT, "enrollmentId" TEXT, "groupId" TEXT, "conferenceId" TEXT,
   "email" TEXT NOT NULL, "fullName" TEXT NOT NULL, "tokenHash" TEXT NOT NULL, "status" TEXT NOT NULL DEFAULT 'INVITED', "expiresAt" TIMESTAMP(3) NOT NULL,
   "acceptedAccountId" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "respondedAt" TIMESTAMP(3),
   CONSTRAINT "Invitation_pkey" PRIMARY KEY ("id"),

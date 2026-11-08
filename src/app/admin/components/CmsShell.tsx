@@ -64,7 +64,8 @@ const navGroups:Group[]=[
     {label:"Overview",href:"/admin",icon:"overview",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")},
     {label:"Customers & Registrations",href:"/admin/registrations",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
     {label:"Customer Accounts",href:"/admin/customers",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
-    {label:"Booth Requests",href:"/admin/booths",icon:"booths",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]}
+    {label:"Booth Requests",href:"/admin/booths",icon:"booths",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
+    {label:"Groups & Representatives",href:"/admin/groups",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","VIEWER"]}
   ]},
   {title:"Finance",items:[
     {label:"Payment Requests",href:"/admin/workspace?section=finance#cms-payment-requests",icon:"request",roles:FIN},

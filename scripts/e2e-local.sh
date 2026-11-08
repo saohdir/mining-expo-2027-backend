@@ -21,13 +21,13 @@ npx tsx prisma/seed.ts
 E2E_ALLOW_TEST_ADMINS=true npx tsx tests/e2e/seed-test-admins.ts
 node tests/e2e/smtp-sink.mjs "$WORK/mail.jsonl" & SINK=$!
 export OTP_HASH_SECRET=local-test-only-otp-secret-0123456789abcdef QR_ENCRYPTION_KEY=local-test-only-qr-key-0123456789abcdefgh
-export PUBLIC_BASE_URL="http://localhost:$PORT" ENABLE_REGISTRATION=true ENABLE_INVOICES=true ENABLE_QR_ADMISSION=true ALLOW_BOOTH_ALLOCATION_ON_DP=false FINANCE_APPROVAL_THRESHOLD_MINOR=50000000 OTP_IP_LIMIT_PER_HOUR=100000 LEAD_IP_LIMIT_PER_HOUR=4
+export PUBLIC_BASE_URL="http://localhost:$PORT" ENABLE_REGISTRATION=true ENABLE_INVOICES=true ENABLE_QR_ADMISSION=true ALLOW_BOOTH_ALLOCATION_ON_DP=false FINANCE_APPROVAL_THRESHOLD_MINOR=50000000 OTP_IP_LIMIT_PER_HOUR=100000 LEAD_IP_LIMIT_PER_HOUR=4 ENABLE_EXHIBITOR_STAFF=true ENABLE_GROUP_ENROLLMENT=true EXHIBITOR_STAFF_LIMIT=2
 export EMAIL_PROVIDER=smtp SMTP_HOST=127.0.0.1 SMTP_PORT=2525 SMTP_FROM="IMDX E2E <e2e@localhost>" ADMIN_NOTIFICATION_EMAIL=ops@test.local SMS_PROVIDER=disabled
 export APPROVED_BANK_NAME="TEST BANK" APPROVED_BANK_ACCOUNT_NAME="TEST ONLY" APPROVED_BANK_ACCOUNT_NUMBER=0000000000 FLOORPLAN_UPLOAD_DIR="$WORK/uploads" PRIVATE_FILE_DIR="$WORK/private"
 [[ "${E2E_SKIP_BUILD:-}" == 1 ]] || npm run build >/dev/null
 NODE_ENV=production npx next start -p "$PORT" > "$WORK/app.log" 2>&1 & APP=$!
 # Second instance with registration CLOSED (login must keep working — CR-AUTH-01 §2).
-ENABLE_REGISTRATION=false NODE_ENV=production npx next start -p "$((PORT+1))" > "$WORK/app-closed.log" 2>&1 & APP2=$!
+ENABLE_REGISTRATION=false ENABLE_EXHIBITOR_STAFF=false NODE_ENV=production npx next start -p "$((PORT+1))" > "$WORK/app-closed.log" 2>&1 & APP2=$!
 export E2E_CLOSED_BASE_URL="http://localhost:$((PORT+1))"
 if [[ -n "${E2E_FRONTEND_DIR:-}" ]]; then E2E_BACKEND_PORT=$PORT E2E_PROXY_PORT=$((PORT+10)) node tests/e2e/static-proxy.mjs & PROXY=$!; export E2E_SITE_URL="http://localhost:$((PORT+10))"; fi
 WORKER_INTERVAL_MS=1000 npx tsx scripts/outbox-worker.ts > "$WORK/worker.log" 2>&1 & WORKER=$!
