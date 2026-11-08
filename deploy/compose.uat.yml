@@ -27,10 +27,11 @@ services:
       SMTP_HOST: mailpit
       SMTP_PORT: "1025"
       FLOORPLAN_UPLOAD_DIR: /var/lib/imdx/floorplans
+      PRIVATE_FILE_DIR: /var/lib/imdx/private
       NODE_ENV: production
     depends_on:
       postgres: {condition: service_healthy}
-    volumes: [floorplan_data:/var/lib/imdx/floorplans]
+    volumes: [floorplan_data:/var/lib/imdx/floorplans, private_data:/var/lib/imdx/private]
   worker:
     build: {context: ..}
     command: ["npm","run","outbox:worker"]
@@ -56,3 +57,4 @@ services:
 volumes:
   postgres_data:
   floorplan_data:
+  private_data:

@@ -2,11 +2,11 @@ import {NextRequest,NextResponse} from "next/server";
 import {PDFDocument,StandardFonts,rgb} from "pdf-lib";import {db} from "@/lib/db";import {customer} from "@/lib/auth";import {financeTotals,bankDetails} from "@/lib/policy";import {failure,HttpError} from "@/lib/errors";
 export const runtime="nodejs";
 export async function GET(_req:NextRequest,{params}:{params:Promise<{id:string}>}){try{const acc=await customer();const {id}=await params;
- const inv=await db.invoice.findFirst({where:{id,accountId:acc.id,status:{not:"DRAFT"}},include:{items:true,transfers:true,account:{include:{profile:true}}}});
+ const inv=await db.invoice.findFirst({where:{id,accountId:acc.id,status:{not:"DRAFT"}},include:{items:true,transfers:true,adjustments:true,account:{include:{profile:true}}}});
  if(!inv)throw new HttpError(404,"NOT_FOUND","Invoice not available.");
- const totals=financeTotals(inv.totalMinor,inv.transfers);const pdf=await PDFDocument.create();const page=pdf.addPage([595,842]);const font=await pdf.embedFont(StandardFonts.Helvetica),bold=await pdf.embedFont(StandardFonts.HelveticaBold);
+ const totals=financeTotals(inv.totalMinor,inv.transfers,inv.adjustments.filter(r=>r.type==="REVERSAL").map(r=>r.amountMinor));const pdf=await PDFDocument.create();const page=pdf.addPage([595,842]);const font=await pdf.embedFont(StandardFonts.Helvetica),bold=await pdf.embedFont(StandardFonts.HelveticaBold);
  let y=792;const text=(s:string,size=11,isBold=false)=>{page.drawText(s.replace(/[^\x20-\x7E]/g,"?").slice(0,100),{x:44,y,size,font:isBold?bold:font,color:rgb(.25,.12,.07)});y-=size+14};
- text("IMDX 2027 - Invoice",21,true);text("Invoice: "+inv.number,13,true);text("Status: "+inv.status,12);
+ text("IMDX 2027 - Invoice",21,true);text("Invoice: "+inv.number,13,true);text("Status: "+inv.status+(["CANCELLED","VOID"].includes(inv.status)?" (cancelled"+(totals.paidMinor!=="0"?"; refund handled separately":"")+")":""),12);
  text("Issued: "+(inv.issuedAt?.toISOString().slice(0,10)||"Pending"),10);text("Customer: "+(inv.account.profile?.fullName||inv.account.email||""),10);
  text("Event venue: JIEXPO Kemayoran, Jakarta",10);y-=12;text("Items",13,true);
  for(const item of inv.items){text(item.description+" ("+item.quantity+" x IDR "+item.unitPriceMinor.toString()+")",10);}

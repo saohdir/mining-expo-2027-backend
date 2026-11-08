@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         where: {id},
         include: {
           offers: {orderBy: {revision: "desc"}, take: 1},
-          invoices: {include: {transfers: true}},
+          invoices: {include: {transfers: true, adjustments: true}},
           floorplan: {select: {status: true, versionNo: true}},
           assignments: {where: {active: true}, select: {id: true}}
         }
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
       const confirmed = request.invoices.some(invoice => {
         if (invoice.totalMinor !== offer.quotedPriceMinor ||
             !["PARTIALLY_PAID", "PAID"].includes(invoice.status)) return false;
-        const totals = financeTotals(invoice.totalMinor, invoice.transfers);
+        const totals = financeTotals(invoice.totalMinor, invoice.transfers, invoice.adjustments.filter(r=>r.type==="REVERSAL").map(r=>r.amountMinor));
         return totals.state === "PAID_IN_FULL" ||
           (process.env.ALLOW_BOOTH_ALLOCATION_ON_DP === "true" && totals.state === "DP_RECEIVED");
       });

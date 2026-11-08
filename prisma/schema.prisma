@@ -355,6 +355,9 @@ model Invoice {
   items InvoiceItem[]
   transfers ManualTransfer[]
   adjustments PaymentAdjustment[]
+  deliveries InvoiceDelivery[]
+  cancelledAt DateTime?
+  cancelReason String?
 }
 model InvoiceItem {
   id String @id @default(uuid())
@@ -377,6 +380,14 @@ model ManualTransfer {
   verifiedAt DateTime?
   verifiedBy String?
   createdAt DateTime @default(now())
+  source String @default("FINANCE")
+  submittedBy String?
+  submittedByAccountId String?
+  payerName String?
+  decisionReason String?
+  approvalRequired Boolean @default(false)
+  @@index([invoiceId,status])
+  @@index([bankReference])
 }
 model PaymentAdjustment {
   id String @id @default(uuid())
@@ -388,6 +399,22 @@ model PaymentAdjustment {
   reason String
   approvedBy String
   createdAt DateTime @default(now())
+  evidenceRef String?
+  @@index([invoiceId])
+}
+model InvoiceDelivery {
+  id String @id @default(uuid())
+  invoiceId String
+  invoice Invoice @relation(fields:[invoiceId],references:[id])
+  channel String
+  destinationMasked String
+  status String
+  outboxKey String? @unique
+  sentBy String
+  reason String
+  createdAt DateTime @default(now())
+  sentAt DateTime?
+  @@index([invoiceId,createdAt])
 }
 model EventPass {
   id String @id @default(uuid())

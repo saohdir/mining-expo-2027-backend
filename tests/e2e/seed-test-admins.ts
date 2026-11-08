@@ -10,6 +10,9 @@ const db = new PrismaClient();
     const email = role.toLowerCase() + "@test.local", passwordHash = hashPassword("local-test-password-" + role);
     await db.adminUser.upsert({where: {email}, update: {role, active: true, passwordHash}, create: {email, role, passwordHash}});
   }
+  // Second Finance user for maker-checker tests (same password scheme as FINANCE).
+  await db.adminUser.upsert({where: {email: "finance2@test.local"}, update: {role: "FINANCE", active: true, passwordHash: hashPassword("local-test-password-FINANCE")},
+    create: {email: "finance2@test.local", role: "FINANCE", passwordHash: hashPassword("local-test-password-FINANCE")}});
   console.log("Seeded test admins for", Object.values(AdminRole).length, "roles");
   await db.$disconnect();
 })();

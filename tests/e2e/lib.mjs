@@ -15,9 +15,9 @@ export class Client {
   }
   get(p){return this.req("GET",p)} post(p,b){return this.req("POST",p,b??{})} patch(p,b){return this.req("PATCH",p,b)} put(p,b){return this.req("PUT",p,b)} del(p,b){return this.req("DELETE",p,b)}
 }
-export async function adminLogin(role){
-  const c=new Client(role);
-  const r=await c.post("/api/admin/auth/login",{email:role.toLowerCase()+"@test.local",password:process.env.E2E_ADMIN_PASSWORD_PREFIX?process.env.E2E_ADMIN_PASSWORD_PREFIX+role:"local-test-password-"+role});
+export async function adminLogin(role,name){
+  const c=new Client(name||role);
+  const r=await c.post("/api/admin/auth/login",{email:(name||role.toLowerCase())+"@test.local",password:process.env.E2E_ADMIN_PASSWORD_PREFIX?process.env.E2E_ADMIN_PASSWORD_PREFIX+role:"local-test-password-"+role});
   if(r.status!==200)throw new Error("login failed "+role+" "+r.status);
   return c;
 }

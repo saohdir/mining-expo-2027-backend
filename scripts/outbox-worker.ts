@@ -35,8 +35,11 @@ async function processJob(topic:string,p:Payload){
  }
  if(topic==="ENROLLMENT_REVIEWED"){const id=(p as Payload & {enrollmentId?:string}).enrollmentId;if(!id)throw Error("Registration id missing");const r=await db.enrollment.findUnique({where:{id},include:{account:true}});if(!r||!r.account.email)throw Error("Missing registration email");return deliver(r.account.email,"IMDX registration decision","Your "+r.type+" registration is now "+r.status+". Sign in to your dashboard: "+portal+"/account");}
  if(topic==="MANUAL_PAYMENT_REQUEST"){if(!p.id)throw Error("Missing payment request id");return deliver(toAdmin,"IMDX 2027 — manual invoice requested","A customer has requested manual bank-transfer billing. Open CMS to review and issue an invoice. Reference: "+p.id+"\n"+portal+"/admin");}
- if(["INVOICE_ISSUED","INVOICE_EMAIL_SEND","PAYMENT_VERIFIED"].includes(topic)){if(!p.invoiceId)throw Error("Missing invoice id");
+ if(topic==="PAYMENT_PROOF_UPLOADED"){if(!p.invoiceId)throw Error("Missing invoice id");return deliver(toAdmin,"IMDX 2027 — payment proof uploaded","A customer uploaded a transfer proof. It is NOT a payment confirmation. Verify against the bank statement in the CMS: "+portal+"/admin/payments");}
+ if(["INVOICE_ISSUED","INVOICE_EMAIL_SEND","PAYMENT_VERIFIED","PAYMENT_CORRECTED","REFUND_RECORDED","BOOKING_CANCELLED","PAYMENT_PROOF_REJECTED"].includes(topic)){if(!p.invoiceId)throw Error("Missing invoice id");
  const inv=await db.invoice.findUnique({where:{id:p.invoiceId},include:{account:true}});if(!inv||!inv.account.email)throw Error("Invoice/customer email unavailable");
+ const notice:Record<string,[string,string]>={PAYMENT_CORRECTED:["IMDX — payment record corrected","Finance corrected a payment entry on invoice "],REFUND_RECORDED:["IMDX — refund recorded","Finance recorded a refund on invoice "],BOOKING_CANCELLED:["IMDX — booking cancelled","Invoice "+""],PAYMENT_PROOF_REJECTED:["IMDX — transfer proof needs attention","Finance could not match a transfer proof for invoice "]};
+ if(notice[topic])return deliver(inv.account.email,notice[topic][0],notice[topic][1]+inv.number+(topic==="BOOKING_CANCELLED"?" was cancelled.":"")+" Sign in to view the current status: "+portal+"/account");
  if(topic==="PAYMENT_VERIFIED")return deliver(inv.account.email,"IMDX — payment status updated","Finance has reviewed a manual transfer on your invoice "+inv.number+". Sign in to view your current confirmed balance: "+portal+"/account");
  return deliver(inv.account.email,"IMDX — invoice ready","Your IMDX 2027 invoice "+inv.number+" is ready in the secure customer portal. Sign in: "+portal+"/account\nNever transfer based on an unverified message alone.");
  }
@@ -46,8 +49,8 @@ async function drain(){
  const jobs=await db.notificationOutbox.findMany({where:{state:{in:["QUEUED","FAILED"]},nextRunAt:{lte:new Date()},attempts:{lt:5}},orderBy:{createdAt:"asc"},take:20});
  for(const job of jobs){const claim=await db.notificationOutbox.updateMany({where:{id:job.id,state:{in:["QUEUED","FAILED"]}},data:{state:"PROCESSING",attempts:{increment:1}}});
  if(claim.count!==1)continue;
- try{await processJob(job.topic,job.payload as Payload);await db.notificationOutbox.update({where:{id:job.id},data:{state:"SENT"}});}
- catch(e){const waitingMs=Math.min(30*60*1000,30000*2**job.attempts);await db.notificationOutbox.update({where:{id:job.id},data:{state:"FAILED",nextRunAt:new Date(Date.now()+waitingMs)}});console.error("Outbox delivery failed for topic",job.topic,"record",job.id);}
+ try{await processJob(job.topic,job.payload as Payload);await db.notificationOutbox.update({where:{id:job.id},data:{state:"SENT"}});await db.invoiceDelivery.updateMany({where:{outboxKey:job.dedupeKey},data:{status:"SENT",sentAt:new Date()}});}
+ catch(e){const waitingMs=Math.min(30*60*1000,30000*2**job.attempts);await db.notificationOutbox.update({where:{id:job.id},data:{state:"FAILED",nextRunAt:new Date(Date.now()+waitingMs)}});await db.invoiceDelivery.updateMany({where:{outboxKey:job.dedupeKey,status:{not:"SENT"}},data:{status:"FAILED"}});console.error("Outbox delivery failed for topic",job.topic,"record",job.id);}
  }
 }
 // Steps run independently: hold expiry failing (e.g. BoothHold not yet migrated)

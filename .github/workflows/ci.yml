@@ -44,7 +44,7 @@ jobs:
       PGPASSWORD: ci_only_password
       E2E_PG: -h localhost -p 5432 -U postgres
       E2E_DATABASE_URL: postgresql://postgres:ci_only_password@localhost:5432/imdx_e2e
-      E2E_FILES: tests/e2e/business-flow.e2e.mjs tests/e2e/cms-regression.e2e.mjs
+      E2E_FILES: tests/e2e/business-flow.e2e.mjs tests/e2e/cms-regression.e2e.mjs tests/e2e/finance-controls.e2e.mjs
     steps:
       - uses: actions/checkout@v4
         with:
