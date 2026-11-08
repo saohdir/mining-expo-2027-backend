@@ -52,6 +52,7 @@ export function CsvAndAlign({planId, rowVersion, canEdit, onChanged}: {planId: s
       if (!r.ok) setMsg(b.errors ? b.errors.join("; ") : b.message || "Import failed"); else onChanged(`Imported: ${b.updated} updated, ${b.unplaced} unplaced.`);
       e.target.value = "";
     }} /></label>}
+    {canEdit && <SvgUnitImport planId={planId} rowVersion={rowVersion} onChanged={onChanged} />}
     {canEdit && <form className="cms-row-actions" onSubmit={e => { e.preventDefault(); setMsg("");
       void api("/api/admin/floorplans/" + planId + "/align", "POST", {rowVersion, scale: Number(a.scale), dx: Number(a.dx), dy: Number(a.dy), reason: a.reason}).then(b => onChanged("Aligned " + b.aligned + " units.")).catch(err => setMsg(err.message)); }}>
       <label>Scale<input type="number" step="0.01" min="0.1" max="10" value={a.scale} onChange={e => setA({...a, scale: e.target.value})} /></label>
@@ -90,4 +91,26 @@ export function StatsPanel({planId}: {planId: string}) {
     <ul className="micro">{Object.entries(s.byCategory).map(([k, v]) => <li key={k}>{k}: {v.units} units · {v.areaSqm} m²</li>)}</ul>
     <a href={"/api/admin/floorplans/" + planId + "/stats?format=csv"}>Export statistics CSV</a>
   </details>;
+}
+
+/** FR-113: import booth rectangles by SVG element ID (dry run → apply). */
+function SvgUnitImport({planId, rowVersion, onChanged}: {planId: string; rowVersion: number; onChanged: (m: string) => void}) {
+  const [svg, setSvg] = useState(""), [scale, setScale] = useState("10"), [preview, setPreview] = useState<{units: {code: string; action: string; lengthM: number; widthM: number}[]; warnings: string[]} | null>(null), [msg, setMsg] = useState("");
+  const send = async (dryRun: boolean) => {
+    setMsg("");
+    try {
+      const b = await api("/api/admin/floorplans/" + planId + "/svg-units", "POST", {svg, unitsPerMetre: Number(scale), dryRun, rowVersion});
+      if (dryRun) setPreview(b); else { setPreview(null); onChanged(`SVG import: ${b.created} created, ${b.updated} updated.`); }
+    } catch (err) { setMsg((err as Error).message); }
+  };
+  return <fieldset className="svg-unit-import"><legend>Import booths from SVG element IDs</legend>
+    <p className="micro">Each booth must be a &lt;rect&gt; with id like <code>booth-A12</code> (optional data-category, data-hall). Units land in this draft only.</p>
+    <label>SVG file<input type="file" accept=".svg,image/svg+xml" onChange={e => { const f = e.target.files?.[0]; if (f) void f.text().then(t => { setSvg(t); setPreview(null); }); }} /></label>
+    <label>SVG units per metre<input type="number" min="0.01" step="0.01" value={scale} onChange={e => setScale(e.target.value)} /></label>
+    <div className="cms-row-actions"><button type="button" disabled={!svg} onClick={() => void send(true)}>Preview</button>
+      <button type="button" disabled={!preview?.units.length} onClick={() => void send(false)}>Apply {preview?.units.length || ""} units</button></div>
+    {preview && <div role="status"><p className="micro">{preview.units.filter(u => u.action === "CREATE").length} new, {preview.units.filter(u => u.action === "UPDATE").length} updated.</p>
+      {preview.warnings.length > 0 && <ul className="micro">{preview.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul>}</div>}
+    {msg && <p role="alert" className="micro">{msg}</p>}
+  </fieldset>;
 }
