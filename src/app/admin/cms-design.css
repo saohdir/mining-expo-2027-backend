@@ -369,3 +369,22 @@ body:has(.imdx-cms){background:var(--color-bg-page,#F9F0E2)}
   .imdx-cms .imdx-cms-period-buttons{grid-column:1}
   .imdx-cms .imdx-cms-timezone{grid-column:1}
 }
+
+/* FR-142/143: nonbinding preference → accepted commercial offer → final allocation. */
+.imdx-cms-booth-status-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0 22px}
+.imdx-cms-booth-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.imdx-cms-booth-compare>article{display:flex;flex-direction:column;min-width:0;gap:7px;padding:20px;border:2px solid var(--color-border-default);border-top:2px solid var(--color-brand-600);border-radius:8px;background:var(--color-surface-card-soft)}
+.imdx-cms-booth-compare h3{font-weight:500;font-size:clamp(20px,2.5vw,27px);margin:0;overflow-wrap:anywhere;letter-spacing:-.045em;color:var(--color-text-primary)}
+.imdx-cms-booth-compare p{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0;overflow-wrap:anywhere}
+.imdx-cms-booth-compare small{font-size:12px;color:var(--color-text-secondary);line-height:1.5;margin-top:auto}
+.imdx-cms-booth-compare .eyebrow{font-size:11px;color:var(--color-text-secondary)}
+.imdx-cms-booth-quote-note{border:1px solid var(--color-border-default);background:var(--color-brand-soft-16);padding:14px 18px;display:flex;align-items:center;gap:16px;justify-content:space-between;border-radius:8px;flex-wrap:wrap;margin:14px 0}
+.imdx-cms-booth-quote-note strong{font-size:17px;font-weight:500}
+.imdx-cms-booth-quote-note span{color:var(--color-text-secondary);font-size:13px}
+.imdx-cms-payment-guide{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;border:1px solid var(--color-border-default);background:var(--color-surface-card);border-radius:8px;padding:18px 24px;margin-bottom:24px}
+.imdx-cms-payment-guide>div:first-child{max-width:575px}
+.imdx-cms-payment-guide>div:last-child{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.imdx-cms-payment-guide strong{font-size:17px;font-weight:500}
+.imdx-cms-payment-guide p{margin:4px 0 0;font-size:13px;color:var(--color-text-secondary)}
+@media(max-width:1100px){.imdx-cms-booth-compare{grid-template-columns:1fr}.imdx-cms-payment-guide{align-items:start}}
+@media(max-width:767px){.imdx-cms-booth-status-row{align-items:start}.imdx-cms-booth-compare{grid-template-columns:1fr}.imdx-cms-payment-guide{padding:16px}}
