@@ -2,6 +2,10 @@
 
 Use this file to resume work in a new Claude Code session. Requirement-level status: `docs/PRD_TRACKING_MATRIX.md`.
 
+## Merge order (latest)
+`main` ← #11 `feat/prd14-completion` ← #13 `feat/customer-password-auth` (CR-AUTH-01) ← #15 `feat/cms-page-builder-v2` ← #16 `feat/public-conference-pages`.
+#14 is superseded by #15 (same feature, rebased). Frontend: saohdir/mining-expo-2027-demo#1. Last full run on #16: E2E 93/93 (API + Playwright incl. static site via local proxy), unit 70/70.
+
 ## Branches & PRs (backend `saohdir/mining-expo-2027-backend`)
 | PR | Branch | Content | State |
 | --- | --- | --- | --- |

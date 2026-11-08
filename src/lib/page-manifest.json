@@ -165,6 +165,10 @@
   {
    "id": "confirmed-schedule",
    "label": "Confirmed schedule"
+  },
+  {
+   "id": "all-programmes",
+   "label": "See all published programmes"
   }
  ],
  "terms": [
