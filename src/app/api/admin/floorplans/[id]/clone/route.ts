@@ -4,6 +4,7 @@ import {z} from "zod";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
+import {cloneBoothStatus} from "@/lib/floorplan-safety";
 
 const schema = z.object({
   title: z.string().min(3).max(160),
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
             areaSqm: unit.areaSqm,
             // A new version must NOT claim historic allocated, reserved,
             // or blocked geometry is free to sell.
-            status: unit.status === "AVAILABLE" ? "AVAILABLE" : "BLOCKED"
+            status: cloneBoothStatus(unit.status)
           }))}
         }
       });
