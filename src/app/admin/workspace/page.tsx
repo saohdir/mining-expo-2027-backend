@@ -20,10 +20,43 @@ function AdminWorkspace(){
  const [actor,setActor]=useState<Admin|null>(null),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[tab,setTab]=useState("registrations"),[busy,setBusy]=useState(false),[msg,setMsg]=useState(""),[loading,setLoading]=useState(true),[moduleErrors,setModuleErrors]=useState<string[]>([]);
  const [registrations,setRegistrations]=useState<Registration[]>([]),[bookings,setBookings]=useState<Booking[]>([]),[invoices,setInvoices]=useState<Invoice[]>([]),[requests,setRequests]=useState<PaymentRequest[]>([]),[notifications,setNotifications]=useState<Notification[]>([]),[events,setEvents]=useState<EventPolicy[]>([]),[attendance,setAttendance]=useState<Dict>({});
  const [from,setFrom]=useState(""),[to,setTo]=useState(""),[filterType,setFilterType]=useState(""),[invoiceAccount,setInvoiceAccount]=useState(""),[invoiceBooking,setInvoiceBooking]=useState(""),[invoiceKind,setInvoiceKind]=useState<"enrollmentId"|"boothRequestId">("enrollmentId"),[invoiceAmount,setInvoiceAmount]=useState(""),[invoiceDP,setInvoiceDP]=useState("0"),[invoiceTitle,setInvoiceTitle]=useState("IMDX 2027 booking");
- const reload=useCallback(async()=>{try{const user=await api("/api/admin/me");setActor(user);const endpoints=["/api/admin/registrations?limit=100","/api/admin/booth-requests","/api/admin/invoices","/api/admin/payment-requests","/api/admin/notifications","/api/admin/reports/attendance","/api/admin/events"];const settled=await Promise.allSettled(endpoints.map(u=>api(u)));const values=settled.map(r=>r.status==="fulfilled"?r.value:{});
- const names=["Registrations","Booth requests","Invoices","Payment requests","Notifications","Attendance","Event policies"];
- setModuleErrors(settled.flatMap((r,i)=>r.status==="rejected"&&!(r.reason instanceof Error&&/Insufficient permission|Admin login required|FORBIDDEN/.test(r.reason.message))?[names[i]+": "+(r.reason instanceof Error?r.reason.message:"Request failed")]:[]));
- setRegistrations(values[0].rows||[]);setBookings(values[1].records||[]);setInvoices(values[2].records||[]);setRequests(values[3].records||[]);setNotifications(values[4].notifications||[]);setAttendance(values[5]||{});setEvents(values[6].events||[])}catch(e){setActor(null)}finally{setLoading(false)}},[]);
+ const reload=useCallback(async()=>{
+   try{
+     const user=await api("/api/admin/me");
+     setActor(user);
+     // The redesign shares this legacy workspace among roles. Never call
+     // forbidden module APIs just to populate hidden tabs: that used to
+     // display a false "Some CMS modules could not load" warning.
+     const modules=[
+       {key:"registrations",name:"Registrations",url:"/api/admin/registrations?limit=100",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
+       {key:"bookings",name:"Booth requests",url:"/api/admin/booth-requests",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
+       {key:"invoices",name:"Invoices",url:"/api/admin/invoices",roles:["SUPER_ADMIN","SALES","FINANCE"]},
+       {key:"requests",name:"Payment requests",url:"/api/admin/payment-requests",roles:["SUPER_ADMIN","SALES","FINANCE"]},
+       {key:"notifications",name:"Notifications",url:"/api/admin/notifications",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","CONTENT_EDITOR","CHECKIN_STAFF","VIEWER"]},
+       {key:"attendance",name:"Attendance",url:"/api/admin/reports/attendance",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","VIEWER"]},
+       {key:"events",name:"Event policies",url:"/api/admin/events",roles:["SUPER_ADMIN","OPERATIONS","CONTENT_EDITOR"]}
+     ];
+     const permitted=modules.filter(module=>module.roles.includes(user.role));
+     const settled=await Promise.allSettled(permitted.map(module=>api(module.url)));
+     const values:Record<string,any>={};
+     const failures:string[]=[];
+     settled.forEach((outcome,i)=>{
+       if(outcome.status==="fulfilled")values[permitted[i].key]=outcome.value;
+       else failures.push(permitted[i].name+": "+(outcome.reason instanceof Error?outcome.reason.message:"Request failed"));
+     });
+     setModuleErrors(failures);
+     setRegistrations(values.registrations?.rows||[]);
+     setBookings(values.bookings?.records||[]);
+     setInvoices(values.invoices?.records||[]);
+     setRequests(values.requests?.records||[]);
+     setNotifications(values.notifications?.notifications||[]);
+     setAttendance(values.attendance||{});
+     setEvents(values.events?.events||[]);
+   }catch(e){
+     setActor(null);
+     setModuleErrors([e instanceof Error?e.message:"Unable to authenticate."]);
+   }finally{setLoading(false)}
+ },[]);
  useEffect(()=>{void reload()},[reload]);
  useEffect(()=>{if(requestedSection&&["overview","registrations","bookings","finance","notifications","settings"].includes(requestedSection))setTab(requestedSection)},[requestedSection]);
  useEffect(()=>{
@@ -68,15 +101,15 @@ function AdminWorkspace(){
  <div className="cms-row-actions"><button className="cms-small" onClick={()=>void act(async()=>{const d=await api("/api/admin/registrations?limit=100"+(reportQuery?"&"+reportQuery:""));setRegistrations(d.rows)},"List refreshed.")}>Apply filters</button>
  <a className="button-link cms-small" href={"/api/admin/reports/export?format=xlsx&"+reportQuery}>Export Excel</a><a className="button-link cms-small" href={"/api/admin/reports/export?format=pdf&"+reportQuery}>Export PDF</a></div>
  <div className="cms-table-wrap"><table className="cms-table"><thead><tr><th>Created UTC</th><th>Name</th><th>Type</th><th>Status</th><th>Conference</th><th>Action</th></tr></thead><tbody>{registrations.map(r=><tr key={r.id}><td>{r.createdAt.slice(0,10)}</td><td>{r.customerName}<br/><small>{r.email}</small></td><td>{r.type}</td><td>{r.status}</td><td>{r.conference}</td><td><div className="cms-row-actions">{r.type==="CONFERENCE"&&<>
- <button className="cms-small" onClick={()=>chooseInvoice(r.accountId,r.id,"enrollmentId")}>Create invoice</button>
- {r.status!=="CONFIRMED"&&r.status!=="REJECTED"&&<button className="cms-small" disabled={busy} onClick={()=>void act(()=>api("/api/admin/registrations/"+r.id+"/review","POST",{decision:"CONFIRMED",reason:"Conference registration reviewed; invoice policy checked"}),"Conference registration reviewed.")}>Confirm (paid/free only)</button>}
+  {["SUPER_ADMIN","FINANCE","SALES"].includes(actor.role)&&<button className="cms-small" onClick={()=>chooseInvoice(r.accountId,r.id,"enrollmentId")}>Create invoice</button>}
+  {["SUPER_ADMIN","OPERATIONS"].includes(actor.role)&&r.status!=="CONFIRMED"&&r.status!=="REJECTED"&&<button className="cms-small" disabled={busy} onClick={()=>void act(()=>api("/api/admin/registrations/"+r.id+"/review","POST",{decision:"CONFIRMED",reason:"Conference registration reviewed; invoice policy checked"}),"Conference registration reviewed.")}>Confirm (paid/free only)</button>}
  </>}</div></td></tr>)}</tbody></table></div></>}
  {tab==="bookings"&&<><h2>Booth requests</h2><p>All locations remain preferences until organizer approval, finance confirmation and explicit assignment.</p>
  {bookings.map(b=><div key={b.id} className="record"><div><strong>{b.account.profile?.fullName||b.account.email}</strong><p className="micro">{b.requestedAreaSqm} m² · {b.status} · {b.id.slice(0,8)}</p></div><div className="cms-row-actions">
  {b.status==="NEW"&&<button className="cms-small" disabled={busy} onClick={()=>void act(()=>api("/api/admin/booth-requests/"+b.id+"/status","POST",{status:"UNDER_REVIEW",reason:"Received and assigned for operational review"}),"Review started.")}>Start review</button>}
  {b.status==="OFFERED"&&<span className="micro">Waiting for customer acceptance</span>}
- <a href="/admin/booths" className="button-link cms-small">Open quotation workspace ↗</a>
- {["ACCEPTED","WAITING_INVOICE","INVOICED"].includes(b.status)&&<button className="cms-small" onClick={()=>chooseInvoice(b.accountId,b.id,"boothRequestId")}>Prepare invoice</button>}</div></div>)}</>}
+ <a href={"/admin/booths?request="+encodeURIComponent(b.id)} className="button-link cms-small">Open quotation workspace ↗</a>
+ {["SUPER_ADMIN","FINANCE","SALES"].includes(actor.role)&&["ACCEPTED","WAITING_INVOICE","INVOICED"].includes(b.status)&&<button className="cms-small" onClick={()=>chooseInvoice(b.accountId,b.id,"boothRequestId")}>Prepare invoice</button>}</div></div>)}</>}
  {tab==="finance"&&<><h2>Invoice & manual bank transfer</h2><p className="micro">Payments are recorded by Finance in a dedicated, audited status screen. No online checkout.</p><a className="button-link cms-small" href="/admin/payments">Open Payment Management ↗</a><div className="cms-finance-main"><form onSubmit={e=>{e.preventDefault();void act(()=>api("/api/admin/invoices","POST",{accountId:invoiceAccount,[invoiceKind]:invoiceBooking,items:[{description:invoiceTitle,quantity:1,unitPriceMinor:invoiceAmount}],minimumDpMinor:invoiceDP}),"Invoice draft created. Finance must review and issue.")}}>
  <h3>Create draft invoice</h3><label>Customer account ID<input required value={invoiceAccount} onChange={e=>setInvoiceAccount(e.target.value)}/></label>
  <label>{invoiceKind==="enrollmentId"?"Conference enrollment ID":"Booth request ID"}<input required value={invoiceBooking} onChange={e=>setInvoiceBooking(e.target.value)}/></label>
@@ -84,9 +117,9 @@ function AdminWorkspace(){
  <label>Description<input value={invoiceTitle} onChange={e=>setInvoiceTitle(e.target.value)}/></label><label>Invoice amount (IDR)<input required type="number" min="1" step="1" value={invoiceAmount} onChange={e=>setInvoiceAmount(e.target.value)}/></label>
  <label>Minimum DP (IDR)<input type="number" min="0" step="1" value={invoiceDP} onChange={e=>setInvoiceDP(e.target.value)}/></label><button disabled={busy}>Save draft</button></form></div>
 
- <h3 id="cms-payment-requests">Customer payment requests</h3>{requests.map(x=><div key={x.id} className="record"><span>{x.account.profile?.fullName||x.account.email} · {x.status}</span><button className="cms-small" onClick={()=>chooseInvoice(x.accountId,x.enrollmentId||x.boothRequestId||"",x.enrollmentId?"enrollmentId":"boothRequestId")}>Prepare invoice</button></div>)}
+ <h3 id="cms-payment-requests">Customer payment requests</h3>{requests.map(x=><div key={x.id} className="record"><span>{x.account.profile?.fullName||x.account.email} · {x.status}</span><button className="cms-small" disabled={!x.enrollmentId&&!x.boothRequestId} onClick={()=>chooseInvoice(x.accountId,x.enrollmentId||x.boothRequestId||"",x.enrollmentId?"enrollmentId":"boothRequestId")}>Prepare invoice</button></div>)}
  <h3 id="cms-invoices">Invoices</h3><div className="cms-table-wrap"><table className="cms-table"><thead><tr><th>No.</th><th>Status</th><th>Amount IDR</th><th>Action</th></tr></thead><tbody>{invoices.map(x=><tr key={x.id}><td>{x.number}</td><td>{x.status}</td><td>{formatMoney(x.totalMinor)}</td><td className="cms-row-actions">
- {x.status==="DRAFT"&&<button disabled={busy} className="cms-small" onClick={()=>void act(()=>api("/api/admin/invoices/"+x.id+"/issue","POST"),"Invoice issued. Customer can view it in portal.")}>Issue</button>}
+ {["SUPER_ADMIN","FINANCE"].includes(actor.role)&&x.status==="DRAFT"&&<button disabled={busy} className="cms-small" onClick={()=>void act(()=>api("/api/admin/invoices/"+x.id+"/issue","POST"),"Invoice issued. Customer can view it in portal.")}>Issue</button>}
  {x.status==="ISSUED"&&<button disabled={busy} className="cms-small" onClick={()=>void act(()=>api("/api/admin/invoices/"+x.id+"/send","POST",{channel:"EMAIL",reason:"Approved invoice notification to verified customer"}),"Invoice email queued for delivery.")}>Queue email</button>}
  </td></tr>)}</tbody></table></div></>}
  {tab==="notifications"&&<><h2>CMS notifications</h2>{notifications.map(n=><div className="record" key={n.id}><div><strong>{n.type}</strong><p className="micro">{n.createdAt.slice(0,16)} · Reference {n.recordId.slice(0,8)}</p></div>{!n.readAt&&<button className="cms-small" onClick={()=>void act(()=>api("/api/admin/notifications","PATCH",{id:n.id}),"Notification marked read.")}>Mark read</button>}</div>)}</>}
