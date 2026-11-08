@@ -84,6 +84,11 @@ export async function POST(req: NextRequest) {
       message: "Admin will prepare an invoice; no payment has been confirmed."
     }, {status: 201, headers: {"Cache-Control": "private,no-store"}});
   } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error &&
+        (error as {code?: unknown}).code === "P2034") {
+      return failure(new HttpError(409, "CONCURRENT_UPDATE",
+        "This booking changed during processing. Please refresh and try again."));
+    }
     return failure(error);
   }
 }
