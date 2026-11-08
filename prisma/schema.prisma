@@ -126,6 +126,7 @@ model Conference {
   currency String @default("IDR")
   capacity Int?
   startsAt DateTime?
+  zoneCode String?
   enrollments Enrollment[]
   @@unique([eventId,slug])
 }
@@ -224,10 +225,12 @@ model Enrollment {
   consentAt DateTime
   createdAt DateTime @default(now())
   confirmedAt DateTime?
+  groupId String?
   passes EventPass[]
   invoices Invoice[]
   paymentRequests ManualPaymentRequest[]
   @@index([accountId,eventId,type])
+  @@index([groupId])
 }
 model Floorplan {
   id String @id @default(uuid())
@@ -673,6 +676,24 @@ model PageRevision {
   publishedBy String
   publishedAt DateTime @default(now())
   @@unique([pageKey,locale,version])
+}
+model Invitation {
+  id String @id @default(uuid())
+  kind String
+  inviterAccountId String
+  boothRequestId String?
+  enrollmentId String?
+  groupId String?
+  email String
+  fullName String
+  tokenHash String @unique
+  status String @default("INVITED")
+  expiresAt DateTime
+  acceptedAccountId String?
+  createdAt DateTime @default(now())
+  respondedAt DateTime?
+  @@index([boothRequestId,status])
+  @@index([groupId])
 }
 model InternalNote {
   id String @id @default(uuid())

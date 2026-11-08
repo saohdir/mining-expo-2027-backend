@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
       db.enrollment.findMany({where: {eventId: event.id, status: {notIn: ["REJECTED", "CANCELLED"]}}, select: {accountId: true, type: true}}),
       db.enrollment.findMany({where: {eventId: event.id, status: "CONFIRMED"}, select: {accountId: true}}),
       db.eventPass.findMany({where: {eventId: event.id, status: "ACTIVE"}, select: {accountId: true}}),
-      db.admission.findMany({where: {pass: {eventId: event.id}, gate, zone, ...(day ? {dayKey: day} : {})}, select: {pass: {select: {accountId: true}}, gate: true, zone: true}}),
+      db.admission.findMany({where: {pass: {eventId: event.id}, gate, zone, ...(day ? {dayKey: day} : {})}, select: {pass: {select: {accountId: true, enrollment: {select: {conference: {select: {title: true}}}}}}, gate: true, zone: true}}),
       db.passScan.findMany({where: {...scanWhere, result: "VALID_ACCEPTED"}, select: {gate: true, zone: true}}),
       db.passScan.findMany({where: {...scanWhere, result: {not: "VALID_ACCEPTED"}}, select: {result: true}}),
       db.customerAccount.count()
@@ -33,6 +33,8 @@ export async function GET(req: NextRequest) {
       validPassHoldersUnique: new Set(holders.map(x => x.accountId)).size,
       arrivedUnique: new Set(admissions.map(x => x.pass.accountId)).size, admissionEntries: admissions.length,
       acceptedEntries: accepted.length, rejectedAttempts: rejected.length, scanAttempts: accepted.length + rejected.length,
+      // FR-157: unique admitted people per conference session (only sessions with their own zone/gate policy).
+      bySession: Object.entries(admissions.filter(a => a.pass.enrollment?.conference).reduce<Record<string, Set<string>>>((m, a) => { const t = a.pass.enrollment!.conference!.title; (m[t] ??= new Set()).add(a.pass.accountId); return m; }, {})).map(([session, set]) => ({session, uniqueAdmitted: set.size})),
       byGate: count(accepted, r => r.gate).map(x => ({gate: x.name, count: x.count})), byZone: count(accepted, r => r.zone).map(x => ({zone: x.name, count: x.count})),
       rejectedByReason: count(rejected, r => r.result).map(x => ({result: x.name, count: x.count}))
     }, {headers: {"Cache-Control": "private,no-store"}});
