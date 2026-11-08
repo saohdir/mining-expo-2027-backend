@@ -1,6 +1,6 @@
 import {CmsIcon} from "./CmsShell";
 
-type Domain="Account"|"Registration"|"Booth request"|"Invoice"|"Payment"|"Receipt"|"Booth unit"|"Pass"|"Check-in";
+type Domain="Account"|"Registration"|"Booth request"|"Invoice"|"Payment"|"Receipt"|"Booth unit"|"Pass"|"Check-in"|"Assignment";
 type Tone="neutral"|"waiting"|"action"|"partial"|"positive"|"negative"|"negative-muted";
 const tones:Record<string,Tone>={
   PENDING_VERIFICATION:"waiting", ACTIVE:"positive", SUSPENDED:"negative", CLOSED:"neutral",
@@ -13,6 +13,7 @@ const tones:Record<string,Tone>={
   SUBMITTED_PROOF:"action",PENDING_VERIFICATION_RECEIPT:"action",VERIFIED:"positive",
   AVAILABLE:"positive",RESERVED:"waiting",OCCUPIED:"positive",BLOCKED:"neutral",
   NOT_ISSUED:"neutral",REVOKED:"negative",EXPIRED:"negative",
+  ASSIGNED:"positive",NOT_ASSIGNED:"neutral",
   VALID_ACCEPTED:"positive",ALREADY_CHECKED_IN:"waiting",WRONG_ZONE:"waiting",NOT_YET_VALID:"waiting",
   UNPAID:"negative",INVALID:"negative",OFFLINE_ERROR:"neutral"
 };
