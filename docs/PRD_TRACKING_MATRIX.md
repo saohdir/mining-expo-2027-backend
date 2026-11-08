@@ -16,9 +16,14 @@ UAT verification of all rows is **pending** (S0-01 DB migration state unknown). 
 
 ## Summary (updated per slice — see bottom changelog)
 
-| Module | VERIFIED | UNVERIFIED | PARTIAL | NOT | BLOCKED |
-| --- | --- | --- | --- | --- | --- |
-| see per-row status | | | | | |
+Snapshot after slices F, G, E, B/C, H/I/A and frontend PR #1 (150 FR rows listed; P1/P2 items not listed are out of MVP):
+
+| Priority | VERIFIED | UNVERIFIED | PARTIAL | NOT |
+| --- | --- | --- | --- | --- |
+| P0 (139 rows) | 103 | 8 | 27 | 1 (FR-110, depends on P1 directory) |
+| P1/P2 (11 rows) | 1 | 0 | 2 | 8 |
+
+Many PARTIAL P0 rows are blocked only by owner content/legal decisions (D-01/D-02/D-04/D-12) or need device/UAT evidence.
 
 ## A. Public website & content (FR-001–018, FR-024/027/030, FR-034–039)
 
@@ -27,17 +32,17 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR | P | Status | Evidence | Gap / missing acceptance | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-001 | P0 | PARTIAL | static nav/footer on 12 pages | no locale switch / ID pages, breadcrumb; keyboard audit | i18n, D-12 | P0 |
-| FR-002 | P0 | PARTIAL | index.html hero | CTAs must reach real `/account` flows | — | P0 |
-| FR-003 | P0 | NOT | — | WIB countdown with ongoing/ended states | — | P0 |
+| FR-002 | P0 | VERIFIED | hero CTAs → /floorplan (exhibitor) and /account (visitor/conference); BR (frontend PR #1) | — | — | — |
+| FR-003 | P0 | VERIFIED | `assets/platform.js` WIB countdown with ongoing/ended states; BR | — | — | — |
 | FR-004 | P0 | UNVERIFIED | exhibition/index.html | verify 8 categories vs source PDF | D-12 | P1 |
-| FR-005 | P0 | PARTIAL | ContentItem PARTNER/ORGANIZER with role, rights gate, public API (E2E) | static partners page must render API data (frontend) | D-12 | P0 |
+| FR-005 | P0 | PARTIAL | CMS partners/organizers with role + rights gate rendered on /partners when published (E2E + BR) | logos/approvals content | D-12 | P0 (content) |
 | FR-006 | P0 | PARTIAL | programme/index.html + `/api/public/events` | detail pages from CMS data; no invented fields | — | P0 |
-| FR-007 | P0 | PARTIAL | exhibitors/index.html | CTA to account booth request | — | P0 |
+| FR-007 | P0 | VERIFIED | exhibitor page → published floorplan + account request; no unapproved prices | — | — | — |
 | FR-008 | P0 | UNVERIFIED | the-venue/index.html | Maps link check | — | P1 |
-| FR-009 | P0 | PARTIAL | ContentItem DOWNLOAD (url, type, size, updated) + public API (E2E) | static page rendering | D-12 | P0 |
-| FR-010 | P0 | PARTIAL | `/api/public/leads` persists + notifies (E2E); CONTACT content kind | static contact form wiring (frontend) | — | P0 |
+| FR-009 | P0 | PARTIAL | CMS downloads (label, type, size, updated) rendered on /exhibitors (E2E + BR) | approved files | D-12 | P0 (content) |
+| FR-010 | P0 | VERIFIED | contact form → lead inbox + notification (BR + E2E) | contact details content | — | — |
 | FR-011 | P0 | PARTIAL | og:title present | per-locale description, canonical, JSON-LD Event, sitemap/robots | i18n | P0 |
-| FR-012 | P0 | PARTIAL | consent checkbox in account | privacy/terms pages + footer links | D-12 legal text | P0 (BLOCKED text) |
+| FR-012 | P0 | PARTIAL | consent checkboxes required; /privacy/ & /terms/ linked in every footer (noindex DRAFT) | final legal text | D-12 | BLOCKED |
 | FR-013 | P1 | PARTIAL | news/index.html static | draft/published news CMS | content CMS | P1 |
 | FR-014 | P1 | NOT | — | exhibitor directory from approved assignments | FR-110 | P1 |
 | FR-015 | P0 | VERIFIED | `/floorplan` public viewer (search, legend, list fallback, request CTA) — BR 360px; E2E public API | — | — | — |
@@ -101,7 +106,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-055 | P0 | VERIFIED | partial unique index + E2E double-assign 409, concurrent scans | — | — | — |
 | FR-060 | P0 | PARTIAL | `/account` booth form | dedicated localized route | i18n | P1 |
 | FR-061 | P0 | VERIFIED | E2E (units, area, consent, notes) | zone preference field | — | P1 |
-| FR-062 | P0 | VERIFIED | free-text m² (validateArea) | — | — | — |
+| FR-062 | P0 | VERIFIED | free-text m² (validateArea); FAQ no longer lists fixed presets | — | — | — |
 | FR-063 | P0 | VERIFIED | E2E request stored + outbox BOOTH_REQUEST_RECEIVED | — | — | — |
 | FR-064 | P0 | VERIFIED | E2E status/offer/hold/assign independent + audit | — | — | — |
 | FR-065 | P0 | VERIFIED | E2E invoice must equal accepted quote | revision/void flow → FR-131 | — | — |
@@ -162,7 +167,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-124 | P0 | VERIFIED | E2E notifications list + bulk read role-scoped | overdue alerts | — | — |
 | FR-125 | P0 | PARTIAL | items, DP, dueAt, PDF | tax lines, invoice revision chain | D-01 | P1 |
 | FR-126 | P0 | VERIFIED | `send` route + InvoiceDelivery + worker SENT/FAILED; ledger API deliveries | Business API (P2) | — | — |
-| FR-127 | P0 | UNVERIFIED | bankDetails() gated | E2E: hidden before issue | D-01 | P0 |
+| FR-127 | P0 | VERIFIED | bank details only on issued/payable invoices; drafts hidden; none after cancellation (E2E finance-controls) | approved bank data | D-01 | — |
 | FR-128 | P0 | VERIFIED | `POST /api/customer/invoices/[id]/payment-proof` (magic-byte check, 5MB, AES-GCM private storage); E2E: proof keeps AWAITING_PAYMENT, Finance verifies via proofTransferId; Sales 403 on proof file | size/retention policy | D-10 | — |
 | FR-129 | P0 | VERIFIED | E2E 0..N receipts incl. proof-linked receipts; `recomputeInvoice` in tx | — | — | — |
 | FR-130 | P0 | VERIFIED | `customerPaymentState` (UT) + E2E states AWAITING/DP/PAID/REFUND_PENDING/REFUNDED; overdue flag | — | — | — |
@@ -252,3 +257,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - Slice E (floorplan): FR-015/092/094–098/101/103–107/109/111/112/144, AT-081/082/091/092 → VERIFIED; FR-091/093 PARTIAL. Migration `20261109030000_floorplan_editor`. Nginx routes `/floorplan` to the app.
 - Slice B/C (account & conference): FR-023/066/072/073/077/116/118/123/143, AT-057/058/059/061/062/066/086 → VERIFIED. Migration `20261109040000_account_security`. New env: `OTP_IP_LIMIT_PER_HOUR` (60), `OTP_DESTINATION_LIMIT_PER_HOUR` (5), `CONFERENCE_ACCESS_ON_DP` (false).
 - Slice H/I/A (CMS admin, reports, leads, content): FR-024/027/030/031/035/036/038/067/120/121/147/148/153, AT-070/071/072 → VERIFIED; FR-005/009/010/034/122 PARTIAL. Migration `20261109050000_cms_admin`.
+- Frontend PR saohdir/mining-expo-2027-demo#1: FR-002/003/007/010/062 → VERIFIED; FR-005/009/012 PARTIAL (content/legal).
