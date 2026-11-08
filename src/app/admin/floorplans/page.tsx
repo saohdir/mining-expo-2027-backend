@@ -1,6 +1,5 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
-import type {PointerEvent as ReactPointerEvent} from "react";
 type Unit={id?:string;code:string;category:string;hall?:string|null;zone?:string|null;x:number;y:number;w:number;h:number;areaSqm:number;status?:string};
 type Plan={id:string;title:string;versionNo:number;rowVersion:number;status:string;canvasWidth:number;canvasHeight:number;backgroundUrl?:string|null;units:Unit[]};
 const api=async(path:string,method="GET",body?:unknown)=>{const r=await fetch(path,{method,cache:"no-store",headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.message||"Request failed");return data};
@@ -12,7 +11,7 @@ export default function FloorplanEditor(){
  const load=async(id:string)=>{const data=await api("/api/admin/floorplans/"+id);setPlan(data.plan);setUnits(data.plan.units.map((x:Unit)=>({...x,areaSqm:Number(x.areaSqm)})));setSelected(-1)};
  useEffect(()=>{void refresh().catch(e=>setMessage(e.message))},[]);
  const run=async(f:()=>Promise<void>)=>{setBusy(true);setMessage("");try{await f();setMessage("Saved successfully.")}catch(e){setMessage(e instanceof Error?e.message:"Error")}finally{setBusy(false)}};
- const pt=(e:ReactPointerEvent<SVGSVGElement>)=>{const point=svg.current!.createSVGPoint();point.x=e.clientX;point.y=e.clientY;const m=svg.current!.getScreenCTM();return m?point.matrixTransform(m.inverse()):{x:0,y:0}};
+ const pt=(e:{clientX:number;clientY:number})=>{const point=svg.current!.createSVGPoint();point.x=e.clientX;point.y=e.clientY;const m=svg.current!.getScreenCTM();return m?point.matrixTransform(m.inverse()):{x:0,y:0}};
  const adjust=(field:keyof Unit,v:string)=>setUnits(arr=>arr.map((unit,i)=>i===selected?{...unit,[field]:["x","y","w","h","areaSqm"].includes(field)?Number(v):v}:unit));
  const current=units[selected];
  return <main className="portal-shell"><nav className="portal-top"><a className="brandmark" href="/">IMDX<span>2027</span></a><span>CMS / FLOORPLAN</span><a href="/admin">Back to CMS</a></nav>
