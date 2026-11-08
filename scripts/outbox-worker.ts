@@ -1,3 +1,4 @@
+import {expireBoothHolds} from "../src/lib/booth-hold-expiry";
 import {PrismaClient} from "@prisma/client";
 import nodemailer from "nodemailer";
 const db=new PrismaClient();
@@ -36,5 +37,5 @@ async function drain(){
  catch(e){const waitingMs=Math.min(30*60*1000,30000*2**job.attempts);await db.notificationOutbox.update({where:{id:job.id},data:{state:"FAILED",nextRunAt:new Date(Date.now()+waitingMs)}});console.error("Outbox delivery failed for topic",job.topic,"record",job.id);}
  }
 }
-async function main(){console.info("IMDX outbox worker launched");while(true){try{await drain()}catch(e){console.error("Outbox loop error",e instanceof Error?e.message:"unknown")}await delay(20000)}}
+async function main(){console.info("IMDX outbox worker launched");while(true){try{await expireBoothHolds(db);await drain()}catch(e){console.error("Worker cycle error",e instanceof Error?e.message:"unknown")}await delay(20000)}}
 main().catch(e=>{console.error(e);process.exit(1)}).finally(()=>db.$disconnect());
