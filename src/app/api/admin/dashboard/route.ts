@@ -1,4 +1,5 @@
 import {NextRequest,NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {Prisma, type AdminRole} from "@prisma/client";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
@@ -44,7 +45,7 @@ const ROLES={
 export async function GET(req:NextRequest){
   try{
     const actor=await admin();
-    const eventCode=req.nextUrl.searchParams.get("event")||"IMDX-2027";
+    const eventCode=req.nextUrl.searchParams.get("event")||activeEventCode();
     const period=getPeriod(req.nextUrl.searchParams);
     const event=await db.event.findUnique({where:{code:eventCode},select:{id:true,title:true}});
     if(!event)throw new HttpError(404,"EVENT_NOT_FOUND","Event is not configured.");

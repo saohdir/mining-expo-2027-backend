@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {z} from "zod";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
@@ -9,7 +10,7 @@ import {sendMail} from "@/lib/mailer";
 import {expireStale, INVITE_TTL_MS, inviteLink} from "@/lib/invitations";
 import {validatePrereg} from "@/lib/preregistration";
 
-const schema = z.object({eventCode: z.string().default("IMDX-2027"), csv: z.string().min(1).max(400000), dryRun: z.boolean().default(true), reason: z.string().min(8).max(500)}).strict();
+const schema = z.object({eventCode: z.string().default(activeEventCode), csv: z.string().min(1).max(400000), dryRun: z.boolean().default(true), reason: z.string().min(8).max(500)}).strict();
 const H = {headers: {"Cache-Control": "private,no-store"}};
 
 /** FR-154 list: pre-registration invitations and their status. */

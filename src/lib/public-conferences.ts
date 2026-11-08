@@ -1,8 +1,9 @@
 import {db} from "./db";
+import {activeEventCode} from "./active-event";
 import {ACTIVE_CONFERENCE_STATUSES, conferenceAvailability} from "./conference-capacity";
 
 /** FR-006: published programmes only; unapproved fields stay "to be announced" (never invented). */
-export async function publicConferences(eventCode = "IMDX-2027") {
+export async function publicConferences(eventCode = activeEventCode()) {
   const event = await db.event.findFirst({where: {code: eventCode, published: true}, include: {conferences: {where: {published: true}, orderBy: [{startsAt: "asc"}, {title: "asc"}]}}});
   if (!event) return null;
   const counts = await db.enrollment.groupBy({by: ["conferenceId"], where: {conferenceId: {in: event.conferences.map(c => c.id)}, type: "CONFERENCE", status: {in: ACTIVE_CONFERENCE_STATUSES}}, _count: {_all: true}});

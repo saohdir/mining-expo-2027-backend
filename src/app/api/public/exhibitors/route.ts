@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {db} from "@/lib/db";
 import {failure} from "@/lib/errors";
 
@@ -7,7 +8,7 @@ import {failure} from "@/lib/errors";
 export async function GET(req: NextRequest) {
   try {
     const q = (req.nextUrl.searchParams.get("q") || "").trim().toLowerCase().slice(0, 80), category = req.nextUrl.searchParams.get("category") || "";
-    const plan = await db.floorplan.findFirst({where: {status: "PUBLISHED", event: {code: req.nextUrl.searchParams.get("event") || "IMDX-2027", published: true}}, select: {id: true}});
+    const plan = await db.floorplan.findFirst({where: {status: "PUBLISHED", event: {code: req.nextUrl.searchParams.get("event") || activeEventCode(), published: true}}, select: {id: true}});
     if (!plan) return NextResponse.json({exhibitors: [], categories: []}, {headers: {"Cache-Control": "public, max-age=30, s-maxage=60"}});
     const rows = await db.boothAssignment.findMany({where: {active: true, approvedForPublic: true, boothUnit: {floorplanId: plan.id}},
       select: {boothRequestId: true, boothUnit: {select: {code: true, hall: true, category: true, approvedPublicName: true}}}});

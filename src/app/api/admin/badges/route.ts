@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
     const sp = req.nextUrl.searchParams;
     const category = sp.get("category") || "", conferenceId = sp.get("conferenceId") || undefined;
     if (category && !RANK[category]) throw new HttpError(400, "BAD_CATEGORY", "Unknown category.");
-    const event = await db.event.findUnique({where: {code: sp.get("event") || "IMDX-2027"}});
+    const event = await db.event.findUnique({where: {code: sp.get("event") || activeEventCode()}});
     if (!event) throw new HttpError(404, "NOT_FOUND", "Event not found");
     const passes = await db.eventPass.findMany({where: {eventId: event.id, status: "ACTIVE", ...(conferenceId ? {enrollment: {conferenceId}} : {})},
       select: {accountId: true, enrollment: {select: {type: true, profileSnapshot: true}}, account: {select: {profile: {select: {fullName: true, organization: true, jobTitle: true}}}}}});

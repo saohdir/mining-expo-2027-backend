@@ -28,7 +28,7 @@ export APPROVED_BANK_NAME="TEST BANK" APPROVED_BANK_ACCOUNT_NAME="TEST ONLY" APP
 [[ "${E2E_SKIP_BUILD:-}" == 1 ]] || npm run build >/dev/null
 NODE_ENV=production npx next start -p "$PORT" > "$WORK/app.log" 2>&1 & APP=$!
 # Second instance with registration CLOSED (login must keep working — CR-AUTH-01 §2).
-ENABLE_REGISTRATION=false ENABLE_EXHIBITOR_STAFF=false NODE_ENV=production npx next start -p "$((PORT+1))" > "$WORK/app-closed.log" 2>&1 & APP2=$!
+ENABLE_REGISTRATION=false ENABLE_EXHIBITOR_STAFF=false CONTENT_APPROVAL_REQUIRED=true NODE_ENV=production npx next start -p "$((PORT+1))" > "$WORK/app-closed.log" 2>&1 & APP2=$!
 export E2E_CLOSED_BASE_URL="http://localhost:$((PORT+1))"
 if [[ -n "${E2E_FRONTEND_DIR:-}" ]]; then E2E_BACKEND_PORT=$PORT E2E_PROXY_PORT=$((PORT+10)) node tests/e2e/static-proxy.mjs & PROXY=$!; export E2E_SITE_URL="http://localhost:$((PORT+10))"; fi
 WORKER_INTERVAL_MS=1000 npx tsx scripts/outbox-worker.ts > "$WORK/worker.log" 2>&1 & WORKER=$!

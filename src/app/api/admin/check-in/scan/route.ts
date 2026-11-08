@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {z} from "zod";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
@@ -12,7 +13,7 @@ const input = z.object({
   gate: z.string().min(1).max(60),
   zone: z.string().min(1).max(60).default("EXPO_ENTRY"),
   method: z.enum(["CAMERA", "MANUAL"]).default("CAMERA"),
-  eventCode: z.string().max(40).default("IMDX-2027")
+  eventCode: z.string().max(40).default(activeEventCode)
 }).strict();
 type Result = "VALID_ACCEPTED" | "ALREADY_CHECKED_IN" | "WRONG_ZONE" | "NOT_YET_VALID" | "EXPIRED" | "REVOKED" | "UNPAID" | "INVALID";
 const GUESS_WINDOW_MS = 10 * 60 * 1000, GUESS_LIMIT = 15;

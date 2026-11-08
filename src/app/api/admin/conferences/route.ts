@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {z} from "zod";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
@@ -6,7 +7,7 @@ import {failure, HttpError} from "@/lib/errors";
 import {ACTIVE_CONFERENCE_STATUSES, conferenceAvailability} from "@/lib/conference-capacity";
 
 const schema = z.object({
-  eventCode: z.string().default("IMDX-2027"),
+  eventCode: z.string().default(activeEventCode),
   title: z.string().min(10).max(200),
   slug: z.string().min(3).max(90).regex(/^[a-z0-9-]+$/),
   startsAt: z.string().datetime().nullable().optional(),

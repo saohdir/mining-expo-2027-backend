@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
+import {activeEventCode} from "@/lib/active-event";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
     const sp = req.nextUrl.searchParams;
     const day = sp.get("day"), gate = sp.get("gate")?.slice(0, 60) || undefined, zone = sp.get("zone")?.slice(0, 60) || undefined;
     if (day && !/^\d{4}-\d{2}-\d{2}$/.test(day)) throw new HttpError(400, "BAD_DAY", "Day must be YYYY-MM-DD.");
-    const event = await db.event.findUnique({where: {code: sp.get("event") || "IMDX-2027"}});
+    const event = await db.event.findUnique({where: {code: sp.get("event") || activeEventCode()}});
     if (!event) throw new HttpError(404, "NOT_FOUND", "Event not found");
     const range = day ? {gte: new Date(day + "T00:00:00+07:00"), lt: new Date(Date.parse(day + "T00:00:00+07:00") + 86400000)} : undefined;
     const scanWhere = {gate, zone, ...(range ? {createdAt: range} : {}), OR: [{pass: {eventId: event.id}}, {passId: null}]};
