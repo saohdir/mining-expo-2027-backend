@@ -59,11 +59,22 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
           "Finance must verify payment against the accepted quotation before assignment.");
       }
 
+      const activeHolds = await tx.boothHold.findMany({
+        where: {boothUnitId: {in: ids}, status: "ACTIVE"},
+        select: {id: true, boothUnitId: true, boothRequestId: true, expiresAt: true}
+      });
+      const usingHolds = activeHolds.length > 0;
+      if (usingHolds && (activeHolds.length !== ids.length ||
+          activeHolds.some(h => h.boothRequestId !== id || h.expiresAt <= new Date()))) {
+        throw new HttpError(409, "HOLD_EXPIRED_OR_MISMATCHED",
+          "Quoted units have an expired or mismatched hold. Release/reconcile before allocating.");
+      }
+      const expectedStatus = usingHolds ? "RESERVED" : "AVAILABLE";
       const units = await tx.boothUnit.findMany({
         where: {floorplanId: request.floorplanId, id: {in: ids}},
         select: {id: true, code: true, status: true}
       });
-      if (units.length !== ids.length || units.some(u => u.status !== "AVAILABLE")) {
+      if (units.length !== ids.length || units.some(u => u.status !== expectedStatus)) {
         throw new HttpError(409, "ALREADY_OCCUPIED", "One or more offered booth units are unavailable.");
       }
       const existing = await tx.boothAssignment.findFirst({
@@ -77,7 +88,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
       const assignments = [];
       for (const unitId of ids) {
         const change = await tx.boothUnit.updateMany({
-          where: {id: unitId, floorplanId: request.floorplanId, status: "AVAILABLE"},
+          where: {id: unitId, floorplanId: request.floorplanId, status: expectedStatus},
           data: {
             status: "OCCUPIED",
             approvedPublicName: input.approvedForPublic
@@ -94,6 +105,12 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
             assignedBy: actor.id, approvedForPublic: input.approvedForPublic
           }
         }));
+      }
+      if (usingHolds) {
+        await tx.boothHold.updateMany({
+          where: {boothRequestId: id, status: "ACTIVE", boothUnitId: {in: ids}},
+          data: {status: "RELEASED", endedAt: new Date(), endedBy: actor.id, endReason: "ASSIGNED"}
+        });
       }
       const changed = await tx.boothRequest.updateMany({
         where: {id, status: {in: ["ACCEPTED", "WAITING_INVOICE", "INVOICED", "ALLOCATION_PENDING"]}},
