@@ -52,7 +52,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-024 | P0 | VERIFIED | leadType CONTACT/PARTNER/SPONSOR/EXHIBITOR (E2E) | — | — | — |
 | FR-027 | P0 | VERIFIED | honeypot + per-IP limits on OTP and leads → 429; duplicate submissions deduped (E2E) | optional CAPTCHA | — | — |
 | FR-030 | P1 | VERIFIED | UTM source/medium/campaign stored on leads (E2E) | — | — | — |
-| FR-034 | P0 | VERIFIED | event settings + content blocks (CONTACT rendered on /contact, PARTNER/DOWNLOAD/NEWS/GALLERY) with draft/publish (E2E + BR) | — | — | — |
+| FR-034 | P0 | VERIFIED | event settings + content blocks + **Pages & layout builder** for every public page (order/hide sections, add blocks, SEO, draft/preview/publish/rollback) (E2E + BR) | — | — | — |
 | FR-035 | P0 | VERIFIED | conferences + partners/scopes/downloads CRUD with draft/published (E2E) | — | — | — |
 | FR-036 | P0 | VERIFIED | `/admin/leads` NEW/CONTACTED/QUALIFIED/CLOSED transitions + audit (E2E) | — | — | — |
 | FR-037 | P0 | VERIFIED | `/api/admin/assets` image upload: magic/MIME check, WebP re-encode, alt + rights required, audited (E2E) | — | — | — |
@@ -265,3 +265,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - Technical completion: FR-013/014/016/018/025/029/039/078/079/084/088/091/093/110/117/119/122/149/152/155, AT-084/088 → VERIFIED. Migration `20261109060000_engagement`. Worker now also runs background exports (compose: worker mounts `private_data`).
 - Governance batch: FR-034/037/042/044/045/050/060/070/115/133/138/146 → VERIFIED; FR-001/006/011/125/150 PARTIAL (owner content/policy). Migration `20261109070000_governance`.
 - CR-AUTH-01 (approved change request): customer sign-in moved from passwordless OTP to email + password; OTP only for registration. See `docs/CR-AUTH-01_CUSTOMER_PASSWORD_AUTH.md`. Migration `20261110010000_customer_password_auth`.
+- CMS Pages & layout builder (FR-034/038, NFR-04 SEO per page): `docs/CMS_PAGE_BUILDER.md`. Migration `20261110020000_page_builder`.
