@@ -5,6 +5,7 @@ import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 import {uniqueOfferedIds} from "@/lib/booth-offers";
+import {holdExpiryFromHours} from "@/lib/floorplan-safety";
 
 const createSchema = z.object({
   expiresInHours: z.number().int().min(1).max(168),
@@ -82,7 +83,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         throw new HttpError(409, "HELD_OR_ASSIGNED", "A unit has another active hold or assignment.");
       }
       const now = new Date();
-      const expiresAt = new Date(now.getTime() + input.expiresInHours * 3600000);
+      const expiresAt = holdExpiryFromHours(now, input.expiresInHours);
       const created: string[] = [];
       for (const unitId of unitIds) {
         const changed = await tx.boothUnit.updateMany({
