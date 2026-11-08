@@ -121,9 +121,15 @@ export default function CmsShell({children}:{children:ReactNode}){
   useEffect(()=>{if(actor?.role==="CHECKIN_STAFF"&&pathname==="/admin")router.replace("/admin/check-in")},[actor,pathname,router]);
   useEffect(()=>{if(!actor)return;
     let active=true;
-    fetch("/api/admin/notifications",{cache:"no-store"}).then(r=>r.ok?r.json():{notifications:[]})
-      .then(d=>{if(active)setNotes((d.notifications||[]).slice(0,6))}).catch(()=>{});
-    return()=>{active=false};
+    const reloadNotes=()=>{
+      void fetch("/api/admin/notifications",{cache:"no-store"})
+        .then(r=>r.ok?r.json():{notifications:[]})
+        .then(d=>{if(active)setNotes((d.notifications||[]).slice(0,6))})
+        .catch(()=>{});
+    };
+    reloadNotes();
+    window.addEventListener("imdx:notifications-updated",reloadNotes);
+    return()=>{active=false;window.removeEventListener("imdx:notifications-updated",reloadNotes)};
   },[actor]);
   useEffect(()=>{
     if(!actor||search.trim().length<2){setResults([]);setSearching(false);return}
