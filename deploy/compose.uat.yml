@@ -22,10 +22,12 @@ services:
     env_file: [../.env.uat]
     environment:
       DATABASE_URL: postgresql://imdx:${IMDX_DB_PASSWORD}@postgres:5432/imdx_uat?schema=public
-      EMAIL_PROVIDER: smtp
-      SMTP_FROM: "IMDX UAT <uat@localhost>"
-      SMTP_HOST: mailpit
-      SMTP_PORT: "1025"
+      # Keep credentials in ../.env.uat (env_file), not in Git.
+      # Explicit SMTP config here previously overrode .env.uat and forced Mailpit.
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-smtp}
+      SMTP_FROM: "${SMTP_FROM:-IMDX UAT <uat@localhost>}"
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: "${SMTP_PORT:-1025}"
       FLOORPLAN_UPLOAD_DIR: /var/lib/imdx/floorplans
       NODE_ENV: production
     depends_on:
@@ -38,10 +40,12 @@ services:
     env_file: [../.env.uat]
     environment:
       DATABASE_URL: postgresql://imdx:${IMDX_DB_PASSWORD}@postgres:5432/imdx_uat?schema=public
-      EMAIL_PROVIDER: smtp
-      SMTP_FROM: "IMDX UAT <uat@localhost>"
-      SMTP_HOST: mailpit
-      SMTP_PORT: "1025"
+      # Keep credentials in ../.env.uat (env_file), not in Git.
+      # Explicit SMTP config here previously overrode .env.uat and forced Mailpit.
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-smtp}
+      SMTP_FROM: "${SMTP_FROM:-IMDX UAT <uat@localhost>}"
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: "${SMTP_PORT:-1025}"
       NODE_ENV: production
     depends_on:
       postgres: {condition: service_healthy}
