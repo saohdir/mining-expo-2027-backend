@@ -1,4 +1,5 @@
 import type {Prisma} from "@prisma/client";
+import {canPublishWithBlockers} from "./floorplan-safety";
 
 type Reader = Pick<Prisma.TransactionClient, "boothRequest" | "boothHold" | "boothAssignment">;
 
@@ -22,6 +23,6 @@ export async function floorplanBlockers(db: Reader, eventId: string) {
     openRequests,
     activeHolds,
     activeAssignments,
-    canPublish: openRequests === 0 && activeHolds === 0 && activeAssignments === 0
+    canPublish: canPublishWithBlockers({openRequests, activeHolds, activeAssignments})
   };
 }
