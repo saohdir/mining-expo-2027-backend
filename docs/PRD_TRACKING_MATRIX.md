@@ -31,17 +31,17 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 
 | FR | P | Status | Evidence | Gap / missing acceptance | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
-| FR-001 | P0 | PARTIAL | responsive nav, breadcrumb on inner pages (frontend), keyboard-accessible menus | EN/ID locale switch + Indonesian pages need approved copy (D-12) | — | — |
+| FR-001 | P0 | PARTIAL | responsive nav, breadcrumb, **EN/ID language switch** (remembered; html lang; CMS serves ID layouts with EN fallback) (BR) | Indonesian copy of designed sections to be authored in Pages & layout (D-12) | D-12 | P0 (content) |
 | FR-002 | P0 | VERIFIED | hero CTAs → /floorplan (exhibitor) and /account (visitor/conference); BR (frontend PR #1) | — | — | — |
 | FR-003 | P0 | VERIFIED | `assets/platform.js` WIB countdown with ongoing/ended states; BR | — | — | — |
 | FR-004 | P0 | UNVERIFIED | exhibition/index.html | verify 8 categories vs source PDF | D-12 | P1 |
 | FR-005 | P0 | PARTIAL | CMS partners/organizers with role + rights gate rendered on /partners when published (E2E + BR) | logos/approvals content | D-12 | P0 (content) |
-| FR-006 | P0 | PARTIAL | programme listing from CMS events API, admissionMode/TBA, confirmed schedule | dedicated per-conference detail pages need approved descriptions (D-12) | — | — |
+| FR-006 | P0 | VERIFIED | `/conferences` + `/conferences/[slug]` (published only; date/fee/seats shown as "to be announced" until approved; description from CMS; JSON-LD; register link preselects programme) (E2E) | approved programme copy (D-12) | — | — |
 | FR-007 | P0 | VERIFIED | exhibitor page → published floorplan + account request; no unapproved prices | — | — | — |
 | FR-008 | P0 | UNVERIFIED | the-venue/index.html | Maps link check | — | P1 |
 | FR-009 | P0 | PARTIAL | CMS downloads (label, type, size, updated) rendered on /exhibitors (E2E + BR) | approved files | D-12 | P0 (content) |
 | FR-010 | P0 | VERIFIED | contact form → lead inbox + notification (BR + E2E) | contact details content | — | — |
-| FR-011 | P0 | PARTIAL | unique titles/descriptions, canonical, OpenGraph, JSON-LD Event, sitemap.xml, robots.txt (frontend) | per-locale metadata with ID pages (D-12); canonical domain to be switched at go-live (D-14) | — | — |
+| FR-011 | P0 | PARTIAL | titles/descriptions per page **and per locale** via Pages & layout SEO, canonical, OpenGraph, JSON-LD (event + conferences), sitemap/robots | separate /id URLs + hreflang need approved ID copy; canonical domain at go-live (D-14) | D-12 | P0 (content) |
 | FR-012 | P0 | PARTIAL | consent checkboxes required; /privacy/ & /terms/ linked in every footer (noindex DRAFT) | final legal text | D-12 | BLOCKED |
 | FR-013 | P1 | VERIFIED | NEWS content (draft/published, date) rendered with pagination on /news (BR) | — | — | — |
 | FR-014 | P1 | VERIFIED | `/api/public/exhibitors` approved names only, search + category, friendly empty state (E2E + BR) | — | — | — |
@@ -266,3 +266,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - Governance batch: FR-034/037/042/044/045/050/060/070/115/133/138/146 → VERIFIED; FR-001/006/011/125/150 PARTIAL (owner content/policy). Migration `20261109070000_governance`.
 - CR-AUTH-01 (approved change request): customer sign-in moved from passwordless OTP to email + password; OTP only for registration. See `docs/CR-AUTH-01_CUSTOMER_PASSWORD_AUTH.md`. Migration `20261110010000_customer_password_auth`.
 - CMS Pages & layout builder (FR-034/038, NFR-04 SEO per page): `docs/CMS_PAGE_BUILDER.md`. Migration `20261110020000_page_builder`.
+- Public conference pages (FR-006) and EN/ID language switch (FR-001/NFR-09 infrastructure).

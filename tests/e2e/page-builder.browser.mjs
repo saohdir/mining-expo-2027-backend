@@ -78,3 +78,31 @@ test("CMS editor: pick a page, reorder/hide blocks, add a block, save draft", {s
     assert.ok(draft.blocks.some(b => b.hidden), "hidden flag saved");
   } finally { await browser.close(); }
 });
+
+test("FR-001/NFR-09 language switch: ID layout served for Indonesian, EN fallback, preference remembered", {skip}, async () => {
+  const ed = await adminLogin("CONTENT_EDITOR");
+  const d = (await ed.get("/api/admin/pages/the-venue?locale=id")).body;
+  const layout = {seo: {title: "Lokasi IMDX 2027", description: "Informasi lokasi"}, blocks: [{id: "salam", type: "text", hidden: false, data: {eyebrow: "", heading: "Selamat datang di JIEXPO", body: "Informasi dalam Bahasa Indonesia."}}, ...d.draft.blocks]};
+  assert.equal((await ed.req("PUT", "/api/admin/pages/the-venue?locale=id", layout)).status, 200);
+  assert.equal((await ed.post("/api/admin/pages/the-venue/publish?locale=id", {reason: "Indonesian venue copy"})).status, 200);
+  const browser = await chromium.launch();
+  try {
+    const page = await (await browser.newContext()).newPage();
+    await page.goto(SITE + "/the-venue/");
+    await page.waitForTimeout(800);
+    assert.equal(await page.getByText("Selamat datang di JIEXPO").count(), 0, "English by default");
+    await page.getByRole("button", {name: "ID", exact: true}).click();
+    await page.waitForFunction(() => document.documentElement.dataset.cmsLayout === "published");
+    await page.getByText("Selamat datang di JIEXPO").waitFor();
+    assert.equal(await page.evaluate(() => document.documentElement.lang), "id");
+    assert.equal(await page.title(), "Lokasi IMDX 2027");
+    await page.goto(SITE + "/about/");
+    assert.equal(await page.evaluate(() => document.documentElement.lang), "id", "preference remembered across pages");
+    await page.getByRole("button", {name: "EN", exact: true}).click();
+    await page.goto(SITE + "/the-venue/"); await page.waitForTimeout(800);
+    assert.equal(await page.getByText("Selamat datang di JIEXPO").count(), 0, "back to English");
+  } finally {
+    await browser.close();
+    await ed.post("/api/admin/pages/the-venue/rollback?locale=id", {version: 0, reason: "Restore after language test"});
+  }
+});
