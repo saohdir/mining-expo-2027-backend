@@ -62,3 +62,27 @@ test("floorplan editor: create, draw, drag, save and reload (desktop + mobile)",
     await browser.close();
   }
 });
+
+test("AT-091/092 public floorplan viewer: 360px without horizontal scroll, accessible units, zoom, list fallback", {skip: chromium ? false : "playwright not installed"}, async () => {
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({viewport: {width: 360, height: 780}});
+    const errors = []; page.on("pageerror", e => errors.push(e.message));
+    await page.goto(BASE + "/floorplan");
+    const coming = page.getByText("Floorplan coming soon");
+    const map = page.getByRole("group", {name: /Booth map/});
+    await Promise.race([coming.waitFor(), map.waitFor()]);
+    if (await coming.isVisible()) return; // honest empty state (AT-092)
+    const units = map.getByRole("button");
+    assert.ok(await units.count() > 0, "units rendered as focusable buttons");
+    assert.match(await units.first().getAttribute("aria-label"), /square metres, (Available|Reserved|Unavailable|occupied by|Occupied)/);
+    await page.getByRole("button", {name: "Zoom in"}).click();
+    assert.match(await page.getByText(/Zoom \d+%/).textContent(), /150%/);
+    await page.getByRole("button", {name: "Show list view"}).click();
+    await page.getByRole("table").waitFor();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    await page.screenshot({path: `${SHOTS}/public-floorplan-360.png`, fullPage: true});
+    assert.ok(overflow <= 1, "no horizontal page scroll, overflow=" + overflow);
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});

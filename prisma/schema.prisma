@@ -229,6 +229,8 @@ model Floorplan {
   status FloorplanStatus @default(DRAFT)
   rowVersion Int @default(1)
   publishedAt DateTime?
+  backgroundAlt String?
+  backgroundRights String?
   units BoothUnit[]
   boothRequests BoothRequest[]
   @@unique([eventId,versionNo])
@@ -248,10 +250,29 @@ model BoothUnit {
   areaSqm Decimal @db.Decimal(10,1)
   status BoothUnitStatus @default(AVAILABLE)
   approvedPublicName String?
+  categoryId String?
+  boothCategory BoothCategory? @relation(fields:[categoryId],references:[id])
+  lengthM Decimal? @db.Decimal(10,1)
+  widthM Decimal? @db.Decimal(10,1)
+  dimensionLabel String?
+  rotation Int @default(0)
+  internalNotes String?
+  placed Boolean @default(true)
   assignments BoothAssignment[]
   holds BoothHold[]
   @@unique([floorplanId,code])
   @@index([status])
+}
+model BoothCategory {
+  id String @id @default(uuid())
+  eventId String
+  name String
+  colorHex String
+  pattern String @default("SOLID")
+  sortOrder Int @default(0)
+  createdAt DateTime @default(now())
+  units BoothUnit[]
+  @@unique([eventId,name])
 }
 model BoothRequest {
   id String @id @default(uuid())
@@ -267,6 +288,7 @@ model BoothRequest {
   notes String?
   status BoothRequestStatus @default(NEW)
   offeredAreaSqm Decimal? @db.Decimal(10,1)
+  originalFloorplanId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   assignments BoothAssignment[]

@@ -40,7 +40,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-012 | P0 | PARTIAL | consent checkbox in account | privacy/terms pages + footer links | D-12 legal text | P0 (BLOCKED text) |
 | FR-013 | P1 | PARTIAL | news/index.html static | draft/published news CMS | content CMS | P1 |
 | FR-014 | P1 | NOT | — | exhibitor directory from approved assignments | FR-110 | P1 |
-| FR-015 | P0 | PARTIAL | `/api/public/floorplan`, account booth selector | search/legend/list fallback on public map | FR-104/109 | P0 |
+| FR-015 | P0 | VERIFIED | `/floorplan` public viewer (search, legend, list fallback, request CTA) — BR 360px; E2E public API | — | — | — |
 | FR-016 | P1 | PARTIAL | highlights/index.html | gallery categories/lightbox; rights | D-12 | P1 |
 | FR-017 | P1 | NOT | — | partner packages + lead CTA | leads | P1 |
 | FR-018 | P1 | NOT | — | schedule listing w/ date filter | D-02 | P1 |
@@ -109,9 +109,9 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-067 | P0 | PARTIAL | `/api/admin/reports/export` | booth-specific filters (zone, m², payment, assignment) | — | P0 |
 | FR-099 | P0 | VERIFIED | E2E assign requires reason; payment cannot assign | — | — | — |
 | FR-100 | P0 | VERIFIED | DB partial unique index (migration #3) + E2E | — | — | — |
-| FR-101 | P0 | NOT | — | area mismatch warning + override reason | — | P0 |
+| FR-101 | P0 | VERIFIED | assign → 409 AREA_MISMATCH unless override reason; audited (E2E) | — | — | — |
 | FR-102 | P0 | VERIFIED | E2E holds 1–168h, release, worker expiry (UT) | — | — | — |
-| FR-103 | P0 | PARTIAL | approvedForPublic on assignment | public map shows name only when flag | — | P0 |
+| FR-103 | P0 | VERIFIED | public name only when active assignment approvedForPublic (public API) | logo rights (NFR-12) | D-12 | — |
 | FR-138 | P0 | PARTIAL | account selector list+SVG | hall/zone/available filters | — | P0 |
 | FR-139 | P0 | VERIFIED | free decimal m² E2E (18, 9) | — | — | — |
 | FR-140 | P0 | VERIFIED | snapshot + notification (E2E) | — | — | — |
@@ -125,25 +125,25 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR | P | Status | Evidence | Gap | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-090 | P0 | VERIFIED | E2E draft/publish/clone; one published index | rollback = clone archived (E2E clone) | — | — |
-| FR-091 | P0 | PARTIAL | PNG/JPG/WebP, 15MB, 8000px (E2E) | alt text + rightsStatus; SVG sanitize (kept disabled) | — | P0 |
-| FR-092 | P0 | NOT | category is free text | BoothCategory CRUD (color/pattern/order) | — | P0 |
-| FR-093 | P0 | PARTIAL | add/draw/drag (BR) | resize/rotate/duplicate/grid snap/undo/keyboard | — | P0 |
-| FR-094 | P0 | PARTIAL | code/category/hall/zone/x/y/w/h/area | lengthM/widthM/dimensionLabel/notes, auto area | — | P0 |
-| FR-095 | P0 | PARTIAL | duplicate code refused (E2E) | out-of-canvas reject, overlap warning | — | P0 |
-| FR-096 | P0 | PARTIAL | rowVersion conflict 409 (E2E) | autosave; keep local work on conflict | — | P0 |
-| FR-097 | P0 | NOT | — | CSV import/export with unplaced tray | — | P0 |
-| FR-098 | P0 | PARTIAL | clone copies units | remap report by code; align scale/offset | — | P0 |
-| FR-104 | P0 | PARTIAL | list + SVG in account | zoom/pan/search/filter | — | P0 |
-| FR-105 | P0 | PARTIAL | statuses served | pattern + text labels, OCCUPIED name | FR-103 | P0 |
-| FR-106 | P0 | PARTIAL | account selection | unit detail + CTA from public map | — | P0 |
-| FR-107 | P0 | PARTIAL | public endpoint minimal | cache ≤60s revalidate | — | P1 |
+| FR-091 | P0 | PARTIAL | PNG/JPG/WebP, 15 MB, 8000 px; alt text + rightsStatus required before publish (E2E) | SVG upload remains disabled until sanitizer approved; PDF rejected | — | P1 |
+| FR-092 | P0 | VERIFIED | BoothCategory CRUD (HEX, pattern, order), seeded purple/pink/blue; SVG pattern fills; E2E RBAC | WCAG contrast audit of custom colours | — | — |
+| FR-093 | P0 | PARTIAL | draw/drag/duplicate/rotate 90°/grid snap/undo-redo/keyboard arrows+Delete (BR covers draw/drag/save) | free-form resize handles (numeric w/h only) | — | P1 |
+| FR-094 | P0 | VERIFIED | code, categoryId, dimensionLabel, lengthM, widthM, auto area (editable), hall/zone, status, internal notes (E2E) | — | — | — |
+| FR-095 | P0 | VERIFIED | out-of-canvas incl. rotation → 400, overlap warnings, duplicate codes 400 (E2E + UT) | — | — | — |
+| FR-096 | P0 | VERIFIED | rowVersion 409 keeps local edits + "Load latest" prompt; opt-in 30 s autosave | — | — | — |
+| FR-097 | P0 | VERIFIED | CSV export (formula-safe) / import into Unplaced tray; publish blocked until placed (E2E) | — | — | — |
+| FR-098 | P0 | VERIFIED | clone + Align (scale/offset) + remap report by code; approved remap publish (E2E AT-081) | — | — | — |
+| FR-104 | P0 | VERIFIED | zoom/pan buttons, drag pan, keyboard +/-, filters, request CTA (BR) | — | — | — |
+| FR-105 | P0 | VERIFIED | AVAILABLE hatched + label; RESERVED no name; OCCUPIED approved name; BLOCKED neutral "Unavailable" | RESERVED-name setting toggle | — | P2 |
+| FR-106 | P0 | VERIFIED | detail panel + "Request this area" → account (no promise) | prefill in account → Slice B | — | — |
+| FR-107 | P0 | VERIFIED | `s-maxage=60`, no PII/internal notes (E2E asserts) | — | — | — |
 | FR-108 | P0 | VERIFIED | UAT returns COMING_SOON / units [] | — | — | — |
-| FR-109 | P0 | PARTIAL | list selection accessible | aria names with size/status; zoom keys | — | P0 |
+| FR-109 | P0 | VERIFIED | each unit focusable button with name "A1, 15 by 24 metres, 360 square metres, occupied by …"; list table; keyboard zoom; reduced motion (BR) | screen-reader manual check | — | — |
 | FR-110 | P0 | NOT | — | boothNo from active assignment for directory | FR-014 | P1 |
-| FR-111 | P0 | NOT | — | floorplan stats per status/category/area + CSV | — | P0 |
-| FR-112 | P0 | PARTIAL | audit on publish/clone/upload/units | per-unit diff | — | P1 |
+| FR-111 | P0 | VERIFIED | stats per status/category, m² and %, CSV (Viewer read-only) (E2E) | — | — | — |
+| FR-112 | P0 | VERIFIED | audit diffs: units added/changed/removed, categories, align, CSV, publish+remap, area override | — | — | — |
 | FR-113 | P2 | NOT (out of scope) | — | P2 approval | — | P2 |
-| FR-144 | P0 | PARTIAL | see FR-090–098 | — | — | P0 |
+| FR-144 | P0 | VERIFIED | see FR-090–098 | — | — | — |
 
 ## F. Invoice & manual payment (FR-045–051, 056, 057, 065, 123–132, 151)
 
@@ -225,6 +225,10 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | AT-087 | — | VERIFIED | E2E finance-controls | — | — | — |
 | AT-075 | — | VERIFIED | E2E cms-regression concurrent scanners → 1 admission | — | — | — |
 | AT-076 | — | VERIFIED | E2E admission | — | — | — |
+| AT-081 | — | VERIFIED | E2E floorplan-editor remap | — | — | — |
+| AT-082 | — | VERIFIED | E2E + BR (draft save, preview report, publish, clone rollback) | — | — | — |
+| AT-091 | — | VERIFIED | BR 360px no horizontal scroll, zoom, list | real-device check | — | — |
+| AT-092 | — | VERIFIED | COMING_SOON + "no booth available" notice | — | — | — |
 | AT-077 | — | PARTIAL | E2E revoked/expired logic; unpaid conference pass → slice C | — | — | — |
 
 ## P1/P2 out of MVP (tracked, not started): FR-032, FR-041, FR-059, FR-154, FR-156, FR-157, FR-158, FR-159.
@@ -236,3 +240,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - 2026-11-08 initial matrix from code + E2E (PR #9, #10).
 - Slice F (finance controls): FR-047/056/126/128/130/131/132, AT-063/064/069/087 → VERIFIED. Migration `20261109010000_finance_controls` (additive).
 - Slice G (admission): FR-075/076/080/081/085/086/087/134/136/137, AT-075/076 → VERIFIED. Migration `20261109020000_admission_controls`. **Operational note:** after deploy, Operations must create gates and assign CHECKIN_STAFF before scanning.
+- Slice E (floorplan): FR-015/092/094–098/101/103–107/109/111/112/144, AT-081/082/091/092 → VERIFIED; FR-091/093 PARTIAL. Migration `20261109030000_floorplan_editor`. Nginx routes `/floorplan` to the app.

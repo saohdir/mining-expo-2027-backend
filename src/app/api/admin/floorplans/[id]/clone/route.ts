@@ -38,11 +38,11 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         data: {
           eventId: source.eventId, versionNo: version, title: input.title,
           canvasWidth: source.canvasWidth, canvasHeight: source.canvasHeight,
-          backgroundUrl: source.backgroundUrl, status: "DRAFT",
+          backgroundUrl: source.backgroundUrl, backgroundAlt: source.backgroundAlt, backgroundRights: source.backgroundRights, status: "DRAFT",
           units: {create: source.units.map(unit => ({
             code: unit.code, category: unit.category, hall: unit.hall, zone: unit.zone,
             x: unit.x, y: unit.y, w: unit.w, h: unit.h,
-            areaSqm: unit.areaSqm,
+            areaSqm: unit.areaSqm, categoryId: unit.categoryId, lengthM: unit.lengthM, widthM: unit.widthM, dimensionLabel: unit.dimensionLabel, rotation: unit.rotation, internalNotes: unit.internalNotes, placed: unit.placed,
             // A new version must NOT claim historic allocated, reserved,
             // or blocked geometry is free to sell.
             status: cloneBoothStatus(unit.status)
