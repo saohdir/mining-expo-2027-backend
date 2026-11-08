@@ -31,3 +31,14 @@ Prisma db push is an initial UAT setup step, not a production migration strategy
 - Before real users: approve security hardening, consent/legal, SMTP/SMS, backups/restore, ledger reconciliation, role model, retention, tests, migration review and owner UAT sign-off.
 
 No user data or bank payments should be accepted until approved release gates are met. See docs/IMPLEMENTATION_STATUS.md.
+
+## UAT test customer accounts (no manual registration/OTP)
+Requires the CR-AUTH-01 release (PR #13 or later) to be deployed and its migrations applied — older builds have no password sign-in.
+
+    docker compose --env-file .env.uat -f deploy/compose.uat.yml exec app npm run customers:create-test -- --confirm --count 5
+    docker compose --env-file .env.uat -f deploy/compose.uat.yml exec app sh -c 'cat /tmp/imdx-test-customers-*.txt'
+    docker compose --env-file .env.uat -f deploy/compose.uat.yml exec app sh -c 'rm /tmp/imdx-test-customers-*.txt'
+
+Creates `uat-customer01@imdx-uat.test` … (options `--prefix`, `--domain`, `--count` ≤ 50), email-verified, with a random password each and a
+"UAT Customer NN" profile. Existing emails are skipped. Passwords exist only in that private file (mode 600) — copy them, then delete it.
+Refuses to run with `APP_STAGE=production`. Use `--domain` with a real mailbox domain only if you want reset emails outside Mailpit.
