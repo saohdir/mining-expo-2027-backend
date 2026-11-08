@@ -32,6 +32,12 @@ export async function expireBoothHolds(db: PrismaClient, limit = 100): Promise<n
             data: {status: "AVAILABLE"}
           });
         }
+        await tx.notification.create({
+          data: {
+            audienceRole: "OPERATIONS", type: "BOOTH_HOLD_EXPIRED",
+            recordType: "BoothRequest", recordId: hold.boothRequestId
+          }
+        });
         await tx.auditLog.create({
           data: {action: "BOOTH_HOLD_EXPIRED", resourceType: "BoothHold",
             resourceId: hold.id, afterState: {boothUnitId: hold.boothUnitId,
