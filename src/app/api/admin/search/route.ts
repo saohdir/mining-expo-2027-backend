@@ -37,7 +37,7 @@ export async function GET(req:NextRequest){
       for(const r of registrations)results.push({type:"Registration",label:r.account.profile?.fullName||r.id.slice(0,8),
         hint:r.type+" · "+r.status+" · "+r.id.slice(0,8),href:"/admin/registrations?q="+encodeURIComponent(q)});
       for(const b of booths)results.push({type:"Booth request",label:b.account.profile?.fullName||b.id.slice(0,8),
-        hint:b.status+" · "+b.id.slice(0,8),href:"/admin/booths"});
+        hint:b.status+" · "+b.id.slice(0,8),href:"/admin/booths?request="+encodeURIComponent(b.id)});
     }
     if(finance){
       const invoices=await db.invoice.findMany({
@@ -45,7 +45,7 @@ export async function GET(req:NextRequest){
         select:{id:true,number:true,status:true},take:4,orderBy:{createdAt:"desc"}
       });
       for(const i of invoices)results.push({type:"Invoice",label:i.number,
-        hint:"Invoice · "+i.status,href:"/admin/payments"});
+        hint:"Invoice · "+i.status,href:"/admin/payments?invoice="+encodeURIComponent(i.number)});
     }
     return NextResponse.json({results:results.slice(0,15)}, {headers:{"Cache-Control":"private,no-store"}});
   }catch(e){return failure(e)}
