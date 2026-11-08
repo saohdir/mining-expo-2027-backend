@@ -405,6 +405,7 @@ model InvoiceItem {
   quantity Int @default(1)
   unitPriceMinor BigInt
   amountMinor BigInt
+  kind String @default("ITEM")
 }
 model ManualTransfer {
   id String @id @default(uuid())

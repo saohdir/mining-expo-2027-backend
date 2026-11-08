@@ -70,7 +70,8 @@ const navGroups:Group[]=[
   {title:"Finance",items:[
     {label:"Payment Requests",href:"/admin/workspace?section=finance#cms-payment-requests",icon:"request",roles:FIN},
     {label:"Invoices",href:"/admin/workspace?section=finance#cms-invoices",icon:"invoice",roles:FIN},
-    {label:"Payments & Reconciliation",href:"/admin/payments",icon:"payments",roles:["SUPER_ADMIN","FINANCE","SALES"]}
+    {label:"Payments & Reconciliation",href:"/admin/payments",icon:"payments",roles:["SUPER_ADMIN","FINANCE","SALES"]},
+    {label:"Invoice Taxes & Fees",href:"/admin/invoice-charges",icon:"invoice",roles:["SUPER_ADMIN","FINANCE","SALES"]}
   ]},
   {title:"Operations",items:[
     {label:"Floorplans",href:"/admin/floorplans",icon:"floorplan",roles:["SUPER_ADMIN","OPERATIONS","SALES","FINANCE"]},
