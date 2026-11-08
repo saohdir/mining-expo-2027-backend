@@ -93,6 +93,11 @@ export async function PATCH(req: NextRequest, {params}: {params: Promise<{id: st
       feeMinor: result.feeMinor?.toString() ?? null
     }, {headers: {"Cache-Control": "private,no-store"}});
   } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error &&
+        (error as {code?: unknown}).code === "P2034") {
+      return failure(new HttpError(409, "CONCURRENT_UPDATE",
+        "This booking changed during processing. Please refresh and try again."));
+    }
     return failure(error);
   }
 }
