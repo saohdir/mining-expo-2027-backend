@@ -1,0 +1,82 @@
+/* IMDX 2027 PRD v1.4 — the same visual hierarchy as the static UAT marketing site.
+   Keep this scoped: application forms, finance badges and permissions remain independent. */
+.imdx-ribbon{min-height:30px;padding:7px 18px;display:flex;align-items:center;justify-content:center;gap:14px;background:#371007;color:#fff;font-size:10px;letter-spacing:.12em;font-weight:600;text-align:center}
+.imdx-ribbon-dot{width:7px;height:7px;border-radius:50%;background:#ff823f;box-shadow:0 0 0 5px rgba(255,105,44,.16);flex-shrink:0}
+.imdx-ribbon-rule{width:24px;height:1px;background:#ad857b;flex-shrink:0}
+.imdx-site-header{position:sticky;top:0;z-index:120;background:rgba(255,253,251,.97);border-bottom:1px solid #e6dfd7;box-shadow:0 3px 14px rgba(42,30,21,.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.imdx-site-nav{width:calc(100% - 80px);max-width:1430px;min-height:85px;margin:0 auto;display:flex;align-items:center;gap:20px}
+.imdx-site-brand{display:inline-flex;align-items:center;flex:none;min-height:55px}
+.imdx-site-brand img{display:block;object-fit:contain;object-position:left center;width:145px;height:55px}
+.imdx-primary-links{display:flex;align-items:stretch;justify-content:flex-end;gap:0;min-height:85px;margin-left:auto}
+.imdx-primary-links a,.imdx-menu>button{font:700 13px/1.4 'Space Grotesk',Arial,sans-serif;letter-spacing:.015em;text-decoration:none;text-transform:uppercase;color:#29221e}
+.imdx-main-link,.imdx-menu>button{display:inline-flex;align-items:center;gap:5px;padding:18px 13px;min-height:85px;white-space:nowrap}
+.imdx-menu{position:relative;display:flex;align-items:stretch}
+.imdx-menu>button,.imdx-menu>button:hover{background:transparent;border:0;border-radius:0;color:#29221e}
+.imdx-main-link:hover,.imdx-menu>button:hover,.imdx-menu:focus-within>button,.imdx-menu.is-expanded>button{color:#ff5912}
+.imdx-caret{font-size:11px;display:inline-block;transition:transform .18s}
+.imdx-menu.is-expanded .imdx-caret{transform:rotate(180deg)}
+.imdx-dropdown{position:absolute;top:calc(100% - 1px);left:0;display:flex;flex-direction:column;min-width:246px;max-width:320px;padding:10px;visibility:hidden;opacity:0;transform:translateY(7px);transition:opacity .18s,transform .18s,visibility .18s;background:#fff;border-top:3px solid #ff5912;box-shadow:0 14px 30px rgba(49,24,14,.14);z-index:140}
+.imdx-menu:hover .imdx-dropdown,.imdx-menu:focus-within .imdx-dropdown,.imdx-menu.is-expanded .imdx-dropdown{visibility:visible;opacity:1;transform:translateY(0)}
+.imdx-dropdown a{font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;line-height:1.3;padding:12px 14px;border-bottom:1px solid #f2ebe7}
+.imdx-dropdown a:last-child{border:0}
+.imdx-dropdown a:hover{color:#ff5912;background:#fff6ef}
+.imdx-primary-links .imdx-account-link{margin:auto 0 auto 13px;padding:11px 14px;min-height:42px;display:inline-flex;align-items:center;justify-content:center;color:#fff;background:#ff5912;border:1px solid #ff5912;border-radius:4px;white-space:nowrap;font-size:12px}
+.imdx-primary-links .imdx-account-link:hover{background:#db4206;color:#fff}
+.imdx-menu-toggle{display:none}
+.imdx-skip-link{position:absolute;top:-100px;left:12px;z-index:300;background:#fff;color:#520f00;padding:12px 18px}
+.imdx-skip-link:focus{top:10px}
+
+/* Local account/CMS context bar sits below global marketing navigation. */
+.portal-top{position:relative;top:auto;min-height:53px;backdrop-filter:none;box-shadow:none;background:transparent;justify-content:space-between}
+.portal-top .brandmark-image{display:none}
+.portal-top>span{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#88584b;font-weight:700}
+.portal-top>a:last-child{color:#b83c0b;font-size:12px!important}
+.portal-shell>section:not(.portal-hero),.portal-auth,.cms-panel{border-radius:8px}
+.portal-auth{padding:clamp(28px,5vw,54px)!important;background:#fffdfb;box-shadow:0 20px 60px rgba(82,15,0,.055)}
+.portal-auth h1{font-size:clamp(42px,5.5vw,72px);line-height:1.03;letter-spacing:-.065em;font-weight:500}
+.portal-auth>p:not(.eyebrow){max-width:520px;font-weight:300;font-size:17px}
+.portal-heading h1{color:#17120f;text-transform:uppercase;letter-spacing:-.06em}
+.portal-heading{margin-top:42px!important}
+.portal-shell>.tabline{margin-top:12px}
+.portal-tabs{background:#fffdfb;gap:0;padding-bottom:0;overflow-x:auto;scrollbar-width:thin}
+.portal-tabs button{flex-shrink:0;border-radius:0;white-space:nowrap}
+.dashboard-grid article{background:#fffdfb;border-radius:8px;border:1px solid #ecd5c2;border-top:3px solid #ff5912;padding:26px}
+.dashboard-grid article h3{font-size:24px;letter-spacing:-.045em}
+.dashboard-grid article p{font-size:15px;font-weight:300;line-height:1.6}
+.portal-shell>section:not(.portal-hero) h2,.cms-panel h2{color:#17120f}
+.portal-footer,.portal-footer-actions{margin-top:30px}
+.portal-hero{background:linear-gradient(155deg,#ff701b,#ee3d00);border:0;color:#fff;border-radius:13px;padding:86px clamp(24px,5vw,70px)}
+.portal-hero h1,.portal-hero em,.portal-hero p,.portal-hero .eyebrow,.portal-hero .hero-disclaimer{color:#fff}
+.portal-hero .button-link{background:#fff;color:#b93605}
+.portal-hero .button-link:hover{background:#fff1e9;color:#b93605}
+.portal-hero .hero-disclaimer{opacity:.8}
+:focus-visible{outline-color:#ff5912;outline-offset:3px}
+@media(max-width:1100px){
+ .imdx-site-nav{width:calc(100% - 36px)}
+ .imdx-main-link,.imdx-menu>button{font-size:12px;padding:14px 8px}
+ .imdx-primary-links .imdx-account-link{padding:9px 10px;margin-left:4px;font-size:11px}
+}
+@media(max-width:850px){
+ .imdx-site-nav{height:76px;min-height:76px;width:calc(100% - 38px)}
+ .imdx-menu-toggle{margin-left:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:43px;height:43px;padding:0;border:1px solid #f0d8c5;border-radius:4px;background:#fff}
+ .imdx-menu-toggle:hover{background:#fff5ef}
+ .imdx-menu-toggle span{width:19px;height:2px;background:#520f00}
+ .imdx-primary-links{display:none;position:absolute;top:76px;left:-19px;right:-19px;min-height:0;max-height:calc(100dvh - 92px);overflow-y:auto;padding:7px 16px 20px;margin:0;flex-direction:column;align-items:stretch;background:#fff;box-shadow:0 14px 35px rgba(30,18,10,.16);border-top:1px solid #eee1d6}
+ .imdx-primary-links.is-open{display:flex}
+ .imdx-menu{display:block}
+ .imdx-main-link,.imdx-menu>button{width:100%;min-height:51px;justify-content:space-between;text-align:left;padding:11px 12px;font-size:14px;border-bottom:1px solid #f0ebe7}
+ .imdx-menu:hover .imdx-dropdown,.imdx-menu:focus-within .imdx-dropdown{visibility:hidden;opacity:0;transform:none}
+ .imdx-menu.is-expanded .imdx-dropdown{position:relative;top:auto;left:auto;min-width:0;max-width:none;padding:2px 8px 7px;margin-bottom:5px;visibility:visible;opacity:1;transform:none;box-shadow:none;border-top:0;background:#fff9f4}
+ .imdx-dropdown a{font-size:13px;padding:10px 17px}
+ .imdx-primary-links .imdx-account-link{margin:13px 10px 0;max-width:240px}
+ .portal-top>span{display:block}
+}
+@media(max-width:520px){
+ .imdx-ribbon{font-size:9px;gap:9px;letter-spacing:.06em}
+ .imdx-ribbon-rule{width:12px}
+ .portal-top{gap:8px;flex-wrap:wrap;padding:12px 0}
+ .portal-top>span{font-size:10px}
+ .portal-hero{padding:54px 22px}
+ .portal-auth{padding:24px!important}
+}
+@media(prefers-reduced-motion:reduce){.imdx-dropdown,.imdx-caret{transition:none}}
