@@ -21,4 +21,8 @@ CREATE TABLE "BoothHold" (
 CREATE INDEX "BoothHold_status_expiresAt_idx" ON "BoothHold"("status", "expiresAt");
 CREATE INDEX "BoothHold_boothRequestId_status_idx" ON "BoothHold"("boothRequestId", "status");
 CREATE UNIQUE INDEX "BoothHold_one_active_per_unit" ON "BoothHold"("boothUnitId") WHERE "status" = 'ACTIVE';
+-- Database-level backstop: no two published floorplans for one event edition.
+-- Review existing duplicates BEFORE running this migration.
+CREATE UNIQUE INDEX "Floorplan_one_published_per_event"
+  ON "Floorplan"("eventId") WHERE "status" = 'PUBLISHED';
 COMMIT;
