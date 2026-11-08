@@ -134,3 +134,8 @@
 .booth-card-top h3{margin:7px 0}
 @media(max-width:960px){.booth-admin-layout{grid-template-columns:1fr}.booth-admin-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:560px){.booth-admin-summary,.booth-admin-units{grid-template-columns:1fr}.booth-customer-card{padding:16px}}
+
+.booth-history{margin:14px 0;padding:12px 15px;border:1px solid #ecd5c2;border-radius:6px;background:#fffdfb}
+.booth-history summary{font-size:14px;font-weight:700;cursor:pointer;color:#520f00}
+.booth-history ol{padding-left:21px;margin:12px 0;color:#88584b;font-size:13px;line-height:1.8}
+.booth-history .micro{margin:0}
