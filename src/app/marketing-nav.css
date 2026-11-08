@@ -97,3 +97,9 @@
 .booth-choice:disabled small,.booth-choice:disabled span{color:#88766b}
 @media(max-width:780px){.booth-choice-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.booth-choice-list{grid-template-columns:1fr}.booth-choices-heading{align-items:start;flex-direction:column}.booth-choice{min-height:95px}}
+
+/* Programme availability: informational counts only; booking is server-checked. */
+.conference-availability{display:flex;flex-direction:column;gap:6px;border:1px solid #ecd5c2;border-left:3px solid #ff5912;border-radius:7px;padding:15px 18px;margin:14px 0 19px;background:#fff8f1;color:#520f00}
+.conference-availability strong{font-size:19px;letter-spacing:-.025em}
+.conference-availability span{font-size:14px;font-weight:600}
+.conference-availability small{font-size:12px;color:#88584b;line-height:1.55}
