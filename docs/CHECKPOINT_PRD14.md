@@ -4,7 +4,7 @@ Use this file to resume work in a new Claude Code session. Requirement-level sta
 
 ## Merge order (latest)
 `main` ← #11 `feat/prd14-completion` ← #13 `feat/customer-password-auth` (CR-AUTH-01) ← #15 `feat/cms-page-builder-v2` ← #16 `feat/public-conference-pages` ← `feat/prd14-p1-p2` (P1/P2 extensions, all flags off — `docs/P1_P2_EXTENSIONS.md`).
-#14 is superseded by #15 (same feature, rebased). Frontend: saohdir/mining-expo-2027-demo#1. Last full run on `feat/prd14-p1-p2`: E2E 105/105, unit 82/82. Earlier on #16: E2E 93/93 (API + Playwright incl. static site via local proxy), unit 70/70.
+#14 is superseded by #15 (same feature, rebased). Frontend: saohdir/mining-expo-2027-demo#1. Last full run on `feat/prd14-p1-p2`: E2E 106/106, unit 82/82. Earlier on #16: E2E 93/93 (API + Playwright incl. static site via local proxy), unit 70/70.
 
 ## Branches & PRs (backend `saohdir/mining-expo-2027-backend`)
 | PR | Branch | Content | State |
