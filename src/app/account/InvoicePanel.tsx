@@ -48,6 +48,7 @@ export function InvoicePanel({invoice, onChanged}: {invoice: CustomerInvoice; on
       {invoice.proofs.length > 0 && <ul className="micro" aria-label="Submitted transfer proofs">{invoice.proofs.map(p =>
         <li key={p.id}>Proof {money(p.amountMinor)} sent {wib(p.submittedAt)} — {p.status === "PENDING_VERIFICATION" ? "waiting for Finance verification (not yet paid)" : p.status === "VERIFIED" ? "verified by Finance" : "not matched: " + (p.note || "contact Finance")}</li>)}</ul>}
       <a href={"/api/customer/invoices/" + invoice.id + "/pdf"} target="_blank" rel="noreferrer">Download invoice PDF</a>
+      {invoice.paidMinor !== "0" && <> · <a href={"/api/customer/invoices/" + invoice.id + "/receipt"} target="_blank" rel="noreferrer">Download payment receipt</a></>}
       {payable && <> {" · "}<button type="button" className="link" aria-expanded={open} onClick={() => setOpen(v => !v)}>I have transferred — send proof (optional)</button></>}
       {open && <form className="form-grid" onSubmit={e => { e.preventDefault(); void submit(e.currentTarget); }}>
         <label>Amount transferred (IDR)<input name="amount" inputMode="numeric" required pattern="[0-9.,]+" /></label>

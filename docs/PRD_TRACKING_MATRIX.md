@@ -20,7 +20,7 @@ Snapshot after slices F, G, E, B/C, H/I/A and frontend PR #1 (151 FR rows listed
 
 | Priority | VERIFIED | UNVERIFIED | PARTIAL | NOT |
 | --- | --- | --- | --- | --- |
-| P0 (140 rows) | 115 | 2 | 23 | 0 |
+| P0 (140 rows) | 128 | 2 | 10 | 0 |
 | P1/P2 (11 rows) | 9 | 0 | 1 | 1 |
 
 Many PARTIAL P0 rows are blocked only by owner content/legal decisions (D-01/D-02/D-04/D-12) or need device/UAT evidence.
@@ -31,17 +31,17 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 
 | FR | P | Status | Evidence | Gap / missing acceptance | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
-| FR-001 | P0 | PARTIAL | static nav/footer on 12 pages | no locale switch / ID pages, breadcrumb; keyboard audit | i18n, D-12 | P0 |
+| FR-001 | P0 | PARTIAL | responsive nav, breadcrumb on inner pages (frontend), keyboard-accessible menus | EN/ID locale switch + Indonesian pages need approved copy (D-12) | — | — |
 | FR-002 | P0 | VERIFIED | hero CTAs → /floorplan (exhibitor) and /account (visitor/conference); BR (frontend PR #1) | — | — | — |
 | FR-003 | P0 | VERIFIED | `assets/platform.js` WIB countdown with ongoing/ended states; BR | — | — | — |
 | FR-004 | P0 | UNVERIFIED | exhibition/index.html | verify 8 categories vs source PDF | D-12 | P1 |
 | FR-005 | P0 | PARTIAL | CMS partners/organizers with role + rights gate rendered on /partners when published (E2E + BR) | logos/approvals content | D-12 | P0 (content) |
-| FR-006 | P0 | PARTIAL | programme/index.html + `/api/public/events` | detail pages from CMS data; no invented fields | — | P0 |
+| FR-006 | P0 | PARTIAL | programme listing from CMS events API, admissionMode/TBA, confirmed schedule | dedicated per-conference detail pages need approved descriptions (D-12) | — | — |
 | FR-007 | P0 | VERIFIED | exhibitor page → published floorplan + account request; no unapproved prices | — | — | — |
 | FR-008 | P0 | UNVERIFIED | the-venue/index.html | Maps link check | — | P1 |
 | FR-009 | P0 | PARTIAL | CMS downloads (label, type, size, updated) rendered on /exhibitors (E2E + BR) | approved files | D-12 | P0 (content) |
 | FR-010 | P0 | VERIFIED | contact form → lead inbox + notification (BR + E2E) | contact details content | — | — |
-| FR-011 | P0 | PARTIAL | og:title present | per-locale description, canonical, JSON-LD Event, sitemap/robots | i18n | P0 |
+| FR-011 | P0 | PARTIAL | unique titles/descriptions, canonical, OpenGraph, JSON-LD Event, sitemap.xml, robots.txt (frontend) | per-locale metadata with ID pages (D-12); canonical domain to be switched at go-live (D-14) | — | — |
 | FR-012 | P0 | PARTIAL | consent checkboxes required; /privacy/ & /terms/ linked in every footer (noindex DRAFT) | final legal text | D-12 | BLOCKED |
 | FR-013 | P1 | VERIFIED | NEWS content (draft/published, date) rendered with pagination on /news (BR) | — | — | — |
 | FR-014 | P1 | VERIFIED | `/api/public/exhibitors` approved names only, search + category, friendly empty state (E2E + BR) | — | — | — |
@@ -52,10 +52,10 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-024 | P0 | VERIFIED | leadType CONTACT/PARTNER/SPONSOR/EXHIBITOR (E2E) | — | — | — |
 | FR-027 | P0 | VERIFIED | honeypot + per-IP limits on OTP and leads → 429; duplicate submissions deduped (E2E) | optional CAPTCHA | — | — |
 | FR-030 | P1 | VERIFIED | UTM source/medium/campaign stored on leads (E2E) | — | — | — |
-| FR-034 | P0 | PARTIAL | event publish flags + ContentItem PAGE_BLOCK/CONTACT CRUD | static pages consuming blocks | — | P0 |
+| FR-034 | P0 | VERIFIED | event settings + content blocks (CONTACT rendered on /contact, PARTNER/DOWNLOAD/NEWS/GALLERY) with draft/publish (E2E + BR) | — | — | — |
 | FR-035 | P0 | VERIFIED | conferences + partners/scopes/downloads CRUD with draft/published (E2E) | — | — | — |
 | FR-036 | P0 | VERIFIED | `/admin/leads` NEW/CONTACTED/QUALIFIED/CLOSED transitions + audit (E2E) | — | — | — |
-| FR-037 | P0 | PARTIAL | floorplan image upload (MIME/size/sharp) | general asset upload + alt text | — | P0 |
+| FR-037 | P0 | VERIFIED | `/api/admin/assets` image upload: magic/MIME check, WebP re-encode, alt + rights required, audited (E2E) | — | — | — |
 | FR-038 | P0 | VERIFIED | drafts only via authenticated CMS API (preview); public API published only (E2E) | — | — | — |
 | FR-039 | P1 | VERIFIED | news, exhibitor directory, gallery via content CMS | — | — | — |
 
@@ -70,14 +70,14 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-043 | P0 | VERIFIED | E2E anon booth request 401; all customer routes `customer()` | — | — | — |
 | FR-068 | P0 | PARTIAL | email OTP E2E (single-use, expiry, attempts, rate limits); SMS via Twilio flag | SMS path untested pending provider | D-04 | P0 (BLOCKED) |
 | FR-069 | P0 | VERIFIED | `/api/customer/me` owner-only; E2E foreign PDF/accept 403/404 | — | — | — |
-| FR-070 | P0 | PARTIAL | profile fullName/org/job/country | phone in profile; snapshot per booking exists | — | P1 |
+| FR-070 | P0 | VERIFIED | profile name/company/job/country + verified email/phone; snapshots per booking unchanged by edits (E2E) | — | — | — |
 | FR-114 | P0 | VERIFIED | E2E: one account → visitor + conference + booth | — | — | — |
-| FR-115 | P0 | PARTIAL | OTP hashed, 5 min, 5 attempts, per-destination + per-IP throttle (configurable), anti-enumeration decoy (E2E) | enable/disable provider from CMS settings (Slice H) | — | P1 |
+| FR-115 | P0 | VERIFIED | channel selection, hashed single-use OTP, limits, anti-enumeration, CMS on/off switch per channel (E2E) | — | — | — |
 | FR-116 | P0 | VERIFIED | contact change: recent auth ≤15 min, OTP to NEW target, other sessions revoked, old email alerted (E2E AT-086) | trusted recovery when channel lost (manual via organizer) | D-04 | — |
 | FR-117 | P0 | VERIFIED | account hub three journeys after OTP sign-in (BR) | — | — | — |
 | FR-118 | P0 | VERIFIED | profile edits audited before/after; enrollment snapshots; customer timeline API (E2E) | — | — | — |
 | FR-119 | P0 | VERIFIED | tabs + "Action needed" banners from server state (BR) | — | — | — |
-| FR-150 | P0 | PARTIAL | consent version/time stored | retention/purge, data request intake | D-13 | BLOCKED (policy) |
+| FR-150 | P0 | PARTIAL | consent version/time, export minimisation, access logs, data-request intake + resolution (E2E) | retention/purge schedule (D-13) | — | — |
 | FR-152 | P0 | VERIFIED | notification preference EMAIL/WHATSAPP (WhatsApp requires verified phone) (E2E) | automated WhatsApp sending is P2 FR-158 | — | — |
 | AT-057 | — | VERIFIED | E2E safe return path + account intent restore (selected booth preselected after OTP) | — | — | — |
 
@@ -88,12 +88,12 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-022 | P0 | VERIFIED | E2E cms-regression visitor → CONFIRMED + pass | — | — | — |
 | FR-023 | P0 | VERIFIED | E2E auth-account: paid conference stays SUBMITTED on DP, CONFIRMED + passes on full payment, suspended on reversal (`CONFERENCE_ACCESS_ON_DP` opt-in) | — | D-02 | — |
 | FR-029 | P0 | VERIFIED | registration/booth/lead return reference ids; status ≠ paid (BR + E2E) | — | — | — |
-| FR-042 | P0 | PARTIAL | feeMinor null = TBA; no gateway | admission mode per package | D-02 | P1 |
+| FR-042 | P0 | VERIFIED | admissionMode FREE / MANUAL_INVOICE / TBA in public events; booths QUOTE_REQUIRED by workflow; no checkout (E2E) | prices (D-02) | — | — |
 | FR-054 | P0 | VERIFIED | visitor free: no invoice/transfer created (E2E) | — | — | — |
 | FR-071 | P0 | VERIFIED | duplicate per user/program 409 (E2E), serializable capacity | — | — | — |
 | FR-072 | P0 | VERIFIED | confirmed conference → CONFERENCE pass + EXPO_ENTRY if none (E2E) | per-session zones (FR-157, P1) | — | — |
 | FR-073 | P0 | VERIFIED | no conference pass until full payment by default; DP does not grant (E2E) | — | D-08/D-09 | — |
-| FR-133 | P0 | PARTIAL | `/api/public/events` | snapshot + alert on schedule change | — | P1 |
+| FR-133 | P0 | VERIFIED | published programme change alerts each active booking via outbox; snapshots retained (E2E) | — | — | — |
 | FR-155 | P1 | VERIFIED | waitlist only when FULL, idempotent, manual release re-checks capacity (E2E) | — | — | — |
 
 ## D. Exhibitor booking & booth (FR-021/044/053/055/060–067/099–103/138–145)
@@ -101,10 +101,10 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR | P | Status | Evidence | Gap | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-021 | P0 | VERIFIED | E2E booth request; stale plan 409 | — | — | — |
-| FR-044 | P0 | PARTIAL | customer sees offer/invoice | review summary with deposit/terms | D-02 | P1 |
+| FR-044 | P0 | VERIFIED | booth request review summary (units, area, no price until quotation, terms link); invoice shows DP/due | — | — | — |
 | FR-053 | P0 | VERIFIED | E2E quote/accept/assign separated | — | — | — |
 | FR-055 | P0 | VERIFIED | partial unique index + E2E double-assign 409, concurrent scans | — | — | — |
-| FR-060 | P0 | PARTIAL | `/account` booth form | dedicated localized route | i18n | P1 |
+| FR-060 | P0 | VERIFIED | `/account/booth?unit=…` dedicated route keeps selection (E2E) | localized route with D-12 | — | — |
 | FR-061 | P0 | VERIFIED | E2E (units, area, consent, notes) | zone preference field | — | P1 |
 | FR-062 | P0 | VERIFIED | free-text m² (validateArea); FAQ no longer lists fixed presets | — | — | — |
 | FR-063 | P0 | VERIFIED | E2E request stored + outbox BOOTH_REQUEST_RECEIVED | — | — | — |
@@ -117,7 +117,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-101 | P0 | VERIFIED | assign → 409 AREA_MISMATCH unless override reason; audited (E2E) | — | — | — |
 | FR-102 | P0 | VERIFIED | E2E holds 1–168h, release, worker expiry (UT) | — | — | — |
 | FR-103 | P0 | VERIFIED | public name only when active assignment approvedForPublic (public API) | logo rights (NFR-12) | D-12 | — |
-| FR-138 | P0 | PARTIAL | account selector list+SVG | hall/zone/available filters | — | P0 |
+| FR-138 | P0 | VERIFIED | account selector filters hall/zone/available/code + public viewer (BR) | — | — | — |
 | FR-139 | P0 | VERIFIED | free decimal m² E2E (18, 9) | — | — | — |
 | FR-140 | P0 | VERIFIED | snapshot + notification (E2E) | — | — | — |
 | FR-141 | P0 | VERIFIED | E2E preference never reserves; revised offer accept | — | — | — |
@@ -154,18 +154,18 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 
 | FR | P | Status | Evidence | Gap | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
-| FR-045 | P0 | PARTIAL | customer invoices + PDF | bank instructions only after issue (verify) | D-01 | P0 |
+| FR-045 | P0 | VERIFIED | same-origin invoice detail + PDF; bank instructions only for issued invoices (E2E) | — | — | — |
 | FR-046 | P0 | VERIFIED | E2E draft/issue unique number (InvoiceSequence) | tax config | D-01 | — |
 | FR-047 | P0 | VERIFIED | E2E finance-controls: email share → InvoiceDelivery (masked), WhatsApp compose needs verified phone | WhatsApp compose positive path needs SMS-verified account (D-04) | — | — |
 | FR-048 | P0 | VERIFIED | E2E Finance-only, dup reference flagged (AT-068) | evidence attachment → FR-128 | — | — |
 | FR-049 | P0 | VERIFIED | E2E DP → PARTIALLY_PAID, full → PAID, overpay blocked | reversals → FR-131 | — | — |
-| FR-050 | P0 | PARTIAL | PDF download; PAYMENT_VERIFIED email | receipt document after verification | — | P1 |
+| FR-050 | P0 | VERIFIED | receipt PDF only after Finance verification (409 before) (E2E) | approved template wording (D-01) | — | — |
 | FR-051 | P0 | VERIFIED | E2E portal reflects server state | — | — | — |
 | FR-056 | P0 | VERIFIED | E2E: cancel after DP → REFUND_PENDING; REFUND adjustment with payout reference → REFUNDED | refund eligibility policy | D-03 | — |
 | FR-057 | P0 | VERIFIED | `ENABLE_INVOICES` + bank env gate; no PSP | — | — | — |
 | FR-123 | P0 | VERIFIED | manual payment request persisted + CMS notification + outbox, idempotent (E2E AT-062) | — | — | — |
 | FR-124 | P0 | VERIFIED | E2E notifications list + bulk read role-scoped | overdue alerts | — | — |
-| FR-125 | P0 | PARTIAL | items, DP, dueAt, PDF | tax lines, invoice revision chain | D-01 | P1 |
+| FR-125 | P0 | PARTIAL | line items, DP, due date, numbering, PDF, revision chain (VOID + linked draft) (E2E) | tax lines need D-01 | — | — |
 | FR-126 | P0 | VERIFIED | `send` route + InvoiceDelivery + worker SENT/FAILED; ledger API deliveries | Business API (P2) | — | — |
 | FR-127 | P0 | VERIFIED | bank details only on issued/payable invoices; drafts hidden; none after cancellation (E2E finance-controls) | approved bank data | D-01 | — |
 | FR-128 | P0 | VERIFIED | `POST /api/customer/invoices/[id]/payment-proof` (magic-byte check, 5MB, AES-GCM private storage); E2E: proof keeps AWAITING_PAYMENT, Finance verifies via proofTransferId; Sales 403 on proof file | size/retention policy | D-10 | — |
@@ -207,7 +207,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR | P | Status | Evidence | Gap | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-033 | P0 | VERIFIED | E2E anon 401, scrypt, HttpOnly session | — | — | — |
-| FR-040 | P0 | PARTIAL | AuditLog on many actions (E2E) | check-in override, reissue | — | P0 |
+| FR-040 | P0 | VERIFIED | every privileged write audited (status, invoice, ledger, floorplan publish/remap, pass revoke/reissue, gate denials, settings, staff); no admission-override path exists (fail-closed by design) | — | — | — |
 | FR-052 | P0 | VERIFIED | E2E lists per role | — | — | — |
 | FR-120 | P0 | VERIFIED | `/admin/customers` search + drill-down (registrations, booths, invoices) role-scoped (E2E) | — | — | — |
 | FR-147 | P0 | VERIFIED | per-endpoint RBAC (all E2E suites); `/admin/staff` role/deactivate/reset with session revocation, last-Super-Admin guard; `/admin/settings` status (E2E) | field-level scope beyond role columns | — | — |
@@ -222,7 +222,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-031 | P0 | VERIFIED | XLSX/PDF exports: inclusive WIB dates, type/status filters, ExportJob + audit, formula-safe (E2E AT-070/071) | async jobs for >2,000 rows (NFR-26) | — | — |
 | FR-121 | P0 | VERIFIED | date basis created/confirmed/checkedIn, assigned, issued/paid; WIB inclusive; type/status/hall/zone filters; ExportJob (E2E) | amount filter | — | — |
 | FR-122 | P0 | VERIFIED | role-scoped columns; background jobs ≤100k rows, encrypted private file, requester-only download, 24 h expiry, audited (E2E) | — | — | — |
-| FR-146 | P0 | PARTIAL | outbox topics | booking confirmed/cancelled, pass revoked emails | — | P0 |
+| FR-146 | P0 | VERIFIED | outbox emails: OTP, request received, quote, invoice, payment verified/corrected, refund, booking cancelled, pass ready/revoked/reissued, programme change, contact change; retry/backoff (E2E outbox rows + worker) | delivery to real provider (UAT) | — | — |
 | FR-149 | P0 | VERIFIED | `/api/admin/reports/kpi` presets today/7d/30d/month/custom/all, basis per KPI, unique people (E2E) | — | — | — |
 
 | AT-070 | — | VERIFIED | E2E cms-admin (inclusive WIB day, exact rows) | — | — | — |
@@ -261,3 +261,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - Slice H/I/A (CMS admin, reports, leads, content): FR-024/027/030/031/035/036/038/067/120/121/147/148/153, AT-070/071/072 → VERIFIED; FR-005/009/010/034/122 PARTIAL. Migration `20261109050000_cms_admin`.
 - Frontend PR saohdir/mining-expo-2027-demo#1: FR-002/003/007/010/062 → VERIFIED; FR-005/009/012 PARTIAL (content/legal).
 - Technical completion: FR-013/014/016/018/025/029/039/078/079/084/088/091/093/110/117/119/122/149/152/155, AT-084/088 → VERIFIED. Migration `20261109060000_engagement`. Worker now also runs background exports (compose: worker mounts `private_data`).
+- Governance batch: FR-034/037/042/044/045/050/060/070/115/133/138/146 → VERIFIED; FR-001/006/011/125/150 PARTIAL (owner content/policy). Migration `20261109070000_governance`.

@@ -87,7 +87,8 @@ const navGroups:Group[]=[
     {label:"Lead Inbox",href:"/admin/leads",icon:"bell",roles:["SUPER_ADMIN","SALES","OPERATIONS"]},
     {label:"Event Settings",href:"/admin/workspace?section=settings",icon:"settings",roles:["SUPER_ADMIN"]},
     {label:"Settings Status",href:"/admin/settings",icon:"settings",roles:["SUPER_ADMIN"]},
-    {label:"Staff & Roles",href:"/admin/staff",icon:"shield",roles:["SUPER_ADMIN"]}
+    {label:"Staff & Roles",href:"/admin/staff",icon:"shield",roles:["SUPER_ADMIN"]},
+    {label:"Data Requests",href:"/admin/data-requests",icon:"shield",roles:["SUPER_ADMIN"]}
   ]},
   {title:"System",items:[
     {label:"Notifications",href:"/admin/notifications",icon:"bell",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")},

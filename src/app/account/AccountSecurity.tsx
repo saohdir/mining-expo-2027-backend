@@ -27,6 +27,12 @@ export function AccountSecurity({smsAvailable, onChanged}: {smsAvailable: boolea
           <button disabled={busy}>Confirm change</button><button type="button" className="ghost" onClick={() => setChallenge("")}>Cancel</button></form>}
       {msg && <p role="status" className="micro">{msg}</p>}
     </section>
+    <section aria-labelledby="data-req"><h3 id="data-req">Your personal data</h3>
+      <p className="micro">Ask the organizer for a copy, correction or deletion of your data, or withdraw consent. Requests are handled under the published privacy notice.</p>
+      <form className="form-grid" onSubmit={e => { e.preventDefault(); const fd = new FormData(e.currentTarget); void act(async () => { const b = await post("/api/customer/data-request", {kind: fd.get("kind"), details: fd.get("details")}); setMsg("Request received. Reference " + b.reference + "."); }); }}>
+        <label>Request<select name="kind"><option value="ACCESS">Copy of my data</option><option value="CORRECTION">Correct my data</option><option value="DELETION">Delete my data</option><option value="CONSENT_WITHDRAWAL">Withdraw consent</option></select></label>
+        <label>Details<textarea name="details" required minLength={5} maxLength={2000} /></label><button disabled={busy}>Send request</button></form>
+    </section>
     <section aria-labelledby="activity"><h3 id="activity">Account activity</h3>
       {events.length ? <ol className="micro timeline">{events.slice(0, 50).map((e, i) => <li key={i}><time dateTime={e.at}>{wib(e.at)}</time> — {e.label} <span className="muted">({e.kind} {e.reference})</span></li>)}</ol> : <p className="micro">No activity yet.</p>}
     </section>

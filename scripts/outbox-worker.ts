@@ -50,6 +50,8 @@ async function processJob(topic:string,p:Payload){
  if(topic==="LEAD_RECEIVED"){if(!p.id)throw Error("Missing lead id");return deliver(toAdmin,"IMDX 2027 — new website enquiry","A new contact/partnership enquiry is waiting in the CMS lead inbox: "+portal+"/admin/leads");}
  if(topic==="PASS_READY"){const id=(p as Payload&{enrollmentId?:string}).enrollmentId;const r=id?await db.enrollment.findUnique({where:{id},include:{account:true}}):null;if(!r?.account.email)throw Error("Missing registration email");
   return deliver(r.account.email,"IMDX 2027 — your event pass is ready","Your personal entry pass is ready. For your security the QR code is only shown after you sign in: "+portal+"/account");}
+ if(topic==="CONFERENCE_CHANGED"){const id=(p as Payload&{enrollmentId?:string}).enrollmentId;const r=id?await db.enrollment.findUnique({where:{id},include:{account:true,conference:true}}):null;if(!r?.account.email)throw Error("Missing registration email");
+  return deliver(r.account.email,"IMDX 2027 — programme update","The organizer updated the details of "+(r.conference?.title||"your conference")+". Please sign in to see the current date and time: "+portal+"/account");}
  throw Error("Unhandled topic: "+topic);
 }
 async function drain(){

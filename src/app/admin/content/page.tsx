@@ -30,6 +30,10 @@ export default function ContentPage() {
       <label>Link / file URL<input value={f.url} onChange={e => setF({...f, url: e.target.value})} placeholder="/downloads/brochure.pdf or https://…" /></label>
       {kind === "DOWNLOAD" && <label>File type<input value={f.fileType} onChange={e => setF({...f, fileType: e.target.value})} placeholder="PDF" /></label>}
       {["PARTNER", "ORGANIZER"].includes(kind) && <label>Role (e.g. Organizer, Supporting association)<input value={f.role} onChange={e => setF({...f, role: e.target.value})} /></label>}
+      <label>Upload image (PNG/JPG/WebP ≤8 MB — uses the alt text and rights below)<input type="file" accept="image/png,image/jpeg,image/webp" onChange={async e => {
+        const file = e.target.files?.[0]; if (!file) return; if (!f.altText || !f.rightsStatus) { setMsg("Enter alt text and rights status first."); e.target.value = ""; return; }
+        const fd = new FormData(); fd.append("file", file); fd.append("altText", f.altText); fd.append("rightsStatus", f.rightsStatus);
+        const r = await fetch("/api/admin/assets", {method: "POST", body: fd}); const j = await r.json(); if (r.ok) { setF({...f, imageUrl: j.url}); setMsg("Image uploaded."); } else setMsg(j.message); }} /></label>
       <label>Image / logo URL<input value={f.imageUrl} onChange={e => setF({...f, imageUrl: e.target.value})} /></label>
       <label>Alt text<input value={f.altText} onChange={e => setF({...f, altText: e.target.value})} /></label>
       <label>Rights status<select value={f.rightsStatus} onChange={e => setF({...f, rightsStatus: e.target.value})}><option value="">—</option><option>OWNED</option><option>LICENSED</option><option>ORGANIZER_PROVIDED</option><option>PENDING_APPROVAL</option></select></label>

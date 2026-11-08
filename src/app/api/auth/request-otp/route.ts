@@ -8,6 +8,7 @@ import {hashToken, otpHash, newOtp, safeEmail} from "@/lib/security";
 import {sendOtp} from "@/lib/mailer";
 import {sendSmsOtp} from "@/lib/sms";
 import {clientIpHash} from "@/lib/request-meta";
+import {otpChannels} from "@/lib/app-settings";
 
 const schema = z.object({mode: z.enum(["register", "login"]), channel: z.enum(["EMAIL", "SMS"]), email: z.string().email().optional(),
   phone: z.string().regex(/^\+[1-9]\d{7,14}$/).optional(), fullName: z.string().min(2).max(120).optional(), consent: z.boolean().optional(),
@@ -24,8 +25,9 @@ export async function POST(req: NextRequest) {
     const x = schema.parse(await req.json());
     const destination = x.channel === "EMAIL" ? safeEmail(x.email || "") : x.phone || "";
     if ((x.channel === "EMAIL" && !x.email) || (x.channel === "SMS" && !x.phone)) throw new HttpError(400, "CONTACT_REQUIRED", "Enter a valid email or phone.");
-    if (x.channel === "SMS" && process.env.SMS_PROVIDER !== "twilio") throw new HttpError(503, "SMS_UNAVAILABLE", "SMS OTP is not configured; choose email.");
-    if (x.channel === "EMAIL" && process.env.EMAIL_PROVIDER !== "smtp") throw new HttpError(503, "EMAIL_UNAVAILABLE", "Email OTP not configured.");
+    const channels = await otpChannels();
+    if (x.channel === "SMS" && !channels.sms) throw new HttpError(503, "SMS_UNAVAILABLE", "SMS OTP is not available; choose email.");
+    if (x.channel === "EMAIL" && !channels.email) throw new HttpError(503, "EMAIL_UNAVAILABLE", "Email OTP is not available right now.");
     if (x.mode === "register" && (!x.fullName || !x.consent || !x.consentVersion)) throw new HttpError(400, "CONSENT_REQUIRED", "Name and privacy consent required.");
     const ipHash = clientIpHash(req), since = new Date(Date.now() - 3600000);
     const [byDest, byIp] = await Promise.all([

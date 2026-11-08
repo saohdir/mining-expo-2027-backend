@@ -64,6 +64,13 @@ export async function PATCH(req: NextRequest, {params}: {params: Promise<{id: st
             : props.startsAt === null ? null : new Date(props.startsAt)
         }
       });
+      // FR-133: a schedule/title change on a published programme alerts every active booking;
+      // each enrollment keeps its original profile snapshot.
+      const scheduleChanged = old.published && ((updated.startsAt?.getTime() ?? null) !== (old.startsAt?.getTime() ?? null) || updated.title !== old.title);
+      if (scheduleChanged) {
+        const affected = await tx.enrollment.findMany({where: {conferenceId: id, status: {notIn: ["CANCELLED", "REJECTED"]}}, select: {id: true}});
+        for (const e of affected) await tx.notificationOutbox.create({data: {topic: "CONFERENCE_CHANGED", dedupeKey: "conf-change:" + id + ":" + e.id + ":" + Date.now(), payload: {enrollmentId: e.id, previousStartsAt: old.startsAt?.toISOString() ?? null, previousTitle: old.title}}});
+      }
       await tx.auditLog.create({
         data: {
           adminId: actor.id,

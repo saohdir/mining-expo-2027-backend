@@ -385,6 +385,7 @@ model Invoice {
   deliveries InvoiceDelivery[]
   cancelledAt DateTime?
   cancelReason String?
+  revisionOfId String?
 }
 model InvoiceItem {
   id String @id @default(uuid())
@@ -603,6 +604,23 @@ model WaitlistEntry {
   enrollmentId String?
   @@unique([conferenceId,accountId])
   @@index([conferenceId,status,createdAt])
+}
+model AppSetting {
+  key String @id
+  value String
+  updatedBy String
+  updatedAt DateTime @updatedAt
+}
+model DataRequest {
+  id String @id @default(uuid())
+  accountId String
+  kind String
+  details String
+  status String @default("RECEIVED")
+  createdAt DateTime @default(now())
+  resolvedAt DateTime?
+  resolvedBy String?
+  @@index([status,createdAt])
 }
 model InternalNote {
   id String @id @default(uuid())

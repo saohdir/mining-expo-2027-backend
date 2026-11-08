@@ -11,6 +11,11 @@ export default function SettingsPage() {
     {s && Object.entries(s).map(([group, v]) => <section key={group} className="cms-card"><h2>{group}</h2>
       {typeof v === "object" && v ? <dl>{Object.entries(v as Record<string, unknown>).map(([k, val]) => <div key={k} className="cms-row-actions"><dt>{k}</dt><dd><strong>{String(val)}</strong></dd></div>)}</dl> : <p>{String(v)}</p>}
     </section>)}
+    {s && <section className="cms-card"><h2>OTP channel switches (FR-115)</h2><p className="micro">Turn a channel off immediately (e.g. provider outage or SMS cost incident). A channel can only be used when the server provider is also configured.</p>
+      {(["email", "sms"] as const).map(ch => { const on = (s.otpSwitches as Record<string, boolean>)[ch + "OtpSwitch"]; return <div key={ch} className="cms-row-actions"><strong>{ch.toUpperCase()} OTP</strong> <span>{on ? "switch ON" : "switch OFF"}</span>
+        <button type="button" className="ghost" onClick={async () => { const reason = window.prompt("Reason for switching " + ch + " OTP " + (on ? "off" : "on")); if (!reason) return;
+          const r = await fetch("/api/admin/settings", {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({channel: ch, enabled: !on, reason})});
+          if (r.ok) setS({...s, otpSwitches: {...(s.otpSwitches as object), [ch + "OtpSwitch"]: !on}}); else setErr((await r.json()).message); }}>{on ? "Switch off" : "Switch on"}</button></div>; })}</section>}
     <p className="micro">Gates and re-entry policy: <a href="/admin/check-in/settings">Gates &amp; Passes</a>. Staff and roles: <a href="/admin/staff">Staff</a>.</p>
   </main>;
 }

@@ -66,6 +66,10 @@ export function LedgerPanel({invoiceId, me, onChanged}: {invoiceId: string; me: 
         <label>Outgoing bank reference<input value={ref} onChange={e => setRef(e.target.value)} /></label>
         <button disabled={busy || !reasonOk || !amount || ref.length < 4} onClick={() => void act(() => call("/api/admin/invoices/" + invoiceId + "/adjustments", "POST", {type: "REFUND", amountMinor: amount, payoutReference: ref, reason, bankVerified: true}), "Refund recorded.")}>Record refund (bank payout confirmed)</button>
       </fieldset>}
+      {["ISSUED", "SENT", "OVERDUE"].includes(l.status) && l.summary.paidMinor === "0" && <fieldset><legend>Revise invoice (FR-125)</legend>
+        <p className="micro">Issued invoices are never edited: this voids the current invoice and creates a new draft with the same items for you to adjust and issue.</p>
+        <button className="ghost" disabled={busy || !reasonOk} onClick={() => void act(() => call("/api/admin/invoices/" + invoiceId + "/revise", "POST", {reason}), "Invoice voided; new draft created in Invoices.")}>Void &amp; create revised draft</button>
+      </fieldset>}
       {!["CANCELLED", "VOID"].includes(l.status) && <fieldset><legend>Cancel invoice</legend>
         <p className="micro">Verified receipts stay in the ledger; the customer sees “refund pending” until a payout is recorded.</p>
         <button className="ghost" disabled={busy || !reasonOk} onClick={() => void act(() => call("/api/admin/invoices/" + invoiceId + "/cancel", "POST", {reason, cancelBooking: false}), "Invoice cancelled.")}>Cancel invoice only</button>
