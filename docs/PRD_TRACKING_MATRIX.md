@@ -68,11 +68,11 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-025 | P0 | VERIFIED | Zod `.strict()` everywhere; per-field issues rendered (contact form BR, OTP/booth E2E) | — | — | — |
 | FR-026 | P0 | VERIFIED | consent literal(true) on booth/registration; E2E | — | — | — |
 | FR-043 | P0 | VERIFIED | E2E anon booth request 401; all customer routes `customer()` | — | — | — |
-| FR-068 | P0 | PARTIAL | email OTP E2E (single-use, expiry, attempts, rate limits); SMS via Twilio flag | SMS path untested pending provider | D-04 | P0 (BLOCKED) |
+| FR-068 | P0 | VERIFIED | **Amended by CR-AUTH-01**: email OTP verifies registration; sign-in with email + password; forgot/reset + legacy set-up (E2E + BR customer-password-auth) | SMS not used (D-04) | CR-AUTH-01 | — |
 | FR-069 | P0 | VERIFIED | `/api/customer/me` owner-only; E2E foreign PDF/accept 403/404 | — | — | — |
 | FR-070 | P0 | VERIFIED | profile name/company/job/country + verified email/phone; snapshots per booking unchanged by edits (E2E) | — | — | — |
 | FR-114 | P0 | VERIFIED | E2E: one account → visitor + conference + booth | — | — | — |
-| FR-115 | P0 | VERIFIED | channel selection, hashed single-use OTP, limits, anti-enumeration, CMS on/off switch per channel (E2E) | — | — | — |
+| FR-115 | P0 | VERIFIED | **Amended by CR-AUTH-01**: OTP for registration only (hashed, single use, 5 min, 5 attempts, throttled, CMS switch); OTP sign-in endpoints return 410 | — | CR-AUTH-01 | — |
 | FR-116 | P0 | VERIFIED | contact change: recent auth ≤15 min, OTP to NEW target, other sessions revoked, old email alerted (E2E AT-086) | trusted recovery when channel lost (manual via organizer) | D-04 | — |
 | FR-117 | P0 | VERIFIED | account hub three journeys after OTP sign-in (BR) | — | — | — |
 | FR-118 | P0 | VERIFIED | profile edits audited before/after; enrollment snapshots; customer timeline API (E2E) | — | — | — |
@@ -229,7 +229,9 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | AT-071 | — | VERIFIED | E2E cms-admin (XLSX cell escaped) | — | — | — |
 | AT-072 | — | VERIFIED | E2E cms-admin (Viewer/Sales finance export 403) | — | — | — |
 | AT-058 | — | VERIFIED | E2E one account visitor + conference (+ booth in business-flow) | — | — | — |
-| AT-059 | — | VERIFIED | E2E single-use hashed OTP | — | — | — |
+| AT-059 | — | VERIFIED (amended CR-AUTH-01) | registration OTP single-use, never creates a session | — | — | — |
+| AT-060 | — | SUPERSEDED by CR-AUTH-01 | SMS OTP login removed | — | — | — |
+| AT-CR1-01..12 | — | VERIFIED | `customer-password-auth.e2e.mjs` + browser: register/OTP/resend/expiry, password set/mismatch/weak, duplicate, login generic/throttle/CSRF/expiry/logout, forgot/reset invalid/expired/reused, legacy set-up, login with registration closed | — | — | — |
 | AT-061 | — | VERIFIED | E2E brute force, reuse, rate limit, no enumeration | — | — | — |
 | AT-062 | — | VERIFIED | E2E auth-account | — | — | — |
 | AT-066 | — | VERIFIED | E2E auth-account | — | — | — |
@@ -262,3 +264,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - Frontend PR saohdir/mining-expo-2027-demo#1: FR-002/003/007/010/062 → VERIFIED; FR-005/009/012 PARTIAL (content/legal).
 - Technical completion: FR-013/014/016/018/025/029/039/078/079/084/088/091/093/110/117/119/122/149/152/155, AT-084/088 → VERIFIED. Migration `20261109060000_engagement`. Worker now also runs background exports (compose: worker mounts `private_data`).
 - Governance batch: FR-034/037/042/044/045/050/060/070/115/133/138/146 → VERIFIED; FR-001/006/011/125/150 PARTIAL (owner content/policy). Migration `20261109070000_governance`.
+- CR-AUTH-01 (approved change request): customer sign-in moved from passwordless OTP to email + password; OTP only for registration. See `docs/CR-AUTH-01_CUSTOMER_PASSWORD_AUTH.md`. Migration `20261110010000_customer_password_auth`.

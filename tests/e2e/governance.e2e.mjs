@@ -21,10 +21,12 @@ test("setup", async () => {
 test("FR-115 Super Admin can switch email OTP off (immediate 503) and back on", async () => {
   ok(await R.FINANCE.req("PATCH", "/api/admin/settings", {channel: "email", enabled: false, reason: "finance attempt"}), 403, "finance");
   ok(await R.SUPER_ADMIN.req("PATCH", "/api/admin/settings", {channel: "email", enabled: false, reason: "Provider outage drill"}), 200, "off");
-  ok(await new Client("x").post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: `gov-${run}@test.local`}), 503, "email OTP disabled");
+  const reg = e => new Client("x").post("/api/auth/register/start", {fullName: "Switch Test", email: e, acceptTerms: true, acceptPrivacy: true});
+  ok(await reg(`sw1-${run}@test.local`), 503, "registration email OTP disabled");
+  ok(await new Client("y").post("/api/auth/login", {email: `gov-${run}@test.local`, password: "Tambang2027x"}), 200, "password login unaffected by OTP switch");
   assert.equal((await new Client("x").get("/api/public/capabilities")).body.emailOtp, false);
   ok(await R.SUPER_ADMIN.req("PATCH", "/api/admin/settings", {channel: "email", enabled: true, reason: "Provider restored"}), 200, "on");
-  ok(await new Client("x").post("/api/auth/request-otp", {mode: "login", channel: "EMAIL", email: `gov-${run}@test.local`}), 200, "email OTP back");
+  ok(await reg(`sw2-${run}@test.local`), 200, "registration OTP back");
 });
 
 test("FR-042/133 admission mode exposed; schedule change alerts every active booking", async () => {
