@@ -10,24 +10,25 @@ const send=(path:string,data:unknown)=>request(path,{method:"POST",body:JSON.str
 const money=(v:string)=>"Rp "+Number(v).toLocaleString("id-ID",{maximumFractionDigits:0});
 export default function AccountPage(){
  const [me,setMe]=useState<AccountData|null>(null),[events,setEvents]=useState<EventRecord[]>([]),[plan,setPlan]=useState<Floorplan|null>(null),[invoices,setInvoices]=useState<{invoices:{id:string;number:string;totalMinor:string;outstandingMinor:string;state:string}[]}|null>(null),[passes,setPasses]=useState<{passes:{passId:string;qrDataUrl:string;entitlement:string}[]}|null>(null);
- const [loading,setLoading]=useState(true),[message,setMessage]=useState(""),[busy,setBusy]=useState(false),[mode,setMode]=useState<"register"|"login">("register"),[email,setEmail]=useState(""),[name,setName]=useState(""),[challenge,setChallenge]=useState(""),[otp,setOtp]=useState(""),[tab,setTab]=useState("overview");
+ const [loading,setLoading]=useState(true),[message,setMessage]=useState(""),[busy,setBusy]=useState(false),[mode,setMode]=useState<"register"|"login">("register"),[email,setEmail]=useState(""),[channel,setChannel]=useState<"EMAIL"|"SMS">("EMAIL"),[phone,setPhone]=useState(""),[smsAvailable,setSmsAvailable]=useState(false),[name,setName]=useState(""),[challenge,setChallenge]=useState(""),[otp,setOtp]=useState(""),[tab,setTab]=useState("overview");
  const [company,setCompany]=useState(""),[area,setArea]=useState("18"),[notes,setNotes]=useState(""),[chosen,setChosen]=useState<string[]>([]),[conference,setConference]=useState("");
  const reload=useCallback(async()=>{const results=await Promise.allSettled([request("/api/customer/me"),request("/api/public/events"),request("/api/public/floorplan"),request("/api/customer/invoices"),request("/api/customer/passes")]);if(results[0].status==="fulfilled")setMe(results[0].value);else setMe(null);if(results[1].status==="fulfilled")setEvents(results[1].value.events||[]);if(results[2].status==="fulfilled")setPlan(results[2].value);if(results[3].status==="fulfilled")setInvoices(results[3].value);if(results[4].status==="fulfilled")setPasses(results[4].value);setLoading(false)},[]);
- useEffect(()=>{void reload()},[reload]);
+ useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>setSmsAvailable(Boolean(x.smsOtp))).catch(()=>{})},[reload]);
  async function doAction(task:()=>Promise<unknown>,success:string){setBusy(true);setMessage("");try{await task();setMessage(success);await reload()}catch(e){setMessage(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
  const event=events[0];
  return <main className="portal-shell">
   <nav className="portal-top"><a href="/" className="brandmark">IMDX<span>2027</span></a><span>Customer account / UAT</span><a href="/admin">Admin CMS</a></nav>
   {loading?<section>Loading account information…</section>:!me?<section className="portal-auth"><p className="eyebrow">SECURE SIGN IN</p><h1>One account.<br/><em>Three experiences.</em></h1><p>Create an account to visit the exhibition, attend a conference and request exhibition space.</p>
-    {!challenge?<form onSubmit={e=>{e.preventDefault();void doAction(async()=>{const r=await send("/api/auth/request-otp",{mode,channel:"EMAIL",email, ...(mode==="register"?{fullName:name,consent:true,consentVersion:"v1.4-UAT"}:{})});setChallenge(r.challengeId||"")},"Email verification requested.")}}>
+    {!challenge?<form onSubmit={e=>{e.preventDefault();void doAction(async()=>{const r=await send("/api/auth/request-otp",{mode,channel,...(channel==="EMAIL"?{email}:{phone}), ...(mode==="register"?{fullName:name,consent:true,consentVersion:"v1.4-UAT"}:{})});setChallenge(r.challengeId||"")},"Verification code requested.")}}>
       <div className="tabline"><button type="button" className={mode==="register"?"chosen":""} onClick={()=>setMode("register")}>Create account</button><button type="button" className={mode==="login"?"chosen":""} onClick={()=>setMode("login")}>Sign in</button></div>
       {mode==="register"&&<label>Full name<input required value={name} onChange={e=>setName(e.target.value)} minLength={2}/></label>}
-      <label>Email address<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>
-      <p className="micro">Verification uses email OTP. SMS is available once an approved SMS provider is configured.</p>
+      <label>Verification channel<select value={channel} onChange={e=>setChannel(e.target.value as "EMAIL"|"SMS")}><option value="EMAIL">Email OTP</option><option value="SMS" disabled={!smsAvailable}>SMS OTP {!smsAvailable?"(not configured)":""}</option></select></label>
+      {channel==="EMAIL"?<label>Email address<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>:<label>Mobile phone (+62...)<input required type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+628123456789"/></label>}
+      <p className="micro">OTP expires in five minutes. SMS is offered only after the approved provider is configured.</p>
       <label className="consent"><input type="checkbox" required/> I agree to the privacy and registration terms for UAT testing.</label>
       <button disabled={busy} type="submit">{busy?"Requesting…":"Send verification code"}</button>
     </form>:<form onSubmit={e=>{e.preventDefault();void doAction(async()=>{await send("/api/auth/verify-otp",{challengeId:challenge,code:otp});setChallenge("")},"Account verified.")}}>
-     <label>6-digit verification code<input value={otp} pattern="[0-9]{6}" inputMode="numeric" onChange={e=>setOtp(e.target.value)} required/></label><button disabled={busy} type="submit">Verify & sign in</button><button type="button" className="ghost" onClick={()=>setChallenge("")}>Use another email</button>
+     <label>6-digit verification code<input value={otp} pattern="[0-9]{6}" inputMode="numeric" onChange={e=>setOtp(e.target.value)} required/></label><button disabled={busy} type="submit">Verify & sign in</button><button type="button" className="ghost" onClick={()=>setChallenge("")}>Change contact</button>
     </form>}
    {message&&<div className="notice" role="status">{message}</div>}
   </section>:<>
