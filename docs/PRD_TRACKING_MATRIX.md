@@ -34,11 +34,11 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-001 | P0 | PARTIAL | responsive nav, breadcrumb, **EN/ID language switch** (remembered; html lang; CMS serves ID layouts with EN fallback) (BR) | Indonesian copy of designed sections to be authored in Pages & layout (D-12) | D-12 | P0 (content) |
 | FR-002 | P0 | VERIFIED | hero CTAs → /floorplan (exhibitor) and /account (visitor/conference); BR (frontend PR #1) | — | — | — |
 | FR-003 | P0 | VERIFIED | `assets/platform.js` WIB countdown with ongoing/ended states; BR | — | — | — |
-| FR-004 | P0 | UNVERIFIED | exhibition/index.html | verify 8 categories vs source PDF | D-12 | P1 |
+| FR-004 | P0 | PARTIAL | exhibition page lists 8 scope categories in order (checked) | wording vs source PDF must be confirmed by organizer (D-12) | D-12 | P0 (content) |
 | FR-005 | P0 | PARTIAL | CMS partners/organizers with role + rights gate rendered on /partners when published (E2E + BR) | logos/approvals content | D-12 | P0 (content) |
 | FR-006 | P0 | VERIFIED | `/conferences` + `/conferences/[slug]` (published only; date/fee/seats shown as "to be announced" until approved; description from CMS; JSON-LD; register link preselects programme) (E2E) | approved programme copy (D-12) | — | — |
 | FR-007 | P0 | VERIFIED | exhibitor page → published floorplan + account request; no unapproved prices | — | — | — |
-| FR-008 | P0 | UNVERIFIED | the-venue/index.html | Maps link check | — | P1 |
+| FR-008 | P0 | VERIFIED | venue page names JIEXPO Kemayoran with an external Google Maps link (frontend) | travel guidance text (D-12) | — | — |
 | FR-009 | P0 | PARTIAL | CMS downloads (label, type, size, updated) rendered on /exhibitors (E2E + BR) | approved files | D-12 | P0 (content) |
 | FR-010 | P0 | VERIFIED | contact form → lead inbox + notification (BR + E2E) | contact details content | — | — |
 | FR-011 | P0 | PARTIAL | titles/descriptions per page **and per locale** via Pages & layout SEO, canonical, OpenGraph, JSON-LD (event + conferences), sitemap/robots | separate /id URLs + hreflang need approved ID copy; canonical domain at go-live (D-14) | D-12 | P0 (content) |
