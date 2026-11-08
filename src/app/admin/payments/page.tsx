@@ -9,7 +9,15 @@ const run=async(url:string,method="GET",data?:unknown)=>{const r=await fetch(url
 export default function PaymentManagement(){
  const [me,setMe]=useState<{role:string;email:string}|null>(null),[payload,setPayload]=useState<Payload>({records:[],total:0,page:1}),[chosen,setChosen]=useState(""),[filter,setFilter]=useState(""),[query,setQuery]=useState(""),[search,setSearch]=useState(""),[page,setPage]=useState(1),[action,setAction]=useState(""),[amount,setAmount]=useState(""),[reference,setReference]=useState(""),[date,setDate]=useState(""),[reason,setReason]=useState(""),[confirmed,setConfirmed]=useState(false),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[message,setMessage]=useState("");
  const finance=me?.role==="FINANCE"||me?.role==="SUPER_ADMIN";
- const fetchPayments=async()=>{const p=new URLSearchParams({page:String(page)});if(filter)p.set("status",filter);if(search)p.set("q",search);const d=await run("/api/admin/payments?"+p.toString());setPayload(d)};
+ const fetchPayments=async()=>{const p=new URLSearchParams({page:String(page)});if(filter)p.set("status",filter);if(search)p.set("q",search);const d=await run("/api/admin/payments?"+p.toString());setPayload(d);
+   const target=new URLSearchParams(window.location.search).get("invoice");
+   const match=target&&d.records?.find((invoice:Invoice)=>invoice.number===target);
+   if(match)setChosen(match.id);
+ };
+ useEffect(()=>{
+   const invoice=new URLSearchParams(window.location.search).get("invoice");
+   if(invoice){setQuery(invoice);setSearch(invoice);setPage(1)}
+ },[]);
  useEffect(()=>{let alive=true;(async()=>{try{const m=await run("/api/admin/me");if(!alive)return;setMe(m);await fetchPayments()}catch(e){if(alive)setMessage(e instanceof Error?e.message:"Unable to load payments")}finally{if(alive)setLoading(false)}})();return()=>{alive=false}},[filter,search,page]);
  const selected=useMemo(()=>payload.records.find(x=>x.id===chosen)||null,[payload,chosen]);
  const select=(id:string)=>{setChosen(id);setAction("");setAmount("");setReference("");setDate("");setReason("");setConfirmed(false);setMessage("")};
