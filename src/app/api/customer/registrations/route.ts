@@ -1,3 +1,4 @@
+import {enqueueCrm} from "@/lib/crm-sync";
 import {shortCodeFor, shortCodeHash} from "@/lib/pass-code";
 import {NextRequest, NextResponse} from "next/server";
 import {Prisma} from "@prisma/client";
@@ -124,6 +125,7 @@ export async function POST(req: NextRequest) {
           });
         }
         if (approvedVisitor) await tx.notificationOutbox.create({data: {topic: "PASS_READY", dedupeKey: "pass-ready:" + enrollment.id, payload: {enrollmentId: enrollment.id}}});
+        await enqueueCrm(tx, "ENROLLMENT", enrollment.id, "created");
         await tx.notification.create({
           data: {
             audienceRole: "OPERATIONS",
