@@ -44,9 +44,9 @@ export default function AdminPage(){
  {tab==="bookings"&&<><h2>Booth requests</h2><p>All locations remain preferences until organizer approval, finance confirmation and explicit assignment.</p>
  {bookings.map(b=><div key={b.id} className="record"><div><strong>{b.account.profile?.fullName||b.account.email}</strong><p className="micro">{b.requestedAreaSqm} m² · {b.status} · {b.id.slice(0,8)}</p></div><div className="cms-row-actions">
  {b.status==="NEW"&&<button className="cms-small" disabled={busy} onClick={()=>void act(()=>api("/api/admin/booth-requests/"+b.id+"/status","POST",{status:"UNDER_REVIEW",reason:"Received and assigned for operational review"}),"Review started.")}>Start review</button>}
- {b.status==="UNDER_REVIEW"&&<button className="cms-small" disabled={busy} onClick={()=>void act(()=>api("/api/admin/booth-requests/"+b.id+"/status","POST",{status:"OFFERED",offeredAreaSqm:Number(b.requestedAreaSqm),reason:"Provisional quotation prepared pending agreement"}),"Offer recorded.")}>Propose offer</button>}
-{b.status==="OFFERED"&&<span className="micro">Waiting for customer acceptance</span>}
- <button className="cms-small" onClick={()=>chooseInvoice(b.accountId,b.id,"boothRequestId")}>Prepare invoice</button></div></div>)}</>}
+ {b.status==="OFFERED"&&<span className="micro">Waiting for customer acceptance</span>}
+ <a href="/admin/booths" className="button-link cms-small">Open quotation workspace ↗</a>
+ {["ACCEPTED","WAITING_INVOICE","INVOICED"].includes(b.status)&&<button className="cms-small" onClick={()=>chooseInvoice(b.accountId,b.id,"boothRequestId")}>Prepare invoice</button>}</div></div>)}</>}
  {tab==="finance"&&<><h2>Invoice & manual bank transfer</h2><p className="micro">Payments are recorded by Finance in a dedicated, audited status screen. No online checkout.</p><a className="button-link cms-small" href="/admin/payments">Open Payment Management ↗</a><div className="cms-finance-main"><form onSubmit={e=>{e.preventDefault();void act(()=>api("/api/admin/invoices","POST",{accountId:invoiceAccount,[invoiceKind]:invoiceBooking,items:[{description:invoiceTitle,quantity:1,unitPriceMinor:invoiceAmount}],minimumDpMinor:invoiceDP}),"Invoice draft created. Finance must review and issue.")}}>
  <h3>Create draft invoice</h3><label>Customer account ID<input required value={invoiceAccount} onChange={e=>setInvoiceAccount(e.target.value)}/></label>
  <label>{invoiceKind==="enrollmentId"?"Conference enrollment ID":"Booth request ID"}<input required value={invoiceBooking} onChange={e=>setInvoiceBooking(e.target.value)}/></label>
