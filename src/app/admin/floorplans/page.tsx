@@ -110,7 +110,7 @@ export default function FloorplanEditor(){
  <div className="cms-row-actions">
  <button type="button" className="cms-small" disabled={!canEdit||busy} onClick={()=>{addUnit();setDraw(false)}}>+ Add booth unit</button>
  <button className="cms-small" disabled={!canEdit||busy} type="button" aria-pressed={draw} onClick={()=>setDraw(v=>!v)}>{draw?"Select / move mode":"Draw booths on canvas"}</button>
- <button className="cms-small" disabled={!canEdit||busy||units.length===0||!hasUnsaved}
+ <button className="cms-small" disabled={!canEdit||busy||!hasUnsaved}
  onClick={()=>void run(async()=>{await api("/api/admin/floorplans/"+plan.id+"/units","PUT",
  {rowVersion:plan.rowVersion,units:units.map(({id,status,...u})=>u)});await load(plan.id)})}>
  Save {units.length} booth units</button>
