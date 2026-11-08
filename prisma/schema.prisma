@@ -158,6 +158,7 @@ model CustomerProfile {
   consentVersion String
   consentAt DateTime
   updatedAt DateTime @updatedAt
+  notifyChannel String @default("EMAIL")
 }
 model OtpChallenge {
   id String @id @default(uuid())
@@ -590,6 +591,18 @@ model ContentItem {
   updatedAt DateTime @updatedAt
   @@unique([kind,locale,slug])
   @@index([kind,locale,status,sortOrder])
+}
+model WaitlistEntry {
+  id String @id @default(uuid())
+  conferenceId String
+  accountId String
+  status String @default("WAITING")
+  createdAt DateTime @default(now())
+  releasedAt DateTime?
+  releasedBy String?
+  enrollmentId String?
+  @@unique([conferenceId,accountId])
+  @@index([conferenceId,status,createdAt])
 }
 model InternalNote {
   id String @id @default(uuid())

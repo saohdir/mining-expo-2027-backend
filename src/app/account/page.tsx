@@ -1,7 +1,8 @@
 "use client";
 import {useCallback,useEffect,useState} from "react";
 import {InvoicePanel,type CustomerInvoice} from "./InvoicePanel";
-import {AccountSecurity} from "./AccountSecurity";
+import {AccountSecurity,AttendanceHistory} from "./AccountSecurity";
+import {ActionNeeded} from "./ActionNeeded";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
 type AccountData={phone?:string|null;id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
@@ -47,12 +48,12 @@ export default function AccountPage(){
     <header className="portal-heading"><p className="eyebrow">ACCOUNT DASHBOARD / IMDX 2027</p><h1>Welcome, <em>{me.profile?.fullName||"participant"}</em></h1><p>Manage your exhibition visit, conference booking and booth requests from one account.</p></header>
     <div className="tabline portal-tabs">{[["overview","Overview"],["visit","Exhibition visitor"],["conference","Conferences"],["booth","My booth"],["payments","Invoices & payments"],["profile","Profile"]].map(([id,title])=><button key={id} className={tab===id?"chosen":""} onClick={()=>setTab(id)}>{title}</button>)}</div>
     {message&&<div className="notice" role="status">{message}</div>}
-    {tab==="overview"&&<section><h2>Event experience</h2><p><strong>{event?.title||"IMDX 2027"}</strong> · {event?.venue||"JIEXPO Kemayoran, Jakarta"} · 26–28 May 2027</p><div className="dashboard-grid">
+    {tab==="overview"&&<section><ActionNeeded me={me} invoices={invoices?.invoices||[]} go={t=>setTab(t as typeof tab)}/><h2>Event experience</h2><p><strong>{event?.title||"IMDX 2027"}</strong> · {event?.venue||"JIEXPO Kemayoran, Jakarta"} · 26–28 May 2027</p><div className="dashboard-grid">
       <article><h3>Visit exhibition</h3><p>Get your personal entry QR after registration is confirmed.</p><button onClick={()=>setTab("visit")}>Register / view pass ↗</button></article>
       <article><h3>Join conference</h3><p>Conference registrations use manual invoices, not payment gateways.</p><button onClick={()=>setTab("conference")}>Explore conferences ↗</button></article>
       <article><h3>Reserve booth</h3><p>Choose preferred booth units; final allocation requires organizer approval.</p><button onClick={()=>setTab("booth")}>View floorplan ↗</button></article>
       </div></section>}
-    {tab==="visit"&&<section><h2>Exhibition visitor</h2><p>Each visitor has a unique QR pass. At the event, the organizer checks admission in the secured CMS.</p>
+    {tab==="visit"&&<section><AttendanceHistory/><h2>Exhibition visitor</h2><p>Each visitor has a unique QR pass. At the event, the organizer checks admission in the secured CMS.</p>
       {me.enrollments.filter(x=>x.type==="VISITOR").map(r=><div className="record" key={r.id}><strong>Visitor registration</strong><span className="status">{r.status}</span></div>)}
       {me.enrollments.every(x=>x.type!=="VISITOR")&&<button disabled={busy||!event} onClick={()=>void doAction(()=>send("/api/customer/registrations",{eventCode:event?.code,kind:"VISITOR",consent:true}),"Registration submitted.")}>Register as exhibition visitor</button>}
       {passes?.passes.length?passes.passes.map(p=><figure key={p.passId} className="pass printable-pass"><img width={220} height={220} src={p.qrDataUrl} alt={"Personal entry QR pass, "+p.entitlement}/><figcaption>Private pass · {p.entitlement} · Do not share</figcaption><p className="micro">Manual code for gate staff: <strong style={{letterSpacing:"0.12em"}}>{p.manualCode}</strong></p><div className="cms-row-actions no-print"><a href={p.qrDataUrl} download={"imdx-pass-"+p.passId.slice(0,8)+".png"}>Download QR</a><button type="button" onClick={()=>window.print()}>Print pass</button></div></figure>):<p className="micro">QR will appear after your visitor registration is eligible and confirmed.</p>}
@@ -65,12 +66,13 @@ export default function AccountPage(){
         :["SUBMITTED","PENDING_REVIEW"].includes(x.status)?<button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/manual-payment-request",{enrollmentId:x.id}),"Finance has been notified of your invoice request.")}>Request bank-transfer invoice</button>
         :<span className="micro">No invoice action available for this status</span>}</div>)}
       {event?.conferences?.length?<form onSubmit={e=>{e.preventDefault();void doAction(()=>send("/api/customer/registrations",{eventCode:event.code,kind:"CONFERENCE",conferenceId:conference,consent:true}),"Conference request submitted for review.")}}>
-       <label>Select conference<select required value={conference} onChange={e=>setConference(e.target.value)}><option value="">Choose an available conference</option>{event.conferences.map(c=><option key={c.id} value={c.id} disabled={c.registrationState!=="AVAILABLE"}>{c.title} · {c.registrationState==="FULL"?"Fully booked":c.registrationState==="NOT_READY"?"Registration not yet available":c.remainingSeats+" seats available"}</option>)}</select></label>
+       <label>Select conference<select required value={conference} onChange={e=>setConference(e.target.value)}><option value="">Choose an available conference</option>{event.conferences.map(c=><option key={c.id} value={c.id} disabled={c.registrationState==="NOT_READY"}>{c.title} · {c.registrationState==="FULL"?"Fully booked":c.registrationState==="NOT_READY"?"Registration not yet available":c.remainingSeats+" seats available"}</option>)}</select></label>
        {selectedConference&&<div className="conference-availability" role="status"><strong>{selectedConference.feeMinor===null?"Fee to be confirmed":selectedConference.feeMinor==="0"?"Free programme":money(selectedConference.feeMinor)}</strong>
         <span>{selectedConference.registrationState==="AVAILABLE"?selectedConference.remainingSeats+" seats currently available":selectedConference.registrationState==="FULL"?"Fully booked":"Registration pending fee and capacity approval"}</span>
         <small>{selectedConference.startsAt?new Date(selectedConference.startsAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB":"Schedule TBA"}</small>
         <small>Seat counts are indicative and checked again when you submit. Payment is only confirmed by Finance.</small></div>}
-       <button disabled={busy||!selectedConference||selectedConference.registrationState!=="AVAILABLE"}>Submit conference registration</button></form>:<p>Conference registration has not been published by the organizer yet.</p>}
+       <button disabled={busy||!selectedConference||selectedConference.registrationState!=="AVAILABLE"}>Submit conference registration</button>
+       {selectedConference?.registrationState==="FULL"&&<button type="button" className="ghost" disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/waitlist",{conferenceId:selectedConference.id}),"You are on the waitlist. This is not a booking; the organizer will contact you if a seat is released.")}>Join waitlist</button>}</form>:<p>Conference registration has not been published by the organizer yet.</p>}
     </section>}
     {tab==="booth"&&<section><h2>Exhibitor booth request</h2><p>Choose preferred units on the published floorplan. Your selections are <strong>not a reservation</strong> until operations approve and assign them.</p>
      {me.requests.map(x=>{const offer=x.offers[0];return <article className="booth-customer-card" key={x.id}>
@@ -129,7 +131,7 @@ export default function AccountPage(){
      </section>}
     {tab==="profile"&&<section><h2>My profile</h2><p>Verified email: <strong>{me.email||"—"}</strong>{me.phone?<> · Verified phone: <strong>{me.phone}</strong></>:null}</p><p className="micro">Your name is matched at the gate. If you change it after a pass was issued, ask the organizer to reissue your pass.</p><form key={me.id} onSubmit={e=>{e.preventDefault();const form=new FormData(e.currentTarget);void doAction(()=>request("/api/customer/me",{method:"PATCH",body:JSON.stringify(Object.fromEntries(form))}),"Profile saved.")}}>
       <div className="form-grid"><label>Full name<input name="fullName" required defaultValue={me.profile?.fullName}/></label><label>Company<input name="organization" defaultValue={me.profile?.organization||""}/></label>
-      <label>Job title<input name="jobTitle" defaultValue={me.profile?.jobTitle||""}/></label><label>Country<input name="country" defaultValue={me.profile?.country||"Indonesia"}/></label></div>
+      <label>Job title<input name="jobTitle" defaultValue={me.profile?.jobTitle||""}/></label><label>Country<input name="country" defaultValue={me.profile?.country||"Indonesia"}/></label><label>Business updates by<select name="notifyChannel" defaultValue={(me.profile as {notifyChannel?:string}|null)?.notifyChannel||"EMAIL"}><option value="EMAIL">Email (default)</option><option value="WHATSAPP" disabled={!me.phone}>WhatsApp (verified mobile required)</option></select></label></div>
       <button disabled={busy}>Save profile</button></form><AccountSecurity smsAvailable={smsAvailable} onChanged={()=>void reload()}/></section>}
     <div className="portal-footer-actions"><button className="ghost" onClick={()=>void doAction(()=>request("/api/auth/logout",{method:"POST"}),"Signed out.")}>Sign out</button></div>
   </>}

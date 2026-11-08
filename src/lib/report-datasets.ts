@@ -9,16 +9,16 @@ export type Range = {from?: Date; to?: Date};
 export type Dataset = {sheet: string; columns: string[]; rows: (string | number)[][]};
 const inRange = (r: Range) => (r.from || r.to ? {...(r.from ? {gte: r.from} : {}), ...(r.to ? {lt: r.to} : {})} : undefined);
 const iso = (d?: Date | null) => d ? d.toISOString() : "";
-const LIMIT = 2000;
-const guard = (n: number) => { if (n > LIMIT) throw new HttpError(413, "EXPORT_TOO_LARGE", "More than 2,000 records: narrow the period or filters."); };
+export const SYNC_LIMIT = 2000, ASYNC_LIMIT = 100000;
+const guard = (n: number, limit: number) => { if (n > limit) throw new HttpError(413, "EXPORT_TOO_LARGE", `More than ${limit.toLocaleString("en")} records: use a background export or narrow the filters.`); };
 
-export async function registrations(role: AdminRole, basis: string, r: Range, f: {type?: string; status?: string; q?: string}) {
+export async function registrations(role: AdminRole, basis: string, r: Range, f: {type?: string; status?: string; q?: string}, limit = SYNC_LIMIT) {
   const range = inRange(r);
   const dateFilter: Prisma.EnrollmentWhereInput = !range ? {} : basis === "confirmed" ? {confirmedAt: range}
     : basis === "checkedIn" ? {passes: {some: {admissions: {some: {admittedAt: range}}}}} : {createdAt: range};
   const where: Prisma.EnrollmentWhereInput = {...dateFilter, ...(f.type ? {type: f.type as never} : {}), ...(f.status ? {status: f.status as never} : {}),
     ...(f.q ? {OR: [{id: {startsWith: f.q}}, {account: {email: {contains: f.q, mode: "insensitive"}}}, {account: {profile: {fullName: {contains: f.q, mode: "insensitive"}}}}]} : {})};
-  guard(await db.enrollment.count({where}));
+  guard(await db.enrollment.count({where}), limit);
   const rec = await db.enrollment.findMany({where, orderBy: {createdAt: "desc"}, include: {account: {select: {email: true, profile: {select: {fullName: true, organization: true}}}}, conference: {select: {title: true}},
     passes: {select: {admissions: {select: {admittedAt: true}, orderBy: {admittedAt: "asc"}, take: 1}}}}});
   const contact = ["SUPER_ADMIN", "SALES", "FINANCE", "OPERATIONS"].includes(role);
@@ -27,12 +27,12 @@ export async function registrations(role: AdminRole, basis: string, r: Range, f:
       iso(x.createdAt), iso(x.confirmedAt), iso(x.passes.flatMap(p => p.admissions)[0]?.admittedAt)])} as Dataset;
 }
 
-export async function booths(role: AdminRole, basis: string, r: Range, f: {status?: string; hall?: string; zone?: string; q?: string}) {
+export async function booths(role: AdminRole, basis: string, r: Range, f: {status?: string; hall?: string; zone?: string; q?: string}, limit = SYNC_LIMIT) {
   const range = inRange(r);
   const where: Prisma.BoothRequestWhereInput = {...(range ? (basis === "assigned" ? {assignments: {some: {assignedAt: range}}} : {createdAt: range}) : {}),
     ...(f.status ? {status: f.status as never} : {}), ...(f.q ? {OR: [{id: {startsWith: f.q}}, {account: {email: {contains: f.q, mode: "insensitive"}}}]} : {}),
     ...(f.hall || f.zone ? {assignments: {some: {active: true, boothUnit: {...(f.hall ? {hall: f.hall} : {}), ...(f.zone ? {zone: f.zone} : {})}}}} : {})};
-  guard(await db.boothRequest.count({where}));
+  guard(await db.boothRequest.count({where}), limit);
   const rec = await db.boothRequest.findMany({where, orderBy: {createdAt: "desc"}, include: {account: {select: {email: true, profile: {select: {fullName: true}}}},
     assignments: {where: {active: true}, include: {boothUnit: {select: {code: true, hall: true, zone: true, areaSqm: true}}}},
     offers: {orderBy: {revision: "desc"}, take: 1}, invoices: {include: {transfers: true, adjustments: true}}}});
@@ -50,13 +50,13 @@ export async function booths(role: AdminRole, basis: string, r: Range, f: {statu
     })} as Dataset;
 }
 
-export async function finance(role: AdminRole, basis: string, r: Range, f: {status?: string; q?: string}) {
+export async function finance(role: AdminRole, basis: string, r: Range, f: {status?: string; q?: string}, limit = SYNC_LIMIT) {
   if (!["SUPER_ADMIN", "FINANCE"].includes(role)) throw new HttpError(403, "FORBIDDEN", "Finance exports are restricted to Finance.");
   const range = inRange(r);
   const where: Prisma.InvoiceWhereInput = {status: f.status ? (f.status as never) : {not: "DRAFT"},
     ...(range ? (basis === "paid" ? {transfers: {some: {status: "VERIFIED", verifiedAt: range}}} : basis === "issued" ? {issuedAt: range} : {createdAt: range}) : {}),
     ...(f.q ? {OR: [{number: {contains: f.q, mode: "insensitive"}}, {account: {email: {contains: f.q, mode: "insensitive"}}}]} : {})};
-  guard(await db.invoice.count({where}));
+  guard(await db.invoice.count({where}), limit);
   const rec = await db.invoice.findMany({where, orderBy: {createdAt: "desc"}, include: {account: {select: {email: true, profile: {select: {fullName: true, organization: true}}}}, transfers: true, adjustments: true}});
   return {sheet: "Finance", columns: ["Invoice", "Status", "Customer", "Organization", "Email", "Total IDR", "Verified receipts IDR", "Reversals IDR", "Refunds IDR", "Outstanding IDR", "Issued UTC", "Last verified UTC"],
     rows: rec.map(i => { const t = ledgerTotals(i.totalMinor, i.transfers, i.adjustments); const last = i.transfers.filter(x => x.verifiedAt && x.status === "VERIFIED").map(x => x.verifiedAt!).sort((a, b) => +b - +a)[0];

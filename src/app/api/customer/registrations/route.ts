@@ -123,6 +123,7 @@ export async function POST(req: NextRequest) {
             }
           });
         }
+        if (approvedVisitor) await tx.notificationOutbox.create({data: {topic: "PASS_READY", dedupeKey: "pass-ready:" + enrollment.id, payload: {enrollmentId: enrollment.id}}});
         await tx.notification.create({
           data: {
             audienceRole: "OPERATIONS",

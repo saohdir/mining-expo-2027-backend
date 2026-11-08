@@ -46,7 +46,8 @@ test("Notification access no longer exposes Super Admin inbox to every role",()=
 });
 test("Registry and exports share server filters including search and status",()=>{
   const registry=read("src/app/admin/registrations/page.tsx");
-  const exporter=read("src/app/api/admin/reports/export/route.ts");
+  // Export filters/escaping live in the shared export library used by sync and background exports.
+  const exporter=read("src/app/api/admin/reports/export/route.ts")+read("src/lib/export-build.ts")+read("src/lib/report-datasets.ts");
   for(const field of ["type","status","q","from","to"]) {
     assert.ok(registry.includes('p.set("'+field+'"')||registry.includes('p.set("'+field+'"'));
     assert.ok(exporter.includes(field));

@@ -73,7 +73,7 @@ test("floorplan: background upload, clone as new draft, duplicate codes refused"
   assert.equal(media.status, 200, "uploaded media served");
   const corrupt = Buffer.concat([png.subarray(0, 40), Buffer.alloc(40, 7)]);
   ok(await upload(corrupt, "image/png"), 400, "corrupt PNG is a client error, not 500");
-  ok(await upload(Buffer.from("<svg xmlns='http://www.w3.org/2000/svg'/>"), "image/svg+xml"), 415, "SVG refused");
+  ok(await upload(Buffer.from("<svg xmlns='http://www.w3.org/2000/svg' onload='x()'/>"), "image/svg+xml"), 415, "unsafe SVG refused");
   const fresh = await R.OPERATIONS.get(`/api/admin/floorplans/${S.plan.id}`);
   const rv = (fresh.body.plan ?? fresh.body).rowVersion;
   const units = [{code: "R1" + run.slice(-3), category: "Standard", x: 10, y: 10, w: 80, h: 50, areaSqm: 9}, {code: "R2" + run.slice(-3), category: "Premium", x: 120, y: 10, w: 80, h: 50, areaSqm: 12}];

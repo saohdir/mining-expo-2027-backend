@@ -1,5 +1,6 @@
 import {expireBoothHolds} from "../src/lib/booth-hold-expiry";
 import {runWorkerCycle} from "../src/lib/worker-cycle";
+import {processExportJobs} from "../src/lib/export-jobs";
 import {PrismaClient} from "@prisma/client";
 import nodemailer from "nodemailer";
 const db=new PrismaClient();
@@ -47,6 +48,8 @@ async function processJob(topic:string,p:Payload){
   return deliver(pass.account.email,topic==="PASS_REVOKED"?"IMDX — event pass revoked":"IMDX — new event pass issued",(topic==="PASS_REVOKED"?"Your IMDX 2027 event pass was revoked by the organizer. Previously saved QR codes no longer work.":"A replacement IMDX 2027 event pass is ready. Earlier QR codes no longer work.")+" Sign in to view details: "+portal+"/account");}
  if(topic==="CONTACT_CHANGED"){const to=(p as Payload&{to?:string}).to;if(!to)throw Error("Missing recipient");return deliver(to,"IMDX — your account email was changed","The sign-in email for your IMDX 2027 account was changed and other devices were signed out. If this was not you, contact the organizer immediately.");}
  if(topic==="LEAD_RECEIVED"){if(!p.id)throw Error("Missing lead id");return deliver(toAdmin,"IMDX 2027 — new website enquiry","A new contact/partnership enquiry is waiting in the CMS lead inbox: "+portal+"/admin/leads");}
+ if(topic==="PASS_READY"){const id=(p as Payload&{enrollmentId?:string}).enrollmentId;const r=id?await db.enrollment.findUnique({where:{id},include:{account:true}}):null;if(!r?.account.email)throw Error("Missing registration email");
+  return deliver(r.account.email,"IMDX 2027 — your event pass is ready","Your personal entry pass is ready. For your security the QR code is only shown after you sign in: "+portal+"/account");}
  throw Error("Unhandled topic: "+topic);
 }
 async function drain(){
@@ -61,6 +64,7 @@ async function drain(){
 // must not stop outbox email delivery, and vice versa.
 async function main(){console.info("IMDX outbox worker launched");while(true){await runWorkerCycle([
  {name:"booth-hold-expiry",run:()=>expireBoothHolds(db)},
- {name:"outbox-drain",run:()=>drain()}
-]);await delay(20000)}}
+ {name:"outbox-drain",run:()=>drain()},
+ {name:"export-jobs",run:()=>processExportJobs(db)}
+]);await delay(Number(process.env.WORKER_INTERVAL_MS||20000))}}
 main().catch(e=>{console.error(e);process.exit(1)}).finally(()=>db.$disconnect());

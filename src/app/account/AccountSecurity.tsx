@@ -32,3 +32,11 @@ export function AccountSecurity({smsAvailable, onChanged}: {smsAvailable: boolea
     </section>
   </>;
 }
+
+/** FR-078: own attendance history in WIB, no staff details. Hidden when empty. */
+export function AttendanceHistory() {
+  const [rows, setRows] = useState<{day: string; zone: string; at: string; programme: string | null}[]>([]);
+  useEffect(() => { fetch("/api/customer/attendance", {cache: "no-store"}).then(r => r.ok ? r.json() : {attendance: []}).then(b => setRows(b.attendance || [])).catch(() => {}); }, []);
+  if (!rows.length) return null;
+  return <aside aria-labelledby="att-h" className="record"><div><h3 id="att-h">Your attendance</h3><ul className="micro">{rows.map((r, i) => <li key={i}>{wib(r.at)} — {r.zone === "EXPO_ENTRY" ? "Exhibition entry" : r.zone}{r.programme ? " · " + r.programme : ""}</li>)}</ul></div></aside>;
+}

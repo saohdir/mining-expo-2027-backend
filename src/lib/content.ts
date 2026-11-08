@@ -1,5 +1,5 @@
 import {z} from "zod";
-export const KINDS = ["PARTNER", "ORGANIZER", "DOWNLOAD", "NEWS", "SCOPE", "CONTACT", "PAGE_BLOCK"] as const;
+export const KINDS = ["PARTNER", "ORGANIZER", "DOWNLOAD", "NEWS", "SCOPE", "CONTACT", "PAGE_BLOCK", "GALLERY"] as const;
 const safeUrl = z.string().max(500).refine(v => /^\/[A-Za-z0-9/_\-.%]+$/.test(v) || /^https:\/\/[^\s"'<>]+$/.test(v), "Use a site path or https URL");
 /** FR-034/035/037/038 content item; rights metadata required before publishing media (NFR-12). */
 export const contentInput = z.object({
