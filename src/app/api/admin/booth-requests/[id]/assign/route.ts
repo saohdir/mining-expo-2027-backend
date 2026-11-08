@@ -6,6 +6,7 @@ import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 import {financeTotals} from "@/lib/policy";
 import {uniqueOfferedIds} from "@/lib/booth-offers";
+import {holdsMatchBooking} from "@/lib/floorplan-safety";
 
 const schema = z.object({
   reason: z.string().min(8).max(400),
@@ -64,8 +65,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         select: {id: true, boothUnitId: true, boothRequestId: true, expiresAt: true}
       });
       const usingHolds = activeHolds.length > 0;
-      if (usingHolds && (activeHolds.length !== ids.length ||
-          activeHolds.some(h => h.boothRequestId !== id || h.expiresAt <= new Date()))) {
+      if (usingHolds && !holdsMatchBooking(activeHolds, ids, id, new Date())) {
         throw new HttpError(409, "HOLD_EXPIRED_OR_MISMATCHED",
           "Quoted units have an expired or mismatched hold. Release/reconcile before allocating.");
       }
