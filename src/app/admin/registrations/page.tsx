@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import {useEffect,useState} from "react";
-import {useSearchParams} from "next/navigation";
 import {useCmsSession,CmsIcon} from "../components/CmsShell";
 import CmsStatus from "../components/CmsStatus";
 
@@ -13,9 +12,9 @@ const when=(value:string)=>new Date(value).toLocaleString("en-GB",{timeZone:"Asi
 
 export default function RegistrationsPage(){
   const {actor}=useCmsSession();
-  const params=useSearchParams();
-  const [q,setQ]=useState(params.get("q")||"");
-  const [search,setSearch]=useState(params.get("q")||"");
+  const [q,setQ]=useState("");
+  const [search,setSearch]=useState("");
+  useEffect(()=>{const value=new URLSearchParams(window.location.search).get("q")||"";setQ(value);setSearch(value)},[]);
   const [type,setType]=useState(""),[status,setStatus]=useState("");
   const [from,setFrom]=useState(""),[to,setTo]=useState("");
   const [page,setPage]=useState(1);
