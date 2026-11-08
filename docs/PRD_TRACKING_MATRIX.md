@@ -38,7 +38,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-005 | P0 | PARTIAL | CMS partners/organizers with role + rights gate rendered on /partners when published (E2E + BR) | logos/approvals content | D-12 | P0 (content) |
 | FR-006 | P0 | VERIFIED | `/conferences` + `/conferences/[slug]` (published only; date/fee/seats shown as "to be announced" until approved; description from CMS; JSON-LD; register link preselects programme) (E2E) | approved programme copy (D-12) | — | — |
 | FR-007 | P0 | VERIFIED | exhibitor page → published floorplan + account request; no unapproved prices | — | — | — |
-| FR-008 | P0 | VERIFIED | venue page names JIEXPO Kemayoran with an external Google Maps link (frontend) | travel guidance text (D-12) | — | — |
+| FR-008 | P0 | VERIFIED | venue page names JIEXPO Kemayoran and links to Google Maps (checked in the-venue/index.html) | travel guidance text (D-12) | — | — |
 | FR-009 | P0 | PARTIAL | CMS downloads (label, type, size, updated) rendered on /exhibitors (E2E + BR) | approved files | D-12 | P0 (content) |
 | FR-010 | P0 | VERIFIED | contact form → lead inbox + notification (BR + E2E) | contact details content | — | — |
 | FR-011 | P0 | PARTIAL | titles/descriptions per page **and per locale** via Pages & layout SEO, canonical, OpenGraph, JSON-LD (event + conferences), sitemap/robots | separate /id URLs + hreflang need approved ID copy; canonical domain at go-live (D-14) | D-12 | P0 (content) |
