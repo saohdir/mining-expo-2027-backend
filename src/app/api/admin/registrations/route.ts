@@ -36,6 +36,6 @@ export async function GET(req:NextRequest){try{
  })]);
  await db.auditLog.create({data:{adminId:actor.id,action:"REGISTRATION_LIST_VIEW",resourceType:"Report",resourceId:"registrations",afterState:{page,limit,filters:Object.fromEntries(p.entries())}}});
  return NextResponse.json({page,limit,total,rows:rows.map(x=>({id:x.id,type:x.type,status:x.status,createdAt:x.createdAt,confirmedAt:x.confirmedAt,
- customerName:x.account.profile?.fullName??"",email:x.account.email,phone:x.account.phone,organization:x.account.profile?.organization,
+ accountId:x.accountId,customerName:x.account.profile?.fullName??"",email:x.account.email,phone:x.account.phone,organization:x.account.profile?.organization,
  conference:x.conference?.title??null}))},{headers:{"Cache-Control":"private,no-store"}});
  }catch(e){return failure(e)}}
