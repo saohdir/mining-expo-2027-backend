@@ -45,7 +45,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-017 | P1 | NOT | — | partner packages + lead CTA | leads | P1 |
 | FR-018 | P1 | NOT | — | schedule listing w/ date filter | D-02 | P1 |
 | FR-024 | P0 | NOT | — | contact/partnership lead form leadType CONTACT/PARTNER | — | P0 |
-| FR-027 | P0 | PARTIAL | OTP rate limit | honeypot + rate limit on public forms → 429 | — | P0 |
+| FR-027 | P0 | PARTIAL | OTP: honeypot + per-destination/IP rate limit (E2E) | public contact/lead form (Slice A) | — | P0 |
 | FR-030 | P1 | NOT | — | UTM capture | — | P1 |
 | FR-034 | P0 | PARTIAL | `PATCH /api/admin/events` publish flags | event settings/pages/content blocks CRUD | — | P0 |
 | FR-035 | P0 | PARTIAL | conferences CRUD | partners, exhibit scopes, downloads CRUD | — | P0 |
@@ -63,31 +63,31 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-025 | P0 | UNVERIFIED | Zod `.strict()` on all routes, `failure()` field issues | per-field UI error E2E | — | P1 |
 | FR-026 | P0 | VERIFIED | consent literal(true) on booth/registration; E2E | — | — | — |
 | FR-043 | P0 | VERIFIED | E2E anon booth request 401; all customer routes `customer()` | — | — | — |
-| FR-068 | P0 | PARTIAL | email OTP E2E; SMS via Twilio flag | SMS untested (D-04); fallback policy | D-04 | P0 |
+| FR-068 | P0 | PARTIAL | email OTP E2E (single-use, expiry, attempts, rate limits); SMS via Twilio flag | SMS path untested pending provider | D-04 | P0 (BLOCKED) |
 | FR-069 | P0 | VERIFIED | `/api/customer/me` owner-only; E2E foreign PDF/accept 403/404 | — | — | — |
 | FR-070 | P0 | PARTIAL | profile fullName/org/job/country | phone in profile; snapshot per booking exists | — | P1 |
 | FR-114 | P0 | VERIFIED | E2E: one account → visitor + conference + booth | — | — | — |
-| FR-115 | P0 | PARTIAL | OTP hashed, 5 min, 5 attempts, 5/h per destination | provider enable/disable in CMS; IP throttle; login anti-enumeration ok | settings | P0 |
-| FR-116 | P0 | NOT | — | email/phone change with OTP to new target + session revoke (AT-086) | — | P0 |
+| FR-115 | P0 | PARTIAL | OTP hashed, 5 min, 5 attempts, per-destination + per-IP throttle (configurable), anti-enumeration decoy (E2E) | enable/disable provider from CMS settings (Slice H) | — | P1 |
+| FR-116 | P0 | VERIFIED | contact change: recent auth ≤15 min, OTP to NEW target, other sessions revoked, old email alerted (E2E AT-086) | trusted recovery when channel lost (manual via organizer) | D-04 | — |
 | FR-117 | P0 | UNVERIFIED | account/page.tsx action cards | E2E of hub | — | P1 |
-| FR-118 | P0 | PARTIAL | profile + enrollment snapshots | profile edit history | — | P0 |
+| FR-118 | P0 | VERIFIED | profile edits audited before/after; enrollment snapshots; customer timeline API (E2E) | — | — | — |
 | FR-119 | P0 | UNVERIFIED | account/page.tsx tabs | action-needed banners verify | — | P1 |
 | FR-150 | P0 | PARTIAL | consent version/time stored | retention/purge, data request intake | D-13 | BLOCKED (policy) |
 | FR-152 | P0 | PARTIAL | channel choice at OTP | notification preference | D-05 | P1 |
-| AT-057 | — | NOT | — | post-login return URL restores selection | — | P0 |
+| AT-057 | — | VERIFIED | E2E safe return path + account intent restore (selected booth preselected after OTP) | — | — | — |
 
 ## C. Visitor & conference registration (FR-022/023/029/042/054/071–073/133/155)
 
 | FR | P | Status | Evidence | Gap | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-022 | P0 | VERIFIED | E2E cms-regression visitor → CONFIRMED + pass | — | — | — |
-| FR-023 | P0 | PARTIAL | conference registration, capacity, fee TBA refused (E2E) | paid conference → entitlement only after full payment (AT-066) | — | P0 |
+| FR-023 | P0 | VERIFIED | E2E auth-account: paid conference stays SUBMITTED on DP, CONFIRMED + passes on full payment, suspended on reversal (`CONFERENCE_ACCESS_ON_DP` opt-in) | — | D-02 | — |
 | FR-029 | P0 | UNVERIFIED | registration returns id/status | reference display E2E | — | P1 |
 | FR-042 | P0 | PARTIAL | feeMinor null = TBA; no gateway | admission mode per package | D-02 | P1 |
 | FR-054 | P0 | VERIFIED | visitor free: no invoice/transfer created (E2E) | — | — | — |
 | FR-071 | P0 | VERIFIED | duplicate per user/program 409 (E2E), serializable capacity | — | — | — |
-| FR-072 | P0 | PARTIAL | EventPass.entitlement EXPO_ENTRY | CONFERENCE_SESSION entitlement on paid conference | — | P0 |
-| FR-073 | P0 | PARTIAL | visitor pass at confirm | conference pass blocked until full payment by default | — | P0 |
+| FR-072 | P0 | VERIFIED | confirmed conference → CONFERENCE pass + EXPO_ENTRY if none (E2E) | per-session zones (FR-157, P1) | — | — |
+| FR-073 | P0 | VERIFIED | no conference pass until full payment by default; DP does not grant (E2E) | — | D-08/D-09 | — |
 | FR-133 | P0 | PARTIAL | `/api/public/events` | snapshot + alert on schedule change | — | P1 |
 | FR-155 | P1 | NOT | — | waitlist / reservation expiry | — | P1 |
 
@@ -105,7 +105,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-063 | P0 | VERIFIED | E2E request stored + outbox BOOTH_REQUEST_RECEIVED | — | — | — |
 | FR-064 | P0 | VERIFIED | E2E status/offer/hold/assign independent + audit | — | — | — |
 | FR-065 | P0 | VERIFIED | E2E invoice must equal accepted quote | revision/void flow → FR-131 | — | — |
-| FR-066 | P0 | PARTIAL | duplicate units 400; registration dedupe | idempotency key for identical booth retry | — | P0 |
+| FR-066 | P0 | VERIFIED | identical booth retry within 10 min returns same request (E2E); duplicate units 400; registrations dedupe | email acknowledgement includes reference (outbox) | — | — |
 | FR-067 | P0 | PARTIAL | `/api/admin/reports/export` | booth-specific filters (zone, m², payment, assignment) | — | P0 |
 | FR-099 | P0 | VERIFIED | E2E assign requires reason; payment cannot assign | — | — | — |
 | FR-100 | P0 | VERIFIED | DB partial unique index (migration #3) + E2E | — | — | — |
@@ -117,7 +117,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-140 | P0 | VERIFIED | snapshot + notification (E2E) | — | — | — |
 | FR-141 | P0 | VERIFIED | E2E preference never reserves; revised offer accept | — | — | — |
 | FR-142 | P0 | VERIFIED | E2E quote/hold/assign | — | — | — |
-| FR-143 | P0 | PARTIAL | account booth card | change timeline | FR-148 | P0 |
+| FR-143 | P0 | VERIFIED | booth card requested/offered/assigned/invoice + timeline (`/api/customer/timeline`) | — | — | — |
 | FR-145 | P0 | VERIFIED | E2E statuses, partial unique, rowVersion 409 | — | — | — |
 
 ## E. Floorplan (FR-090–098, 104–113, 144)
@@ -158,7 +158,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-051 | P0 | VERIFIED | E2E portal reflects server state | — | — | — |
 | FR-056 | P0 | VERIFIED | E2E: cancel after DP → REFUND_PENDING; REFUND adjustment with payout reference → REFUNDED | refund eligibility policy | D-03 | — |
 | FR-057 | P0 | VERIFIED | `ENABLE_INVOICES` + bank env gate; no PSP | — | — | — |
-| FR-123 | P0 | UNVERIFIED | `/api/customer/manual-payment-request` + outbox | E2E | — | P0 |
+| FR-123 | P0 | VERIFIED | manual payment request persisted + CMS notification + outbox, idempotent (E2E AT-062) | — | — | — |
 | FR-124 | P0 | VERIFIED | E2E notifications list + bulk read role-scoped | overdue alerts | — | — |
 | FR-125 | P0 | PARTIAL | items, DP, dueAt, PDF | tax lines, invoice revision chain | D-01 | P1 |
 | FR-126 | P0 | VERIFIED | `send` route + InvoiceDelivery + worker SENT/FAILED; ledger API deliveries | Business API (P2) | — | — |
@@ -179,7 +179,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-074 | P0 | VERIFIED | random token, hash lookup, AES-GCM sealed (code + E2E) | — | — | — |
 | FR-075 | P0 | VERIFIED | E2E admission: reissue → old code REVOKED, new pass active; validity/entitlement/revocation fields | — | — | — |
 | FR-076 | P0 | VERIFIED | passes API: QR + short code XXXXX-XXXXX (HMAC, hashed); account Download QR + print CSS; E2E scan by short code | browser print visual check | — | — |
-| FR-077 | P0 | PARTIAL | E2E: invoice cancel with cancelBooking revokes passes + enrollment CANCELLED; scan rejects REVOKED | booth allocations flagged to Operations (manual release) | — | P1 |
+| FR-077 | P0 | VERIFIED | invoice cancel revokes registration passes; reversal of full payment suspends conference access + revokes passes (E2E) | booth allocations flagged to Operations for explicit release | — | — |
 | FR-078 | P1 | NOT | — | attendance history | — | P1 |
 | FR-079 | P1 | NOT | — | secure email link | — | P1 |
 | FR-080 | P0 | VERIFIED | `/admin/check-in/scanner` alias; E2E anon scan 401 | real device camera test (UAT) | — | — |
@@ -220,6 +220,12 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-146 | P0 | PARTIAL | outbox topics | booking confirmed/cancelled, pass revoked emails | — | P0 |
 | FR-149 | P0 | PARTIAL | dashboard KPIs | period presets + unique counts | — | P0 |
 
+| AT-058 | — | VERIFIED | E2E one account visitor + conference (+ booth in business-flow) | — | — | — |
+| AT-059 | — | VERIFIED | E2E single-use hashed OTP | — | — | — |
+| AT-061 | — | VERIFIED | E2E brute force, reuse, rate limit, no enumeration | — | — | — |
+| AT-062 | — | VERIFIED | E2E auth-account | — | — | — |
+| AT-066 | — | VERIFIED | E2E auth-account | — | — | — |
+| AT-086 | — | VERIFIED | E2E auth-account | — | — | — |
 | AT-063 | — | VERIFIED | E2E finance-controls (delivery history) | — | — | — |
 | AT-064 | — | VERIFIED | E2E finance-controls | — | — | — |
 | AT-087 | — | VERIFIED | E2E finance-controls | — | — | — |
@@ -241,3 +247,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - Slice F (finance controls): FR-047/056/126/128/130/131/132, AT-063/064/069/087 → VERIFIED. Migration `20261109010000_finance_controls` (additive).
 - Slice G (admission): FR-075/076/080/081/085/086/087/134/136/137, AT-075/076 → VERIFIED. Migration `20261109020000_admission_controls`. **Operational note:** after deploy, Operations must create gates and assign CHECKIN_STAFF before scanning.
 - Slice E (floorplan): FR-015/092/094–098/101/103–107/109/111/112/144, AT-081/082/091/092 → VERIFIED; FR-091/093 PARTIAL. Migration `20261109030000_floorplan_editor`. Nginx routes `/floorplan` to the app.
+- Slice B/C (account & conference): FR-023/066/072/073/077/116/118/123/143, AT-057/058/059/061/062/066/086 → VERIFIED. Migration `20261109040000_account_security`. New env: `OTP_IP_LIMIT_PER_HOUR` (60), `OTP_DESTINATION_LIMIT_PER_HOUR` (5), `CONFERENCE_ACCESS_ON_DP` (false).

@@ -170,7 +170,11 @@ model OtpChallenge {
   expiresAt DateTime
   consumedAt DateTime?
   createdAt DateTime @default(now())
+  purpose String @default("LOGIN")
+  newDestination String?
+  ipHash String?
   @@index([accountId,createdAt])
+  @@index([ipHash,createdAt])
 }
 model CustomerSession {
   id String @id @default(uuid())

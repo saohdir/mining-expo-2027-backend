@@ -1,9 +1,10 @@
 "use client";
 import {useCallback,useEffect,useState} from "react";
 import {InvoicePanel,type CustomerInvoice} from "./InvoicePanel";
+import {AccountSecurity} from "./AccountSecurity";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
-type AccountData={id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
+type AccountData={phone?:string|null;id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
  enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:CustomerBooth[];invoices:{id:string;boothRequestId:string|null;number:string;status:string;totalMinor:string}[]};
 type BoothOfferView={id:string;revision:number;offeredUnits:{id:string;code:string;hall:string|null;zone:string|null;areaSqm:string}[];offeredAreaSqm:string;quotedPriceMinor:string;expiresAt:string|null;acceptedAt:string|null;createdAt:string};
 type CustomerBooth={id:string;createdAt:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];holds:{id:string;expiresAt:string;boothUnit:{code:string;hall:string|null}}[];floorplan:{versionNo:number;units:{id:string;code:string;hall:string|null}[]};offers:BoothOfferView[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]};
@@ -16,6 +17,13 @@ export default function AccountPage(){
  const [loading,setLoading]=useState(true),[message,setMessage]=useState(""),[busy,setBusy]=useState(false),[mode,setMode]=useState<"register"|"login">("register"),[email,setEmail]=useState(""),[channel,setChannel]=useState<"EMAIL"|"SMS">("EMAIL"),[phone,setPhone]=useState(""),[smsAvailable,setSmsAvailable]=useState(false),[name,setName]=useState(""),[challenge,setChallenge]=useState(""),[otp,setOtp]=useState(""),[tab,setTab]=useState("overview");
  const [company,setCompany]=useState(""),[area,setArea]=useState("18"),[notes,setNotes]=useState(""),[chosen,setChosen]=useState<string[]>([]),[conference,setConference]=useState("");
  const reload=useCallback(async()=>{const results=await Promise.allSettled([request("/api/customer/me"),request("/api/public/events"),request("/api/public/floorplan"),request("/api/customer/invoices"),request("/api/customer/passes")]);if(results[0].status==="fulfilled")setMe(results[0].value);else setMe(null);if(results[1].status==="fulfilled")setEvents(results[1].value.events||[]);if(results[2].status==="fulfilled")setPlan(results[2].value);if(results[3].status==="fulfilled")setInvoices(results[3].value);if(results[4].status==="fulfilled")setPasses(results[4].value);setLoading(false)},[]);
+ // AT-057 / NFR-31: keep the selected booth/tab across sign-in and OTP; restore once signed in.
+ useEffect(()=>{try{const q=new URLSearchParams(window.location.search);const unit=q.get("request"),t=q.get("tab")||(window.location.hash==="#booth"?"booth":"");if(unit||t)sessionStorage.setItem("imdx-intent",JSON.stringify({unit,tab:unit?"booth":t}))}catch{}},[]);
+ useEffect(()=>{if(!me||!plan)return;try{const raw=sessionStorage.getItem("imdx-intent");if(!raw)return;sessionStorage.removeItem("imdx-intent");const intent=JSON.parse(raw) as {unit?:string|null;tab?:string};
+   if(intent.tab)setTab(intent.tab as typeof tab);
+   if(intent.unit){const u=plan.units?.find((x:{id:string;status:string})=>x.id===intent.unit);if(u&&u.status==="AVAILABLE"){setChosen([u.id]);setMessage("Your selected booth "+(u as {code?:string}).code+" is preselected. Complete the request below — it is a preference, not a reservation.")}else setMessage("The booth you selected is no longer available. Please choose another available unit.")}}catch{}
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+ },[me,plan]);
  useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>setSmsAvailable(Boolean(x.smsOtp))).catch(()=>{})},[reload]);
  async function doAction(task:()=>Promise<unknown>,success:string){setBusy(true);setMessage("");try{await task();setMessage(success);await reload()}catch(e){setMessage(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
  const event=events[0];
@@ -31,7 +39,7 @@ export default function AccountPage(){
       <p className="micro">OTP expires in five minutes. SMS is offered only after the approved provider is configured.</p>
       <label className="consent"><input type="checkbox" required/> I agree to the privacy and registration terms for UAT testing.</label>
       <button disabled={busy} type="submit">{busy?"Requesting…":"Send verification code"}</button>
-    </form>:<form onSubmit={e=>{e.preventDefault();void doAction(async()=>{await send("/api/auth/verify-otp",{challengeId:challenge,code:otp});setChallenge("")},"Account verified.")}}>
+    </form>:<form onSubmit={e=>{e.preventDefault();void doAction(async()=>{const v=await send("/api/auth/verify-otp",{challengeId:challenge,code:otp,returnTo:window.location.pathname+window.location.search+window.location.hash});setChallenge("");if(v?.next&&v.next!==window.location.pathname+window.location.search+window.location.hash)window.history.replaceState(null,"",v.next)},"Account verified.")}}>
      <label>6-digit verification code<input value={otp} pattern="[0-9]{6}" inputMode="numeric" onChange={e=>setOtp(e.target.value)} required/></label><button disabled={busy} type="submit">Verify & sign in</button><button type="button" className="ghost" onClick={()=>setChallenge("")}>Change contact</button>
     </form>}
    {message&&<div className="notice" role="status">{message}</div>}
@@ -119,10 +127,10 @@ export default function AccountPage(){
     {tab==="payments"&&<section><h2>Invoices & bank transfer</h2><p>No Midtrans or automated payment gateway. Only verified organizer bank transfers change your paid status.</p>
       {invoices?.invoices?.length?invoices.invoices.map(x=><InvoicePanel key={x.id} invoice={x} onChanged={()=>void reload()}/>):<p>No issued invoices yet. Request an invoice from your conference or booth card.</p>}
      </section>}
-    {tab==="profile"&&<section><h2>My profile</h2><p>Verified email: <strong>{me.email}</strong></p><form key={me.id} onSubmit={e=>{e.preventDefault();const form=new FormData(e.currentTarget);void doAction(()=>request("/api/customer/me",{method:"PATCH",body:JSON.stringify(Object.fromEntries(form))}),"Profile saved.")}}>
+    {tab==="profile"&&<section><h2>My profile</h2><p>Verified email: <strong>{me.email||"—"}</strong>{me.phone?<> · Verified phone: <strong>{me.phone}</strong></>:null}</p><p className="micro">Your name is matched at the gate. If you change it after a pass was issued, ask the organizer to reissue your pass.</p><form key={me.id} onSubmit={e=>{e.preventDefault();const form=new FormData(e.currentTarget);void doAction(()=>request("/api/customer/me",{method:"PATCH",body:JSON.stringify(Object.fromEntries(form))}),"Profile saved.")}}>
       <div className="form-grid"><label>Full name<input name="fullName" required defaultValue={me.profile?.fullName}/></label><label>Company<input name="organization" defaultValue={me.profile?.organization||""}/></label>
       <label>Job title<input name="jobTitle" defaultValue={me.profile?.jobTitle||""}/></label><label>Country<input name="country" defaultValue={me.profile?.country||"Indonesia"}/></label></div>
-      <button disabled={busy}>Save profile</button></form></section>}
+      <button disabled={busy}>Save profile</button></form><AccountSecurity smsAvailable={smsAvailable} onChanged={()=>void reload()}/></section>}
     <div className="portal-footer-actions"><button className="ghost" onClick={()=>void doAction(()=>request("/api/auth/logout",{method:"POST"}),"Signed out.")}>Sign out</button></div>
   </>}
  </main>;

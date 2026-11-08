@@ -57,6 +57,8 @@ test("customer: verified account, profile and booth preference (not a reservatio
   ok(r, 201, "booth request");
   S.requestId = r.body.id ?? r.body.request?.id ?? r.body.boothRequest?.id;
   assert.ok(S.requestId, "request id in response " + JSON.stringify(r.body));
+  const retry = await S.cust.post("/api/customer/booth-requests", body);
+  ok(retry, 200, "FR-066 identical retry"); assert.equal(retry.body.id, S.requestId); assert.equal(retry.body.duplicate, true);
   const dup = await S.cust.post("/api/customer/booth-requests", {...body, preferredUnitIds: [u1.id, u1.id]});
   ok(dup, 400, "duplicate unit in one request");
   const pubView = await new Client("anon").get("/api/public/floorplan");

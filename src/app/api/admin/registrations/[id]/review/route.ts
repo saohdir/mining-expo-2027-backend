@@ -1,3 +1,4 @@
+import {issueConferencePasses} from "@/lib/passes";
 import {NextRequest,NextResponse} from "next/server";import {z} from "zod";
 import {db} from "@/lib/db";import {admin} from "@/lib/auth";import {failure,HttpError} from "@/lib/errors";
 import {financeTotals} from "@/lib/policy";
@@ -16,6 +17,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
    if(enrollment.conference.feeMinor>0n&&!paid)throw new HttpError(409,"PAYMENT_REQUIRED","Conference invoice is not fully verified by Finance.");
   }
   const changed=await tx.enrollment.update({where:{id},data:{status:x.decision,confirmedAt:x.decision==="CONFIRMED"?new Date():undefined}});
+  if(x.decision==="CONFIRMED")await issueConferencePasses(tx,id);
   await tx.auditLog.create({data:{adminId:actor.id,action:"ENROLLMENT_REVIEW",resourceType:"Enrollment",resourceId:id,beforeState:{status:enrollment.status},afterState:{decision:x.decision,reason:x.reason}}});
   await tx.notificationOutbox.create({data:{topic:"ENROLLMENT_REVIEWED",dedupeKey:"registration:"+id+":"+x.decision,payload:{enrollmentId:id,decision:x.decision}}});
   return changed;

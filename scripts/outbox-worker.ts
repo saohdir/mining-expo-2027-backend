@@ -45,6 +45,7 @@ async function processJob(topic:string,p:Payload){
  }
  if(["PASS_REVOKED","PASS_REISSUED"].includes(topic)){const id=(p as Payload&{passId?:string}).passId;if(!id)throw Error("Missing pass id");const pass=await db.eventPass.findUnique({where:{id},include:{account:true}});if(!pass||!pass.account.email)throw Error("Pass/customer email unavailable");
   return deliver(pass.account.email,topic==="PASS_REVOKED"?"IMDX — event pass revoked":"IMDX — new event pass issued",(topic==="PASS_REVOKED"?"Your IMDX 2027 event pass was revoked by the organizer. Previously saved QR codes no longer work.":"A replacement IMDX 2027 event pass is ready. Earlier QR codes no longer work.")+" Sign in to view details: "+portal+"/account");}
+ if(topic==="CONTACT_CHANGED"){const to=(p as Payload&{to?:string}).to;if(!to)throw Error("Missing recipient");return deliver(to,"IMDX — your account email was changed","The sign-in email for your IMDX 2027 account was changed and other devices were signed out. If this was not you, contact the organizer immediately.");}
  throw Error("Unhandled topic: "+topic);
 }
 async function drain(){
