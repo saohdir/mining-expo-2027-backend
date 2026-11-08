@@ -1,0 +1,171 @@
+"use client";
+import {useEffect, useMemo, useState} from "react";
+
+type OfferedUnit = {id:string;code:string;hall:string|null;zone:string|null;areaSqm:string};
+type Offer = {id:string;revision:number;offeredUnits:OfferedUnit[];offeredUnitIds:string[];offeredAreaSqm:string;quotedPriceMinor:string;acceptedAt:string|null;expiresAt:string|null;createdAt:string};
+type Unit = OfferedUnit & {status:string};
+type Booth = {id:string;accountId:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];account:{email:string|null;profile:{fullName:string;organization:string|null}|null};floorplan:{title:string;versionNo:number;status:string;units:Unit[]};offers:Offer[];assignments:{id:string;boothUnit:{code:string;hall:string|null}}[]};
+type Actor = {role:string;email:string};
+
+async function api(url:string, method="GET", body?:unknown) {
+  const response = await fetch(url,{method,cache:"no-store",
+    headers:body?{"Content-Type":"application/json"}:undefined,
+    body:body?JSON.stringify(body):undefined});
+  const value = await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(value.message||value.error||"Request failed");
+  return value;
+}
+const idr=(n:string)=>"Rp "+Number(n||0).toLocaleString("id-ID");
+const wib=(date:string)=>new Date(date).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB";
+
+export default function BoothManagement(){
+  const [actor,setActor]=useState<Actor|null>(null);
+  const [records,setRecords]=useState<Booth[]>([]);
+  const [id,setId]=useState("");
+  const [search,setSearch]=useState("");
+  const [units,setUnits]=useState<string[]>([]);
+  const [price,setPrice]=useState("");
+  const [notes,setNotes]=useState("");
+  const [expiresAt,setExpiresAt]=useState("");
+  const [reason,setReason]=useState("");
+  const [approved,setApproved]=useState(false);
+  const [publicName,setPublicName]=useState(false);
+  const [saving,setSaving]=useState(false);
+  const [loading,setLoading]=useState(true);
+  const [message,setMessage]=useState("");
+  const selected=useMemo(()=>records.find(r=>r.id===id)||null,[records,id]);
+  const canOffer=actor?.role==="SALES"||actor?.role==="OPERATIONS"||actor?.role==="SUPER_ADMIN";
+  const canAssign=actor?.role==="OPERATIONS"||actor?.role==="SUPER_ADMIN";
+  const latest=selected?.offers[0];
+  const eligibleForQuote=selected&&["UNDER_REVIEW","OFFERED"].includes(selected.status)&&selected.floorplan.status==="PUBLISHED";
+  const filtered=records.filter(r=>
+    (r.account.profile?.fullName||r.account.email||"").toLowerCase().includes(search.toLowerCase())||
+    r.id.toLowerCase().includes(search.toLowerCase()));
+
+  const updateSelection=(record:Booth)=> {
+    setId(record.id);
+    const proposal=record.offers[0]?.offeredUnitIds||record.preferredUnitIds;
+    setUnits(proposal.filter(unitId=>record.floorplan.units.some(u=>u.id===unitId&&u.status==="AVAILABLE")));
+    setPrice(record.offers[0]?.quotedPriceMinor||"");
+    setNotes("");setExpiresAt("");setReason("");setApproved(false);setPublicName(false);setMessage("");
+  };
+  const load=async(preserveId?:string)=>{
+    const result=await api("/api/admin/booth-requests");
+    const next=(result.records||[]) as Booth[];
+    setRecords(next);
+    const current=next.find(r=>r.id===(preserveId||id))||next[0];
+    if(current)updateSelection(current);else setId("");
+  };
+  useEffect(()=>{let alive=true;(async()=>{try{
+    const person=await api("/api/admin/me");
+    if(!alive)return;setActor(person);
+    const result=await api("/api/admin/booth-requests");
+    if(!alive)return;const next=(result.records||[]) as Booth[];setRecords(next);
+    if(next[0])updateSelection(next[0]);
+  }catch(e){if(alive)setMessage(e instanceof Error?e.message:"Unable to load CMS")}
+  finally{if(alive)setLoading(false)}})();return()=>{alive=false}},[]);
+  const run=async(action:()=>Promise<unknown>,success:string)=>{
+    setSaving(true);setMessage("");
+    try{await action();setMessage(success);const current=id;await load(current)}
+    catch(e){setMessage(e instanceof Error?e.message:"Unable to complete action")}
+    finally{setSaving(false)}
+  };
+
+  const offer=async()=>{
+    if(!selected||!canOffer)throw Error("Insufficient access.");
+    if(!approved)throw Error("Confirm that the organizer approved the quotation.");
+    if(!/^[1-9]\d*$/.test(price))throw Error("Enter the approved total quote in IDR.");
+    if(!units.length)throw Error("Select at least one available booth.");
+    if(reason.trim().length<8)throw Error("Provide an 8-character audit reason.");
+    return api("/api/admin/booth-requests/"+selected.id+"/offer","POST",{
+      offeredUnitIds:units,quotedPriceMinor:price,
+      reason:reason.trim(),notes:notes.trim()||undefined,
+      expiresAt:expiresAt?new Date(expiresAt+":00+07:00").toISOString():undefined
+    });
+  };
+  const status=async(next:string)=>{
+    if(!selected)throw Error("Select a request.");
+    if(reason.trim().length<8)throw Error("Provide an audit reason.");
+    return api("/api/admin/booth-requests/"+selected.id+"/status","POST",{status:next,reason:reason.trim()});
+  };
+
+  return <main className="portal-shell">
+    <nav className="portal-top"><span>CMS / EXHIBITOR OPERATIONS</span><a href="/admin">Back to CMS ↗</a></nav>
+    <header className="portal-heading"><p className="eyebrow">05 / EXHIBITOR SALES & OPERATIONS</p>
+      <h1>Booth <em>management.</em></h1>
+      <p>Review preferences, create organizer quotations, capture acceptance and assign available units only after verified manual payments.</p></header>
+    {message&&<p className="notice" role="status">{message}</p>}
+    {loading?<section className="cms-panel">Loading booth requests…</section>:!actor?
+      <section className="cms-panel"><p>Sign in to your authorized CMS account first.</p><a className="button-link" href="/admin">CMS sign in</a></section>:
+      <div className="booth-admin-layout">
+       <section className="cms-panel">
+        <h2>Requests</h2>
+        <label>Search by customer or request ID<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Find request"/></label>
+        <p className="micro">Showing {filtered.length} of {records.length} latest records.</p>
+        {filtered.map(record=><button type="button" key={record.id}
+          className={"booth-admin-record"+(id===record.id?" selected":"")} onClick={()=>updateSelection(record)}>
+          <span className="eyebrow">{record.status.replaceAll("_"," ")} / {record.id.slice(0,8)}</span>
+          <strong>{record.account.profile?.fullName||record.account.email||"Customer"}</strong>
+          <span>{record.requestedAreaSqm} m² requested · v{record.floorplan.versionNo}</span>
+        </button>)}
+        {filtered.length===0&&<p className="micro">No matching requests.</p>}
+       </section>
+       <section className="cms-panel">
+        {!selected?<p>No booth requests recorded yet.</p>:<>
+          <p className="eyebrow">CUSTOMER / QUOTATION REVIEW</p>
+          <h2>{selected.account.profile?.fullName||selected.account.email||"Customer"}</h2>
+          <p className="micro">{selected.account.profile?.organization||"Company not provided"} · Request {selected.id.slice(0,8)}</p>
+          <div className="booth-admin-summary">
+            <div><span>Requested area</span><strong>{selected.requestedAreaSqm} m²</strong></div>
+            <div><span>Request status</span><strong>{selected.status.replaceAll("_"," ")}</strong></div>
+            <div><span>Floorplan</span><strong>v{selected.floorplan.versionNo} · {selected.floorplan.status}</strong></div>
+          </div>
+          <p className="micro">Customer preferences: {selected.preferredUnitIds.map(unitId=>
+            selected.floorplan.units.find(u=>u.id===unitId)?.code||unitId.slice(0,8)).join(", ")}</p>
+
+          {latest&&<div className="booth-quotation">
+            <p className="eyebrow">LATEST QUOTATION / REVISION {latest.revision}</p>
+            <strong>{idr(latest.quotedPriceMinor)}</strong>
+            <p>{latest.offeredAreaSqm} m² · {latest.offeredUnits.map(u=>u.code).join(", ")}</p>
+            <p className="micro">{latest.acceptedAt?"Accepted "+wib(latest.acceptedAt):"Awaiting customer acceptance"}</p>
+          </div>}
+          {selected.assignments.length>0&&<p><strong>Confirmed booth units:</strong> {selected.assignments.map(a=>a.boothUnit.code).join(", ")}</p>}
+
+          {canOffer&&eligibleForQuote&&<form onSubmit={event=>{event.preventDefault();void run(offer,"New quotation revision recorded. The customer must accept it before invoicing.")}}>
+            <h3>Prepare a booth quotation</h3>
+            <p className="micro">Only available units on the request floorplan can be proposed. This is not a reservation.</p>
+            <div className="booth-admin-units" role="group" aria-label="Units in proposed quotation">
+              {selected.floorplan.units.map(unit=><label key={unit.id} className={"booth-admin-option"+(unit.status!=="AVAILABLE"?" unavailable":"")}>
+                <input type="checkbox" checked={units.includes(unit.id)} disabled={unit.status!=="AVAILABLE"}
+                  onChange={e=>setUnits(current=>e.target.checked?[...current,unit.id]:current.filter(x=>x!==unit.id))}/>
+                <span><strong>{unit.code}</strong><small>{unit.hall||"Hall TBA"} · {unit.areaSqm} m² · {unit.status}</small></span>
+              </label>)}
+            </div>
+            <p className="micro">{units.length} selected unit(s). Offered physical area is calculated by the server.</p>
+            <label>Organizer-approved total quotation (IDR)<input required value={price} type="number" min="1" step="1" onChange={e=>setPrice(e.target.value)}/></label>
+            <label>Quotation notes<textarea maxLength={1000} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Optional scope/terms; no bank credentials"/></label>
+            <label>Offer expiry (WIB, optional)<input type="datetime-local" value={expiresAt} onChange={e=>setExpiresAt(e.target.value)}/></label>
+            <label>Audit reason<textarea required minLength={8} value={reason} onChange={e=>setReason(e.target.value)} placeholder="Why these units and price?"/></label>
+            <label className="consent"><input type="checkbox" checked={approved} onChange={e=>setApproved(e.target.checked)}/> I confirm the organizer has approved this quotation.</label>
+            <button disabled={saving||!approved||units.length===0} type="submit">Send quotation revision ↗</button>
+          </form>}
+          {canOffer&&selected.status==="NEW"&&<button disabled={saving}
+            onClick={()=>void run(()=>api("/api/admin/booth-requests/"+selected.id+"/status","POST",{status:"UNDER_REVIEW",reason:"Operations has started reviewing this request"}),"Review started.")}>Start review</button>}
+
+          {canOffer&&["UNDER_REVIEW","OFFERED","ACCEPTED","WAITING_INVOICE"].includes(selected.status)&&<div className="booth-admin-actions">
+            <h3>Additional operations</h3>
+            <label>Reason for audit action<textarea minLength={8} value={reason} onChange={e=>setReason(e.target.value)}/></label>
+            {selected.status==="OFFERED"&&<button className="ghost" disabled={saving} onClick={()=>void run(()=>status("UNDER_REVIEW"),"Returned to review.")}>Return to review</button>}
+            {selected.status==="ACCEPTED"&&<button className="ghost" disabled={saving} onClick={()=>void run(()=>status("WAITING_INVOICE"),"Waiting for invoice.")}>Mark waiting for invoice</button>}
+            {canAssign&&["ACCEPTED","WAITING_INVOICE"].includes(selected.status)&&latest?.acceptedAt&&
+              <div className="booth-admin-assign">
+                <label className="consent"><input type="checkbox" checked={publicName} onChange={e=>setPublicName(e.target.checked)}/> Public display of approved company name (only if organizer approved)</label>
+                <button disabled={saving} onClick={()=>void run(async()=>{if(reason.trim().length<8)throw Error("Provide an 8-character audit reason.");return api("/api/admin/booth-requests/"+selected.id+"/assign","POST",{reason:reason.trim(),approvedForPublic:publicName})},"Booth units assigned after finance and inventory validation.")}>Confirm assignment (Finance-gated) ↗</button>
+              </div>}
+          </div>}
+          <p className="micro">All quotations are manually priced. Bank transfers remain offline and verified exclusively by Finance.</p>
+        </>}
+       </section>
+      </div>}
+  </main>;
+}
