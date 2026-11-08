@@ -26,3 +26,9 @@ test("portal design system matches approved public IMDX tokens",()=>{
  for(const token of ["#FF5912","#520F00","#88584B","#ECD5C2","#FFFDFB","Space Grotesk"])
    assert.ok(marketingTokens.includes(token),token);
 });
+
+test("CMS reports separate unique people from scan attempts",()=>{
+ const page=readFileSync("src/app/admin/reports/page.tsx","utf8");
+ assert.match(page,/registeredUnique/);assert.match(page,/arrivedUnique/);assert.match(page,/scanAttempts/);
+ assert.match(page,/registration creation date/i);
+});
