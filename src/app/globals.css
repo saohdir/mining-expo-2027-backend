@@ -78,3 +78,18 @@ body{background:var(--surface);font-weight:400;line-height:1.5}
 @media(max-width:980px){.payment-layout{grid-template-columns:1fr}.payment-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:780px){.cms-layout{grid-template-columns:1fr}.cms-sidebar{position:static}.payment-filter-row{grid-template-columns:1fr 1fr}.payment-filter-row button{margin-bottom:0}.portal-top{min-height:75px}.brandmark-image{width:135px;min-width:100px;height:65px}.brandmark-image img{height:48px}.portal-heading{margin:28px 0!important}.portal-heading>p:last-child{font-size:16px}}
 @media(max-width:490px){.payment-summary{grid-template-columns:1fr 1fr;gap:8px}.payment-stat{padding:14px 11px;min-height:140px}.payment-stat>strong{font-size:19px}.payment-filter-row{grid-template-columns:1fr}.payment-balance-grid{grid-template-columns:1fr}.payment-record-top,.payment-record-bottom{flex-wrap:wrap}}
+
+/* Conference programme editor */
+.program-layout{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr);gap:22px;align-items:start}
+.program-list h2{font-size:29px}
+.program-item{width:100%;display:flex;flex-direction:column;text-align:left;align-items:flex-start;border:1px solid var(--border);border-radius:7px;background:#fffdfb;color:var(--brown);gap:8px;padding:16px;margin-top:13px}
+.program-item:hover,.program-item.selected{background:#fff4ea;color:var(--brown);border-color:var(--orange)}
+.program-item>strong{font-size:18px;line-height:1.25}
+.program-item small{color:var(--muted);font-size:12px}
+.program-new{margin-top:35px;padding-top:20px;border-top:1px solid var(--border)}
+.program-detail h2{font-size:clamp(28px,3vw,40px)}
+.program-metadata{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border);padding:10px 0 18px;color:var(--muted);font-size:13px}
+.program-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.program-approval{font-weight:400;flex-direction:row;align-items:flex-start;margin-top:18px}
+.program-approval input{width:auto}
+@media(max-width:850px){.program-layout{grid-template-columns:1fr}}
