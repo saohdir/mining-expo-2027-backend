@@ -61,7 +61,8 @@ export default function BoothManagement(){
     setNotes("");setExpiresAt("");setReason("");setHoldReason("");setApproved(false);setPublicName(false);setMessage("");
   };
   const load=async(preserveId?:string)=>{
-    const result=await api("/api/admin/booth-requests");
+    const target=preserveId||id;
+    const result=await api("/api/admin/booth-requests"+(target?"?id="+encodeURIComponent(target):""));
     const next=(result.records||[]) as Booth[];
     setRecords(next);
     const current=next.find(r=>r.id===(preserveId||id))||next[0];
