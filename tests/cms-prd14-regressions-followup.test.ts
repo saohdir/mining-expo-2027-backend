@@ -31,7 +31,8 @@ test("QR camera processes at most one pending validation and always stops before
   const locked=code.indexOf("scanLock.current=true");
   const posted=code.indexOf('fetch("/api/admin/check-in/scan"');
   assert.ok(locked>=0&&posted>locked);
-  assert.match(code,/setScanning\(false\);setWorking\(false\);scanLock\.current=false/);
+  assert.match(code,/setScanning\(false\);setWorking\(false\);if\(!scanning\)scanLock\.current=false/);
+  assert.match(code,/client\.stop\(\)\.catch\(\(\)=>\{\}\)\.finally\(\(\)=>\{client\?\.clear\(\);scanLock\.current=false\}\)/);
   assert.match(code,/response\.status===401\|\|response\.status===403/);
   assert.match(code,/ALREADY_CHECKED_IN/);
   assert.match(code,/INVALID/);
