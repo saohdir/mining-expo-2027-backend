@@ -14,7 +14,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "admin:create": "tsx scripts/create-admin.ts",
     "customers:create-test": "tsx scripts/create-test-customers.ts",
-    "outbox:worker": "tsx scripts/outbox-worker.ts"
+    "outbox:worker": "tsx scripts/outbox-worker.ts",
+    "lint": "eslint . --max-warnings=200"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
@@ -30,11 +31,15 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@types/node": "^22.10.0",
     "@types/nodemailer": "^6.4.17",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "axe-core": "^4.10.3",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^15.5.6",
     "parse5": "^7.2.1",
     "prisma": "^6.2.1",
     "tsx": "^4.19.2",

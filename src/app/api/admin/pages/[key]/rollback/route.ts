@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
 import {z} from "zod";
+import {LOCALES} from "@/lib/locales";
 import {Prisma} from "@prisma/client";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{key: st
   try {
     const actor = await admin(["SUPER_ADMIN", "CONTENT_EDITOR"]);
     const k = (await params).key; if (!PAGE_KEYS.includes(k)) throw new HttpError(404, "UNKNOWN_PAGE", "Unknown page.");
-    const loc = z.enum(["en", "id"]).parse(req.nextUrl.searchParams.get("locale") || "en");
+    const loc = z.enum(LOCALES).parse(req.nextUrl.searchParams.get("locale") || "en");
     const x = z.object({version: z.number().int().min(0), reason: z.string().trim().min(8).max(300)}).strict().parse(await req.json());
     const out = await db.$transaction(async tx => {
       const row = await tx.pageLayout.findUnique({where: {pageKey_locale: {pageKey: k, locale: loc}}});

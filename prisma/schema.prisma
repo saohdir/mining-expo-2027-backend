@@ -732,3 +732,20 @@ model AnalyticsDaily {
   count Int @default(0)
   @@id([day,event])
 }
+
+/// FR-154 scheduled mailouts to registered participants (maker-checker; sent by the worker through the outbox).
+model Mailout {
+  id String @id @default(uuid())
+  subject String
+  body String
+  segment String
+  conferenceId String?
+  sendAt DateTime
+  status String @default("DRAFT")
+  createdBy String
+  approvedBy String?
+  recipients Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  @@index([status,sendAt])
+}

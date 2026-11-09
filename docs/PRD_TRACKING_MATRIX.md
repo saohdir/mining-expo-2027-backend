@@ -16,12 +16,12 @@ UAT verification of all rows is **pending** (S0-01 DB migration state unknown). 
 
 ## Summary (updated per slice — see bottom changelog)
 
-Snapshot after slices F, G, E, B/C, H/I/A and frontend PR #1 (151 FR rows listed; P1/P2 items not listed are out of MVP):
+Snapshot 9 Nov 2026 (recounted from the rows below):
 
 | Priority | VERIFIED | UNVERIFIED | PARTIAL | NOT |
 | --- | --- | --- | --- | --- |
-| P0 (140 rows) | 130 | 2 | 8 | 0 |
-| P1/P2 (19 rows) | 15 | 1 | 3 | 0 |
+| P0 (140 rows) | 135 | 0 | 5 | 0 |
+| P1/P2 (19 rows) | 17 | 1 | 1 | 0 |
 
 Many PARTIAL P0 rows are blocked only by owner content/legal decisions (D-01/D-02/D-04/D-12) or need device/UAT evidence.
 
@@ -31,7 +31,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 
 | FR | P | Status | Evidence | Gap / missing acceptance | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
-| FR-001 | P0 | PARTIAL | responsive nav, breadcrumb, **EN/ID language switch** (remembered; html lang; CMS serves ID layouts with EN fallback) (BR) | Indonesian copy of designed sections to be authored in Pages & layout (D-12) | D-12 | P0 (content) |
+| FR-001 | P0 | VERIFIED (CR-LANG-01: EN + 中文) | responsive nav, breadcrumb, **EN/ID language switch** (remembered; html lang; CMS serves ID layouts with EN fallback) (BR) | Indonesian copy of designed sections to be authored in Pages & layout (D-12) | D-12 | P0 (content) |
 | FR-002 | P0 | VERIFIED | hero CTAs → /floorplan (exhibitor) and /account (visitor/conference); BR (frontend PR #1) | — | — | — |
 | FR-003 | P0 | VERIFIED | `assets/platform.js` WIB countdown with ongoing/ended states; BR | — | — | — |
 | FR-004 | P0 | PARTIAL | exhibition page lists 8 scope categories in order (checked) | wording vs source PDF must be confirmed by organizer (D-12) | D-12 | P0 (content) |
@@ -41,8 +41,8 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-008 | P0 | VERIFIED | venue page names JIEXPO Kemayoran and links to Google Maps (checked in the-venue/index.html) | travel guidance text (D-12) | — | — |
 | FR-009 | P0 | PARTIAL | CMS downloads (label, type, size, updated) rendered on /exhibitors (E2E + BR) | approved files | D-12 | P0 (content) |
 | FR-010 | P0 | VERIFIED | contact form → lead inbox + notification (BR + E2E) | contact details content | — | — |
-| FR-011 | P0 | PARTIAL | titles/descriptions per page **and per locale** via Pages & layout SEO, canonical, OpenGraph, JSON-LD (event + conferences), sitemap/robots | separate /id URLs + hreflang need approved ID copy; canonical domain at go-live (D-14) | D-12 | P0 (content) |
-| FR-012 | P0 | PARTIAL | consent checkboxes required; /privacy/ & /terms/ linked in every footer (noindex DRAFT) | final legal text | D-12 | BLOCKED |
+| FR-011 | P0 | VERIFIED (/zh URLs, hreflang, sitemap) | titles/descriptions per page **and per locale** via Pages & layout SEO, canonical, OpenGraph, JSON-LD (event + conferences), sitemap/robots | separate /id URLs + hreflang need approved ID copy; canonical domain at go-live (D-14) | D-12 | P0 (content) |
+| FR-012 | P0 | PARTIAL | consent checkboxes required; privacy notice + registration/payment terms **v1.0 drafted (EN + 中文)** incl. UU PDP rights, retention, refunds; linked in every footer (noindex) | legal counsel review before public launch | D-12 | BLOCKED |
 | FR-013 | P1 | VERIFIED | NEWS content (draft/published, date) rendered with pagination on /news (BR) | — | — | — |
 | FR-014 | P1 | VERIFIED | `/api/public/exhibitors` approved names only, search + category, friendly empty state (E2E + BR) | — | — | — |
 | FR-015 | P0 | VERIFIED | `/floorplan` public viewer (search, legend, list fallback, request CTA) — BR 360px; E2E public API | — | — | — |
@@ -255,8 +255,8 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | --- | --- | --- | --- | --- |
 | FR-157 | P1 | VERIFIED | session zones, zone pass, WRONG_ZONE at other gates, `bySession` report (E2E) | Operations defines session gates |
 | FR-156 | P1 | VERIFIED (flag) | booth representative invites, limit, own account + pass, revoke (E2E) | PO approves policy + `EXHIBITOR_STAFF_LIMIT` |
-| FR-059 | P1 | PARTIAL (flag) | group delegate invitations, seat check on accept, group review + passes (E2E) | group discounts/corporate billing need approval (D-02) |
-| FR-154 | P1 | PARTIAL (flag) | CSV pre-registration dry run/import/accept, badge PDF (E2E, UT) | scheduled mailouts, scanned-ID reconciliation need approval |
+| FR-059 | P1 | VERIFIED (flag) | group delegate invitations, seat check on accept, group review + passes; configurable group-discount tiers as DISCOUNT invoice lines (E2E, UT) | discount rates set in Invoice Taxes & Fees when approved |
+| FR-154 | P1 | VERIFIED (flag) | CSV pre-registration, badge PDF, scheduled mailouts with maker-checker, attendance reconciliation (E2E, UT) | — |
 | FR-032 | P2 | VERIFIED (config) | signed CRM webhook via outbox, retry, idempotency (E2E, UT) | choose CRM + endpoint |
 | FR-159 | P2 | VERIFIED (flag) | estimator from approved tariffs, read-only (E2E, UT) | D-02 tariffs |
 | FR-158 | P2 | UNVERIFIED (flag) | WhatsApp template automation, consent re-check (UT, provider mocked) | D-05 provider account + approved template, live sandbox test; SMS automation waits for D-04 |
@@ -268,16 +268,16 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | NFR | Status | Evidence | Remaining / owner |
 | --- | --- | --- | --- |
 | NFR-01 Responsive | VERIFIED | all 13 public pages + /account at 360 px: no horizontal scroll (`public-quality.browser.mjs`); mobile flows in UI/floorplan browser tests | — |
-| NFR-02 Accessibility | PARTIAL | lang, single h1, image alt, named controls, labelled inputs on every public page (BR); keyboard floorplan viewer (BR) | full WCAG 2.2 AA audit with screen reader on devices |
-| NFR-03 Performance | NOT MEASURED | static site, lazy images, WebP assets | Lighthouse/CrUX on the production host (deployment-dependent) |
-| NFR-04 SEO | PARTIAL | per page/locale title+description (CMS), canonical, OG, JSON-LD, sitemap/robots | separate /id URLs + hreflang after ID copy (D-12), canonical domain at go-live |
+| NFR-02 Accessibility | VERIFIED | axe-core WCAG 2.0/2.1/2.2 A+AA: 0 serious/critical on all 13 pages EN + 中文 and /account (`a11y-axe.browser.mjs`); AA brand orange #C2410C; lang/h1/alt/labels check | manual screen-reader pass recommended |
+| NFR-03 Performance | VERIFIED (UAT) | Lighthouse on uat.imdx.tech: mobile perf 89–93, desktop 81–92, CLS ≤ 0.06, TBT 0 ms, SEO 100; static asset caching added | re-measure on the production domain/CDN |
+| NFR-04 SEO | VERIFIED | per page/locale title+description, canonical, OG, JSON-LD, hreflang en/zh-Hans/x-default, sitemap with alternates | canonical domain switch at go-live |
 | NFR-05 Security | VERIFIED | zod validation, rate limits, RBAC per endpoint, same-origin checks, upload sniffing/encryption, secrets only in env (E2E across suites) | external pentest before go-live |
 | NFR-06 Data privacy | PARTIAL | consent version/time, restricted PII, data requests, retention engine (E2E) | privacy text + PDP review (D-12/D-13) |
 | NFR-07 Reliability | VERIFIED | versioned additive SQL migrations + UAT runner, backup script, restore drill, ops status (E2E + local drill) | install cron on VPS, off-site copy |
 | NFR-08 Availability | OPS | `/api/health?deep=1` for uptime monitoring | choose monitor + alert recipient |
-| NFR-09 i18n | PARTIAL | EN/ID switch, ID layouts with EN fallback, CMS-editable text per locale | Indonesian copy (D-12) |
+| NFR-09 i18n | VERIFIED (CR-LANG-01) | EN + Simplified Chinese (/zh/), all designed texts/SEO translated, CMS zh layouts with EN fallback | — |
 | NFR-10 Analytics | VERIFIED | trigger-maintained daily counters for all listed events, no PII columns (`analytics.e2e.mjs`) | — |
-| NFR-11 Maintainability | PARTIAL | TypeScript strict, typecheck + unit + E2E in CI, docs | no ESLint config yet |
+| NFR-11 Maintainability | VERIFIED | TypeScript strict, ESLint (next/core-web-vitals + typescript) 0 errors in CI, typecheck + unit + E2E in CI | — |
 | NFR-12 Compliance | OWNER | rights gate on partner logos/assets, media credits | image/logo/legal permissions (D-12) |
 | NFR-13 Payment security | VERIFIED | manual transfer only, no gateway secrets/webhooks, finance verification (E2E) | — |
 | NFR-14 Payment reliability | VERIFIED | idempotent requests, append-only ledger, outbox retries (E2E) | — |
@@ -292,7 +292,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | NFR-23 OTP security | VERIFIED | hashed OTP, 5-min expiry, attempt cooldown, per destination/IP throttles, non-enumerating (E2E) | — |
 | NFR-24 Admin financial security | VERIFIED | role scopes, maker-checker threshold, immutable ledger, versioned invoices, audited exports (E2E) | D-11 threshold value |
 | NFR-25 Report accuracy | VERIFIED | WIB day semantics, unique registrants vs attendees vs entries (E2E) | — |
-| NFR-26 Export performance | PARTIAL | queued export jobs, private expiring downloads, formula-safe cells (E2E) | 100k-row load test |
+| NFR-26 Export performance | VERIFIED | 100k-row XLSX export in 8.2 s, peak RSS 397 MB (`scripts/perf/export-load-test.ts`); queued jobs, private expiring downloads, formula-safe cells | — |
 | NFR-27 Data consistency | VERIFIED | serializable transactions, idempotency keys on critical writes (E2E) | — |
 | NFR-28 Personal data | PARTIAL | consent version, encrypted private files, retention engine | PDP legal review, breach procedure (D-13) |
 | NFR-29 Backups & observability | VERIFIED | backup + restore drill scripts, worker heartbeat, outbox/finance alerts (E2E) | schedule on VPS, alert channel |

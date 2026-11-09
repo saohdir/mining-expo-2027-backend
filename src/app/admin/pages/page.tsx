@@ -43,7 +43,7 @@ export default function PagesCms() {
     <p>Change the content and layout of the public website: reorder or hide designed sections and add your own blocks. Changes stay in draft until published; every publish is a version you can roll back.</p></header>
     <div className="cms-row-actions">
       <label>Page<select value={key} onChange={e => { if (!dirty || window.confirm("Discard unsaved changes?")) setKey(e.target.value); }}>{pages.map(p => <option key={p.key} value={p.key}>{p.path} {p.locales.some(l => l.unpublishedChanges) ? "• draft" : ""}</option>)}</select></label>
-      <label>Language<select value={locale} onChange={e => setLocale(e.target.value)}><option value="en">English</option><option value="id">Bahasa Indonesia (falls back to English)</option></select></label>
+      <label>Language<select value={locale} onChange={e => setLocale(e.target.value)}><option value="en">English</option><option value="zh">中文 (Simplified Chinese)</option></select></label>
       <a className="button-link ghost" href={d.path + "?cmsPreview=1"} target="_blank" rel="noreferrer">Preview draft ↗</a>
       <span className="micro">Published v{d.version}{d.publishedAt ? " · " + new Date(d.publishedAt).toLocaleString("en-GB", {timeZone: "Asia/Jakarta"}) : " · showing original design"}</span>
     </div>
@@ -117,8 +117,8 @@ function FieldEditor({defs, values, disabled, onChange}: {defs: FieldDef[]; valu
         </> : <>
           <label>{f.tag.toUpperCase()} ({f.key}){f.mode === "own" ? " — text next to an icon" : ""}
             {f.mode === "rich" || (f.text || "").length > 80
-              ? <textarea disabled={disabled} rows={Math.min(8, Math.max(2, Math.ceil((f.text || "").length / 70)))} maxLength={2000} placeholder={f.text} value={v.text ?? ""} onChange={e => set(f, {text: e.target.value})} />
-              : <input disabled={disabled} maxLength={2000} placeholder={f.text} value={v.text ?? ""} onChange={e => set(f, {text: e.target.value})} />}</label>
+              ? <textarea disabled={disabled} rows={Math.min(8, Math.max(2, Math.ceil((f.text || "").length / 70)))} maxLength={4000} placeholder={f.text} value={v.text ?? ""} onChange={e => set(f, {text: e.target.value})} />
+              : <input disabled={disabled} maxLength={4000} placeholder={f.text} value={v.text ?? ""} onChange={e => set(f, {text: e.target.value})} />}</label>
           {f.tag === "a" && <label>Link<input disabled={disabled} placeholder={f.href} value={v.href ?? ""} onChange={e => set(f, {href: e.target.value})} /></label>}
         </>}
         {changed && !disabled && <button type="button" className="ghost cms-small" onClick={() => onChange(all => { delete all[f.key]; return all; })}>Reset to design</button>}

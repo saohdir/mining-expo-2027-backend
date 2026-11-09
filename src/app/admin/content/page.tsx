@@ -25,7 +25,7 @@ export default function ContentPage() {
       imageUrl: opt(f.imageUrl), altText: opt(f.altText), rightsStatus: opt(f.rightsStatus), role: opt(f.role)}), "Draft saved."); }}>
       <label>Title<input required value={f.title} onChange={e => setF({...f, title: e.target.value})} /></label>
       <label>Slug (a-z, 0-9, -)<input required pattern="[a-z0-9-]{2,80}" value={f.slug} onChange={e => setF({...f, slug: e.target.value})} /></label>
-      <label>Locale<select value={f.locale} onChange={e => setF({...f, locale: e.target.value})}><option value="en">English</option><option value="id">Bahasa Indonesia</option></select></label>
+      <label>Locale<select value={f.locale} onChange={e => setF({...f, locale: e.target.value})}><option value="en">English</option><option value="zh">中文</option></select></label>
       <label>Summary<textarea value={f.summary} maxLength={500} onChange={e => setF({...f, summary: e.target.value})} /></label>
       <label>Link / file URL<input value={f.url} onChange={e => setF({...f, url: e.target.value})} placeholder="/downloads/brochure.pdf or https://…" /></label>
       {kind === "DOWNLOAD" && <label>File type<input value={f.fileType} onChange={e => setF({...f, fileType: e.target.value})} placeholder="PDF" /></label>}

@@ -84,7 +84,7 @@ export default function PaymentManagement(){
  {(action==="DP_RECEIVED"||action==="PAID_IN_FULL")&&<>
  {action==="DP_RECEIVED"?<label>Amount actually received (IDR)<input type="number" inputMode="numeric" min="1" step="1" required value={amount} onChange={e=>setAmount(e.target.value)} placeholder="Enter verified DP amount"/></label>:<p className="payment-amount-hint">Remaining payment to record: <strong>{rp(selected.outstandingMinor)}</strong></p>}
  <div className="form-grid"><label>Bank transaction reference<input required minLength={4} value={reference} onChange={e=>setReference(e.target.value)} placeholder="Reference on bank statement"/></label><label>Date funds received (WIB)<input type="date" required value={date} onChange={e=>setDate(e.target.value)}/></label></div>
- <label className="consent payment-confirm"><input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)} required/>I have independently checked the incoming funds in the organizer's approved bank records.</label>
+ <label className="consent payment-confirm"><input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)} required/>I have independently checked the incoming funds in the organizer&apos;s approved bank records.</label>
  </>}
  <label>Reason / audit note<textarea required minLength={10} maxLength={300} value={reason} onChange={e=>setReason(e.target.value)} placeholder="Why is this status being updated?"/></label>
  <button type="submit" disabled={saving||!action}>{saving?"Saving…":"Save payment status ↗"}</button>

@@ -4,7 +4,7 @@ import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 import {ledgerTotals} from "@/lib/finance-ledger";
-import {computeCharges} from "@/lib/invoice-charges";
+import {computeCharges, groupDiscount} from "@/lib/invoice-charges";
 import {loadCharges} from "@/lib/invoice-charges-store";
 
 const item = z.object({description: z.string().min(3).max(200), quantity: z.number().int().min(1).max(100), unitPriceMinor: z.string().regex(/^\d+$/)}).strict();
@@ -25,8 +25,11 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
       // FR-125: item lines come from the request (or are copied); configured tax/fee lines are recomputed on the new subtotal.
       const base = (x.items ?? inv.items.filter(i => i.kind === "ITEM").map(i => ({description: i.description, quantity: i.quantity, unitPriceMinor: i.unitPriceMinor.toString()}))).map(i => ({description: i.description, quantity: i.quantity, unitPriceMinor: BigInt(i.unitPriceMinor), amountMinor: BigInt(i.unitPriceMinor) * BigInt(i.quantity), kind: "ITEM"}));
       const subtotal = base.reduce((a, i) => a + i.amountMinor, 0n);
-      const kind = inv.boothRequestId ? "BOOTH" : (await tx.enrollment.findUnique({where: {id: inv.enrollmentId!}, select: {type: true}}))?.type === "CONFERENCE" ? "CONFERENCE" : "VISITOR";
-      const items = [...base, ...computeCharges(charges, subtotal, kind)];
+      const enr = inv.enrollmentId ? await tx.enrollment.findUnique({where: {id: inv.enrollmentId}, select: {type: true, groupId: true}}) : null;
+      const kind = inv.boothRequestId ? "BOOTH" : enr?.type === "CONFERENCE" ? "CONFERENCE" : "VISITOR";
+      const groupSize = enr?.groupId ? await tx.enrollment.count({where: {groupId: enr.groupId, status: {notIn: ["CANCELLED", "REJECTED"]}}}) : 0;
+      const discount = kind === "CONFERENCE" && groupSize ? groupDiscount(charges, subtotal, groupSize) : null;
+      const items = [...base, ...(discount ? [discount] : []), ...computeCharges(charges, subtotal + (discount?.amountMinor ?? 0n), kind)];
       const total = items.reduce((a, i) => a + i.amountMinor, 0n);
       if (inv.boothRequestId) {
         const offer = await tx.boothOffer.findFirst({where: {boothRequestId: inv.boothRequestId}, orderBy: {revision: "desc"}});

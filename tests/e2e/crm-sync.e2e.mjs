@@ -12,7 +12,8 @@ const SECRET = "local-test-only-crm-secret-0123456789abcdef";
 const got = [];
 let failFirst = true;
 const server = http.createServer((req, res) => { let b = ""; req.on("data", c => b += c); req.on("end", () => {
-  if (failFirst) { failFirst = false; res.writeHead(503).end(); return; }
+  // Fail only the first delivery of THIS test's lead (other suites' queued CRM jobs may arrive too).
+  if (failFirst && b.includes(`crm-${run}@test.local`)) { failFirst = false; res.writeHead(503).end(); return; }
   got.push({headers: req.headers, body: b}); res.writeHead(200, {"content-type": "application/json"}).end("{}"); }); });
 test.before(() => new Promise(r => server.listen(3198, "127.0.0.1", r)));
 test.after(async () => { server.close(); await db.$disconnect(); });
@@ -25,7 +26,8 @@ test("FR-032: lead is delivered once, signed, after a retry", {timeout: 90000}, 
   const lead = await db.lead.findFirstOrThrow({where: {email: `crm-${run}@test.local`}});
   const job = await db.notificationOutbox.findUniqueOrThrow({where: {dedupeKey: "crm:LEAD:" + lead.id + ":created"}});
   // First attempt gets 503 → FAILED with backoff; pull the retry forward instead of waiting 30–60 s.
-  for (let i = 0; i < 60 && (await db.notificationOutbox.findUnique({where: {id: job.id}})).attempts < 1; i++) await new Promise(s => setTimeout(s, 500));
+  // Wait until the first attempt has FINISHED (attempts is incremented when a job is claimed, before delivery runs).
+  for (let i = 0; i < 60 && (await db.notificationOutbox.findUnique({where: {id: job.id}})).state !== "FAILED"; i++) await new Promise(s => setTimeout(s, 500));
   await db.notificationOutbox.update({where: {id: job.id}, data: {nextRunAt: new Date()}});
   for (let i = 0; i < 60 && !got.some(g => g.body.includes(lead.id)); i++) await new Promise(s => setTimeout(s, 500));
   const hit = got.find(g => g.body.includes(lead.id));

@@ -1,11 +1,12 @@
 import {NextRequest, NextResponse} from "next/server";
 import {z} from "zod";
+import {LOCALES} from "@/lib/locales";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 import {defaultLayout, layoutProblems, layoutSchema, PAGE_FIELDS, PAGE_KEYS, PAGE_MANIFEST, PAGE_PATHS} from "@/lib/page-layout";
 
-const locale = (req: NextRequest) => z.enum(["en", "id"]).parse(req.nextUrl.searchParams.get("locale") || "en");
+const locale = (req: NextRequest) => z.enum(LOCALES).parse(req.nextUrl.searchParams.get("locale") || "en");
 const key = (k: string) => { if (!PAGE_KEYS.includes(k)) throw new HttpError(404, "UNKNOWN_PAGE", "Unknown page."); return k; };
 /** Draft + published layout (draft is visible only to signed-in staff = authorized preview, FR-038). */
 export async function GET(req: NextRequest, {params}: {params: Promise<{key: string}>}) {

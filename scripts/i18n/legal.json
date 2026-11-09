@@ -1,0 +1,145 @@
+{
+ "privacy": {
+  "en": {
+   "seo": {
+    "title": "Privacy notice | IMDX 2027",
+    "description": "How IMDX 2027 collects, uses, protects and retains personal data, and how to exercise your rights under Indonesia's Personal Data Protection Law."
+   },
+   "fields": {
+    "privacy-notice.0": "LEGAL · Version 1.0 · 9 November 2026",
+    "privacy-notice.2": "This notice explains how the organizer of IMDX 2027 processes personal data in line with Indonesia's Law No. 27 of 2022 on Personal Data Protection (UU PDP). Prepared draft — to be reviewed by the organizer's legal counsel before public launch.",
+    "privacy-notice.3": "1. What we collect",
+    "privacy-notice.5": "2. Purposes and legal basis",
+    "privacy-notice.6": "We process your data to perform the registration, booking and admission services you request (contract), to issue invoices and keep financial records (legal obligation), to secure the event and our systems (legitimate interest) and, where you opt in, to send WhatsApp updates (consent). Your QR code contains only a random token, never your name or contact details.",
+    "privacy-notice.7": "3. Who can see it",
+    "privacy-notice.9": "4. Retention and your rights",
+    "privacy-notice.10": "See sections 5–8 below for retention periods and how to request access, correction, deletion or a copy of your data. You can also reach the organizer through the"
+   },
+   "blocks": [
+    [
+     "5. How long we keep data",
+     "- Account, registration and booking records: until 24 months after the event, then deleted or anonymised.\n- Invoices, payments and transfer proofs: 10 years, as required for Indonesian tax and accounting records.\n- Website enquiries: closed enquiries are anonymised after 24 months.\n- Sign-in tokens, sessions and verification codes: deleted 30 days after expiry.\n- Rejected gate-scan attempts: 180 days. Admission records: kept with the event record.\n- Audit logs: kept for security and accountability; never used for marketing."
+    ],
+    [
+     "6. Your rights",
+     "Under UU PDP you may request information about the processing, access to and a copy of your data, correction, deletion or anonymisation, restriction, and withdrawal of consent (for example WhatsApp updates). Signed-in customers can submit a request in their account (Profile → Data request); others can use the contact page. We respond within 3 × 24 hours to confirm receipt and complete requests as required by law. Some records (such as issued invoices) must be kept for legal reasons."
+    ],
+    [
+     "7. Security and transfers",
+     "Access is limited by role and every sensitive action is logged. Payment proofs are stored encrypted, passwords are hashed and QR passes use random tokens. Data is hosted on servers operated for the organizer; if data is transferred outside Indonesia we apply the safeguards required by UU PDP. In the event of a personal-data breach we notify affected people and the authority within 3 × 24 hours as required."
+    ],
+    [
+     "8. Controller and contact",
+     "Data controller: the organizer of Indonesia Mining & Downstream Industries Exhibition 2027 (organizer office: Citra Tower Kemayoran 11C, Jl. Benyamin Sueb Kav. A6, Jakarta). Questions or requests: use the contact page or email NIC@shixin-expo.com. We may update this notice; the version and date are shown at the top."
+    ]
+   ]
+  },
+  "zh": {
+   "seo": {
+    "title": "隐私声明 | IMDX 2027",
+    "description": "IMDX 2027如何收集、使用、保护和保存个人数据，以及如何依据印度尼西亚《个人数据保护法》行使您的权利。"
+   },
+   "fields": {
+    "privacy-notice.0": "法律 · 1.0版 · 2026年11月9日",
+    "privacy-notice.1": "隐私声明",
+    "privacy-notice.2": "本声明说明IMDX 2027主办方如何依据印度尼西亚2022年第27号《个人数据保护法》（UU PDP）处理个人数据。本文为拟定草案，正式公开前须经主办方法律顾问审核。",
+    "privacy-notice.3": "1. 我们收集哪些信息",
+    "privacy-notice.4": "当您创建账户、注册、申请展位、发送联系信息或参加活动时，我们会处理：您的姓名、经验证的电子邮箱或电话、公司、职位和国家；您的注册、展位申请、发票及已核实的付款；您同意的条款版本及时间；以及活动入口的签到记录。",
+    "privacy-notice.5": "2. 处理目的与法律依据",
+    "privacy-notice.6": "我们处理您的数据，是为了履行您所申请的注册、预订和入场服务（合同履行），开具发票并保存财务记录（法定义务），保障活动及系统安全（正当利益），以及在您选择接收时发送WhatsApp通知（同意）。您的二维码仅包含随机令牌，绝不包含您的姓名或联系方式。",
+    "privacy-notice.7": "3. 谁可以查看",
+    "privacy-notice.8": "仅限经授权的主办方工作人员按其职责查看（例如：财务人员查看发票与付款；入口工作人员仅查看为您办理入场所需的信息）。参展商名称经批准后方会在展位图上公开。",
+    "privacy-notice.9": "4. 保存期限与您的权利",
+    "privacy-notice.10": "保存期限及申请查阅、更正、删除或获取数据副本的方式见下文第5–8节。您也可以通过以下页面联系主办方：",
+    "privacy-notice.11": "联系页面"
+   },
+   "blocks": [
+    [
+     "5. 数据保存期限",
+     "- 账户、注册及预订记录：保存至活动结束后24个月，之后删除或匿名化。\n- 发票、付款及转账凭证：按印度尼西亚税务与会计记录要求保存10年。\n- 网站咨询：已结案的咨询在24个月后匿名化。\n- 登录令牌、会话及验证码：过期30天后删除。\n- 被拒绝的入口扫码记录：保存180天；入场记录随活动档案保存。\n- 审计日志：为安全与问责目的保存，绝不用于营销。"
+    ],
+    [
+     "6. 您的权利",
+     "根据UU PDP，您可以要求了解数据处理情况，查阅并获取数据副本，更正、删除或匿名化数据，限制处理，以及撤回同意（例如WhatsApp通知）。已登录的用户可在账户中提交申请（个人资料 → 数据申请）；其他用户可通过联系页面提交。我们将在3×24小时内确认收到，并依法完成处理。部分记录（如已开具的发票）须依法保存。"
+    ],
+    [
+     "7. 安全与跨境传输",
+     "系统按角色限制访问，所有敏感操作均有日志记录。付款凭证加密存储，密码经过哈希处理，二维码证件使用随机令牌。数据托管于为主办方运营的服务器；如数据传输至印度尼西亚境外，我们将采取UU PDP要求的保障措施。如发生个人数据泄露，我们将依法在3×24小时内通知受影响者及主管机关。"
+    ],
+    [
+     "8. 数据控制者与联系方式",
+     "数据控制者：2027印度尼西亚矿业及下游产业展览会主办方（办公地址：Citra Tower Kemayoran 11C, Jl. Benyamin Sueb Kav. A6, 雅加达）。如有疑问或申请，请通过联系页面或发送邮件至NIC@shixin-expo.com。我们可能更新本声明，版本与日期显示于页首。"
+    ]
+   ]
+  }
+ },
+ "terms": {
+  "en": {
+   "seo": {
+    "title": "Registration & payment terms | IMDX 2027",
+    "description": "Terms for registration, conference seats, booth bookings, manual bank-transfer invoices, deposits, cancellations and refunds at IMDX 2027."
+   },
+   "fields": {
+    "registration-payment-terms.0": "LEGAL · Version 1.0 · 9 November 2026",
+    "registration-payment-terms.2": "These terms apply to visitor registration, conference seats and exhibitor booth bookings for IMDX 2027. Prepared draft — to be reviewed by the organizer's legal counsel before public launch. Prices and fees are stated only in your official quotation or invoice.",
+    "registration-payment-terms.3": "1. Payments",
+    "registration-payment-terms.5": "2. Booths",
+    "registration-payment-terms.7": "3. Cancellations and refunds",
+    "registration-payment-terms.8": "Cancellations must be requested in writing (account message or email). Conference seats: cancelled at least 30 days before the event — refund of the amount paid less an administration fee of 10%; less than 30 days — no refund, but you may transfer your seat to a colleague free of charge. Booths: cancelled more than 90 days before the event — 50% of the booth fee is retained; 90 days or less — 100% is retained. If the organizer cancels or postpones the event, paid amounts are refunded in full or credited to the new dates, at your choice. Refunds are made by bank transfer to the paying account within 30 days after approval; bank charges are borne by the recipient."
+   },
+   "blocks": [
+    [
+     "4. Invoices, deposits and due dates",
+     "- Quotations and invoices are issued in Indonesian Rupiah (IDR) unless stated otherwise; taxes are shown as separate lines where applicable.\n- Booth bookings require a down payment (deposit) of at least 50% of the invoice within 14 days of the invoice date and full payment no later than 30 days before the event.\n- Conference seats are payable in full by the invoice due date.\n- Booth allocation and conference access are confirmed only after Finance verifies the transfer against the bank statement."
+    ],
+    [
+     "5. Passes and admission",
+     "Each person receives a personal QR pass after confirmation. Passes are non-transferable unless the organizer approves a substitution, and may be revoked if a booking is cancelled or a payment is reversed. Admission is checked at the gates; re-entry follows the zone policy (default: once per day per zone)."
+    ],
+    [
+     "6. Exhibitor obligations",
+     "Exhibitors must comply with venue rules, safety regulations and build-up/dismantling schedules communicated by Operations, hold the insurance required by the venue, and may only use event names and logos as approved by the organizer."
+    ],
+    [
+     "7. Liability and governing law",
+     "The organizer is not liable for indirect losses or for events beyond its reasonable control (force majeure). These terms are governed by the laws of the Republic of Indonesia; disputes are first settled amicably and otherwise by the competent court in Jakarta."
+    ]
+   ]
+  },
+  "zh": {
+   "seo": {
+    "title": "注册与付款条款 | IMDX 2027",
+    "description": "IMDX 2027关于注册、会议席位、展位预订、银行转账发票、定金、取消及退款的条款。"
+   },
+   "fields": {
+    "registration-payment-terms.0": "法律 · 1.0版 · 2026年11月9日",
+    "registration-payment-terms.1": "注册与付款条款",
+    "registration-payment-terms.2": "本条款适用于IMDX 2027的观众登记、会议席位及参展商展位预订。本文为拟定草案，正式公开前须经主办方法律顾问审核。价格与费用仅以您的正式报价单或发票为准。",
+    "registration-payment-terms.3": "1. 付款",
+    "registration-payment-terms.4": "本网站不提供在线刷卡或支付网关结账。付费会议席位与展位由主办方开具发票，并通过人工银行转账支付至您账户中正式发票所示的账户。上传转账凭证并不代表付款已确认；财务部门将根据银行流水确认到账。",
+    "registration-payment-terms.5": "2. 展位",
+    "registration-payment-terms.6": "在展位图上选择展位并填写申请面积仅为申请。主办方将在报价中确认展位、面积和价格，经您接受后由运营部门另行确认展位分配。",
+    "registration-payment-terms.7": "3. 取消与退款",
+    "registration-payment-terms.8": "取消须以书面形式提出（账户留言或电子邮件）。会议席位：于活动开始前至少30天取消的，退还已付金额并扣除10%的手续费；不足30天的，不予退款，但可免费转让给同事。展位：于活动开始前90天以上取消的，扣留展位费的50%；90天及以内取消的，扣留100%。如主办方取消或延期活动，已付款项可全额退还或按您的选择转至新日期。退款将在批准后30天内通过银行转账退回付款账户，银行手续费由收款方承担。"
+   },
+   "blocks": [
+    [
+     "4. 发票、定金与付款期限",
+     "- 报价单和发票以印尼盾（IDR）开具，另有说明的除外；适用的税费将单独列示。\n- 展位预订须在发票开具之日起14天内支付不低于发票金额50%的定金，并最迟于活动开始前30天付清全款。\n- 会议席位须在发票到期日前全额支付。\n- 财务部门根据银行流水核实转账后，方确认展位分配及会议入场资格。"
+    ],
+    [
+     "5. 证件与入场",
+     "确认后，每人将获得个人二维码证件。除经主办方批准替换外，证件不得转让；如预订被取消或付款被撤销，证件可能被注销。入场在各入口核验；再次入场按区域政策执行（默认：每个区域每天一次）。"
+    ],
+    [
+     "6. 参展商义务",
+     "参展商须遵守场馆规定、安全法规以及运营部门通知的搭建/撤展时间安排，投保场馆要求的保险，并仅在主办方批准的范围内使用活动名称与标志。"
+    ],
+    [
+     "7. 责任与适用法律",
+     "主办方不对间接损失或超出其合理控制范围的事件（不可抗力）承担责任。本条款受印度尼西亚共和国法律管辖；争议应首先友好协商解决，协商不成的，由雅加达有管辖权的法院裁决。"
+    ]
+   ]
+  }
+ }
+}

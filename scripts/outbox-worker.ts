@@ -4,6 +4,7 @@ import {processExportJobs} from "../src/lib/export-jobs";
 import {deliverCrm} from "../src/lib/crm-sync";
 import {scheduledRetention} from "../src/lib/retention";
 import {writeHeartbeat} from "../src/lib/ops-health";
+import {dispatchMailouts, MAILOUT_FOOTER} from "../src/lib/mailouts";
 import {deliverWhatsApp, queueWhatsAppCopy} from "../src/lib/messaging";
 import {PrismaClient} from "@prisma/client";
 import nodemailer from "nodemailer";
@@ -25,6 +26,8 @@ type Payload={id?:string;invoiceId?:string;boothRequestId?:string};
 async function processJob(topic:string,p:Payload,dedupeKey=""){
  if(topic==="CRM_SYNC")return deliverCrm(db,p as never,dedupeKey);
  if(topic==="WHATSAPP_SEND"){await deliverWhatsApp(db,p as never);return;}
+ if(topic==="MAILOUT_SEND"){const q=p as Payload&{mailoutId?:string;accountId?:string};const m=q.mailoutId?await db.mailout.findUnique({where:{id:q.mailoutId}}):null;const acc=q.accountId?await db.customerAccount.findUnique({where:{id:q.accountId}}):null;
+  if(!m||m.status==="CANCELLED"||!acc?.email||acc.status!=="ACTIVE")return;currentKey=dedupeKey;return deliver(acc.email,m.subject,m.body+MAILOUT_FOOTER+portal+"/account");}
  currentKey=dedupeKey;
  if(["BOOTH_REQUEST_RECEIVED","BOOTH_STATUS_UPDATED"].includes(topic)){const id=p.boothRequestId||p.id;if(!id)throw Error("Missing booth request id");
  const b=await db.boothRequest.findUnique({where:{id},include:{account:true}});
@@ -78,6 +81,7 @@ async function main(){console.info("IMDX outbox worker launched");while(true){co
  {name:"booth-hold-expiry",run:()=>expireBoothHolds(db)},
  {name:"outbox-drain",run:()=>drain()},
  {name:"export-jobs",run:()=>processExportJobs(db)},
- {name:"retention",run:()=>scheduledRetention(db)}
+ {name:"retention",run:()=>scheduledRetention(db)},
+ {name:"mailouts",run:()=>dispatchMailouts(db)}
 ]);await writeHeartbeat(db,results).catch(()=>console.error("Heartbeat write failed"));await delay(Number(process.env.WORKER_INTERVAL_MS||20000))}}
 main().catch(e=>{console.error(e);process.exit(1)}).finally(()=>db.$disconnect());

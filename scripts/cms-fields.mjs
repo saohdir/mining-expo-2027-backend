@@ -76,7 +76,7 @@ function collect(file) {
       if (!key) { key = `${c.id}.${next++}`; inserts.push({at: x.n.sourceCodeLocation.startTag.startOffset + 1 + x.n.tagName.length, s: ` data-cms-f="${key}"`}); }
       const f = {key, kind: x.kind, tag: x.n.tagName};
       if (x.kind === "image") { f.src = attr(x.n, "src") || ""; f.alt = attr(x.n, "alt") || ""; }
-      else { f.mode = x.mode; f.text = (x.mode === "rich" ? rich(x.n) : x.mode === "own" ? clean((x.n.childNodes || []).filter(y => y.nodeName === "#text").map(y => y.value).join(" ")) : clean(text(x.n))).slice(0, 600); }
+      else { f.mode = x.mode; f.text = (x.mode === "rich" ? rich(x.n) : x.mode === "own" ? clean((x.n.childNodes || []).filter(y => y.nodeName === "#text").map(y => y.value).join(" ")) : clean(text(x.n))).slice(0, 4000); }
       if (x.n.tagName === "a") f.href = attr(x.n, "href") || "";
       fields.push({...f, block: c.id, scope: c.scope});
     }

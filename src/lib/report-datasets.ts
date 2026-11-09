@@ -19,12 +19,20 @@ export async function registrations(role: AdminRole, basis: string, r: Range, f:
   const where: Prisma.EnrollmentWhereInput = {...dateFilter, ...(f.type ? {type: f.type as never} : {}), ...(f.status ? {status: f.status as never} : {}),
     ...(f.q ? {OR: [{id: {startsWith: f.q}}, {account: {email: {contains: f.q, mode: "insensitive"}}}, {account: {profile: {fullName: {contains: f.q, mode: "insensitive"}}}}]} : {})};
   guard(await db.enrollment.count({where}), limit);
-  const rec = await db.enrollment.findMany({where, orderBy: {createdAt: "desc"}, include: {account: {select: {email: true, profile: {select: {fullName: true, organization: true}}}}, conference: {select: {title: true}},
-    passes: {select: {admissions: {select: {admittedAt: true}, orderBy: {admittedAt: "asc"}, take: 1}}}}});
   const contact = ["SUPER_ADMIN", "SALES", "FINANCE", "OPERATIONS"].includes(role);
-  return {sheet: "Registrations", columns: ["Registration ID", "Type", "Status", "Customer", ...(contact ? ["Email"] : []), "Organization", "Conference", "Created UTC", "Confirmed UTC", "First check-in UTC"],
-    rows: rec.map(x => [x.id, x.type, x.status, x.account.profile?.fullName || "", ...(contact ? [x.account.email || ""] : []), x.account.profile?.organization || "", x.conference?.title || "",
-      iso(x.createdAt), iso(x.confirmedAt), iso(x.passes.flatMap(p => p.admissions)[0]?.admittedAt)])} as Dataset;
+  // NFR-26: read in keyset-paginated batches and keep only the flat row values (100k rows stay well under 1 GB RSS).
+  const rows: Dataset["rows"] = [];
+  let cursor: {id: string} | undefined;
+  for (;;) {
+    const rec = await db.enrollment.findMany({where, orderBy: [{createdAt: "desc"}, {id: "desc"}], take: 5000, ...(cursor ? {cursor, skip: 1} : {}),
+      include: {account: {select: {email: true, profile: {select: {fullName: true, organization: true}}}}, conference: {select: {title: true}},
+        passes: {select: {admissions: {select: {admittedAt: true}, orderBy: {admittedAt: "asc"}, take: 1}}}}});
+    for (const x of rec) rows.push([x.id, x.type, x.status, x.account.profile?.fullName || "", ...(contact ? [x.account.email || ""] : []), x.account.profile?.organization || "", x.conference?.title || "",
+      iso(x.createdAt), iso(x.confirmedAt), iso(x.passes.flatMap(p => p.admissions)[0]?.admittedAt)]);
+    if (rec.length < 5000) break;
+    cursor = {id: rec[rec.length - 1].id};
+  }
+  return {sheet: "Registrations", columns: ["Registration ID", "Type", "Status", "Customer", ...(contact ? ["Email"] : []), "Organization", "Conference", "Created UTC", "Confirmed UTC", "First check-in UTC"], rows} as Dataset;
 }
 
 export async function booths(role: AdminRole, basis: string, r: Range, f: {status?: string; hall?: string; zone?: string; q?: string}, limit = SYNC_LIMIT) {

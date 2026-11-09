@@ -1,4 +1,5 @@
 import ExcelJS from "exceljs";
+import {PassThrough} from "node:stream";
 import {PDFDocument, StandardFonts, rgb} from "pdf-lib";
 import type {AdminRole} from "@prisma/client";
 import {HttpError} from "./errors";
@@ -34,11 +35,15 @@ export async function loadDataset(role: AdminRole, x: ExportRequest, limit = SYN
 export async function render(data: Dataset, x: ExportRequest) {
   const header = `IMDX 2027 — ${data.sheet} · basis ${x.basis} · period (WIB, inclusive) ${x.from || "start"} to ${x.to || "now"} · ${data.rows.length} rows · exported ${new Date().toISOString()}`;
   if (x.format === "xlsx") {
-    const wb = new ExcelJS.Workbook(); const ws = wb.addWorksheet(data.sheet);
-    ws.addRow([header]); ws.addRow(data.columns);
-    for (const row of data.rows) ws.addRow(row.map(v => typeof v === "number" ? v : safeCell(v)));
-    ws.getRow(2).font = {bold: true}; ws.columns.forEach(c => { c.width = 24; }); ws.views = [{state: "frozen", ySplit: 2}];
-    return {bytes: Buffer.from(await wb.xlsx.writeBuffer()), contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ext: "xlsx"};
+    // NFR-26: streaming writer — rows are committed as they are added instead of building the whole workbook in memory.
+    const chunks: Buffer[] = []; const sink = new PassThrough(); sink.on("data", c => chunks.push(c as Buffer));
+    const wb = new ExcelJS.stream.xlsx.WorkbookWriter({stream: sink, useSharedStrings: false, useStyles: true});
+    const ws = wb.addWorksheet(data.sheet, {views: [{state: "frozen", ySplit: 2}]});
+    ws.columns = data.columns.map(() => ({width: 24}));
+    ws.addRow([header]).commit(); const head = ws.addRow(data.columns); head.font = {bold: true}; head.commit();
+    for (const row of data.rows) ws.addRow(row.map(v => typeof v === "number" ? v : safeCell(v))).commit();
+    ws.commit(); await wb.commit();
+    return {bytes: Buffer.concat(chunks), contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ext: "xlsx"};
   }
   if (data.rows.length > 20000) throw new HttpError(413, "PDF_TOO_LARGE", "PDF exports are limited to 20,000 rows; use XLSX.");
   const pdf = await PDFDocument.create(); const font = await pdf.embedFont(StandardFonts.Helvetica);
