@@ -14,8 +14,10 @@ export default function RegistrationsPage(){
   const {actor}=useCmsSession();
   const [q,setQ]=useState("");
   const [search,setSearch]=useState("");
-  useEffect(()=>{const value=new URLSearchParams(window.location.search).get("q")||"";setQ(value);setSearch(value)},[]);
   const [type,setType]=useState(""),[status,setStatus]=useState("");
+  // Deep links from dashboard cards: ?q= ?type= ?status=
+  useEffect(()=>{const sp=new URLSearchParams(window.location.search);const value=sp.get("q")||"";setQ(value);setSearch(value);
+    const t=sp.get("type")||"",st=sp.get("status")||"";if(types.includes(t))setType(t);if(statuses.includes(st))setStatus(st)},[]);
   const [from,setFrom]=useState(""),[to,setTo]=useState("");
   const [page,setPage]=useState(1);
   const [data,setData]=useState<Payload|null>(null);

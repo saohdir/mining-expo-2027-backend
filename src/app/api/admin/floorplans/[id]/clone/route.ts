@@ -5,10 +5,13 @@ import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 import {cloneBoothStatus} from "@/lib/floorplan-safety";
+import {resolveReplaces} from "@/lib/floor-lineage";
 
 const schema = z.object({
   title: z.string().min(3).max(160),
-  reason: z.string().trim().min(8).max(500)
+  reason: z.string().trim().min(8).max(500),
+  newFloor: z.boolean().optional(),
+  replacesId: z.string().uuid().nullable().optional()
 }).strict();
 
 /** A restore is always a NEW DRAFT derived from a historical edition.
@@ -34,18 +37,20 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         select: {versionNo: true}
       });
       const version = (last?.versionNo ?? 0) + 1;
+      const replacesId = await resolveReplaces(tx, source.eventId, input, source.id);
       const plan = await tx.floorplan.create({
         data: {
           eventId: source.eventId, versionNo: version, title: input.title,
           canvasWidth: source.canvasWidth, canvasHeight: source.canvasHeight,
-          backgroundUrl: source.backgroundUrl, backgroundAlt: source.backgroundAlt, backgroundRights: source.backgroundRights, status: "DRAFT",
+          backgroundUrl: source.backgroundUrl, backgroundAlt: source.backgroundAlt, backgroundRights: source.backgroundRights, status: "DRAFT", replacesId,
           units: {create: source.units.map(unit => ({
             code: unit.code, category: unit.category, hall: unit.hall, zone: unit.zone,
             x: unit.x, y: unit.y, w: unit.w, h: unit.h,
             areaSqm: unit.areaSqm, categoryId: unit.categoryId, lengthM: unit.lengthM, widthM: unit.widthM, dimensionLabel: unit.dimensionLabel, rotation: unit.rotation, internalNotes: unit.internalNotes, placed: unit.placed,
             // A new version must NOT claim historic allocated, reserved,
-            // or blocked geometry is free to sell.
-            status: cloneBoothStatus(unit.status)
+            // or blocked geometry is free to sell. Manual "booked by" entries (deals outside the portal) carry over as they are.
+            status: unit.occupantCompany && unit.status !== "AVAILABLE" ? unit.status : cloneBoothStatus(unit.status),
+            occupantCompany: unit.occupantCompany, occupantContact: unit.occupantContact, splitFromId: null
           }))}
         }
       });
@@ -62,7 +67,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
           }
         }
       });
-      return {id: plan.id, versionNo: version};
+      return {id: plan.id, versionNo: version, replacesId};
     }, {isolationLevel: Prisma.TransactionIsolationLevel.Serializable});
     return NextResponse.json({plan: created}, {status: 201, headers: {"Cache-Control": "private,no-store"}});
   } catch (error) {

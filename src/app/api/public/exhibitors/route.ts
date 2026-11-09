@@ -8,9 +8,9 @@ import {failure} from "@/lib/errors";
 export async function GET(req: NextRequest) {
   try {
     const q = (req.nextUrl.searchParams.get("q") || "").trim().toLowerCase().slice(0, 80), category = req.nextUrl.searchParams.get("category") || "";
-    const plan = await db.floorplan.findFirst({where: {status: "PUBLISHED", event: {code: req.nextUrl.searchParams.get("event") || activeEventCode(), published: true}}, select: {id: true}});
-    if (!plan) return NextResponse.json({exhibitors: [], categories: []}, {headers: {"Cache-Control": "public, max-age=30, s-maxage=60"}});
-    const rows = await db.boothAssignment.findMany({where: {active: true, approvedForPublic: true, boothUnit: {floorplanId: plan.id}},
+    const plans = await db.floorplan.findMany({where: {status: "PUBLISHED", active: true, event: {code: req.nextUrl.searchParams.get("event") || activeEventCode(), published: true}}, select: {id: true}});
+    if (!plans.length) return NextResponse.json({exhibitors: [], categories: []}, {headers: {"Cache-Control": "public, max-age=30, s-maxage=60"}});
+    const rows = await db.boothAssignment.findMany({where: {active: true, approvedForPublic: true, boothUnit: {floorplanId: {in: plans.map(p => p.id)}}},
       select: {boothRequestId: true, boothUnit: {select: {code: true, hall: true, category: true, approvedPublicName: true}}}});
     const byRequest = new Map<string, {name: string; booths: string[]; halls: Set<string>; categories: Set<string>}>();
     for (const r of rows) {

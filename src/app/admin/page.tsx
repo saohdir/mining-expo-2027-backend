@@ -6,6 +6,13 @@ import {CmsIcon,useCmsSession,type IconName} from "./components/CmsShell";
 
 type Period="today"|"week"|"month"|"custom";
 type Metric={key:string;label:string;value:string|number;caption:string;icon:string;accent:boolean};
+/** Every dashboard card opens the list behind its number. */
+const METRIC_HREF:Record<string,string>={
+  action:"#cms-action-queue",account:"/admin/customers",visitor:"/admin/registrations?type=VISITOR",conference:"/admin/registrations?type=CONFERENCE",
+  booth:"/admin/booths",booths:"/admin/booths",review:"/admin/booths",holds:"/admin/booths",available:"/admin/floorplans",occupied:"/admin/floorplans",
+  invoice:"/admin/workspace?section=finance#cms-invoices",invoices:"/admin/workspace?section=finance#cms-invoices",issued:"/admin/workspace?section=finance#cms-invoices",total:"/admin/workspace?section=finance#cms-invoices",
+  manual:"/admin/workspace?section=finance#cms-payment-requests",admitted:"/admin/reports",entries:"/admin/reports",rejected:"/admin/reports",
+  programmes:"/admin/programmes",tba:"/admin/programmes"};
 type Queue={type:string;reference:string;label:string;createdAt:string;href:string;action:string};
 type Notification={id:string;type:string;recordId:string;createdAt:string;readAt:string|null};
 type Dashboard={
@@ -95,12 +102,13 @@ export default function AdminOverview(){
     {fetching&&!dashboard&&<div className="imdx-cms-empty">Loading server-aggregated figures…</div>}
     {dashboard&&<>
       <section className="imdx-cms-kpis" aria-label="Role-scoped key metrics">
-        {dashboard.metrics.map(m=><article className={"imdx-cms-kpi"+(m.accent?" is-feature":"")} key={m.key}>
+        {dashboard.metrics.map(m=>{const href=METRIC_HREF[m.key];const body=<>
           <span className="imdx-cms-kpi-icon"><CmsIcon name={iconName(m.icon)} size={22}/></span>
           <strong>{typeof m.value==="number"?m.value.toLocaleString("id-ID"):m.value}</strong>
           <span className="imdx-cms-kpi-label">{m.label}</span>
-          <small>{m.caption}</small>
-        </article>)}
+          <small>{m.caption}</small>{href&&<span className="imdx-cms-kpi-more" aria-hidden="true">View details →</span>}</>;
+          return href?<Link href={href} className={"imdx-cms-kpi is-link"+(m.accent?" is-feature":"")} key={m.key} aria-label={m.label+": "+m.value+" — view details"}>{body}</Link>
+            :<article className={"imdx-cms-kpi"+(m.accent?" is-feature":"")} key={m.key}>{body}</article>})}
       </section>
       <p className="imdx-cms-metric-note">Figures are server aggregates for {formatDay(scope?.from||"2026-11-01")} – {formatDay(scope?.to||"2026-11-08")} (WIB). Scope: {label(actor.role)}. Measure basis is stated on each card; live inventory figures are explicitly labeled.</p>
       <div className="imdx-cms-panels">

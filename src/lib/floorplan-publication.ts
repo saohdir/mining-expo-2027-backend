@@ -3,20 +3,19 @@ import {canPublishWithBlockers} from "./floorplan-safety";
 
 type Reader = Pick<Prisma.TransactionClient, "boothRequest" | "boothHold" | "boothAssignment">;
 
-/** Conservative publication barrier.
- * This stage intentionally does NOT remap existing customers/paid invoices
- * to new booth IDs, therefore any unresolved request blocks publication.
- */
-export async function floorplanBlockers(db: Reader, eventId: string) {
+/** Conservative publication barrier for the live floor a draft REPLACES (null = a new, additional floor:
+ * nothing to reconcile). Unresolved commitments on the replaced floor require the approved remap. */
+export async function floorplanBlockers(db: Reader, replacedFloorplanId: string | null) {
+  if (!replacedFloorplanId) return {openRequests: 0, activeHolds: 0, activeAssignments: 0, canPublish: true};
   const [openRequests, activeHolds, activeAssignments] = await Promise.all([
     db.boothRequest.count({
-      where: {eventId, status: {notIn: ["REJECTED", "CANCELLED"]}}
+      where: {floorplanId: replacedFloorplanId, status: {notIn: ["REJECTED", "CANCELLED"]}}
     }),
     db.boothHold.count({
-      where: {status: "ACTIVE", boothUnit: {floorplan: {eventId}}}
+      where: {status: "ACTIVE", boothUnit: {floorplanId: replacedFloorplanId}}
     }),
     db.boothAssignment.count({
-      where: {active: true, boothUnit: {floorplan: {eventId}}}
+      where: {active: true, boothUnit: {floorplanId: replacedFloorplanId}}
     })
   ]);
   return {

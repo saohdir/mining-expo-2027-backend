@@ -42,3 +42,17 @@ attendance, contact permission, search. Summary tiles and charts (by role, top c
 Everyone who registered appears in the report and export (owner decision, 9 Nov 2026: no separate "future events" checkbox).
 The group delegate registration ("Register a group of delegates") was removed from the customer portal and is switched off
 (`ENABLE_GROUP_ENROLLMENT=false`).
+
+## Floors (owner request, 9 Nov 2026)
+CMS → Floorplans:
+- **Several live floors** (e.g. Hall A, Hall B, Outdoor). "Create draft version" asks whether it is a *new floor* or a *new
+  version of a live floor* (a new version replaces only that floor when published).
+- **Active / Inactive** per live floor (reason required, audited). Customers and the public site see active floors only, with a
+  floor switch when there are several; existing bookings/quotations/invoices on an inactive floor stay valid.
+- **Who booked which booth**: the live-floor map and list show the company per booth — confirmed or reserved through the
+  portal, or entered by the organizer ("Booked by", for deals made outside the portal; Sales/Operations/Super Admin) — plus
+  companies that requested the booth.
+- **Split / merge**: on a live floor a booth keeps its code, bookings and the area you choose; the rest becomes a new available
+  booth next to it (A01 10 m² → A01 5 m² + A01-B 5 m²). A free split-off part can be merged back.
+
+CMS → Overview: every card opens the list behind its number.

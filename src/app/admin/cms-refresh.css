@@ -91,3 +91,36 @@
 .tag.info{background:var(--cms-info-bg);border-color:var(--cms-info-line);color:var(--cms-info)}
 .tag.brand{background:var(--color-brand-soft-16);border-color:var(--color-brand-border);color:var(--color-brand-hover)}
 @media (max-width:720px){.hbar{grid-template-columns:1fr auto}.hbar i{grid-column:1/-1}}
+
+/* Live floor (published): active switch, who booked, split */
+.floor-group{margin:8px 0}.floor-group h3{margin:6px 0 4px;text-transform:uppercase;letter-spacing:.06em}
+.live-floor{display:grid;gap:12px;margin:12px 0}
+.live-floor-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--color-border-default);border-radius:12px;padding:12px 16px}
+.floor-badge{display:inline-block;border-radius:999px;padding:4px 12px;font-weight:700;font-size:13px;border:1px solid}
+.floor-badge.on{background:var(--cms-ok-bg,#ECFDF3);color:var(--cms-ok,#067647);border-color:var(--cms-ok-line,#ABEFC6)}
+.floor-badge.off{background:#F2F4F7;color:#475467;border-color:#D0D5DD}
+.live-floor-reason{display:grid;gap:4px;max-width:640px}
+.live-floor-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:12px;align-items:start}
+.live-floor-grid .floorplan-frame{background:#fff;border:1px solid var(--color-border-default);border-radius:12px;padding:10px}
+.live-floor-grid svg{width:100%;height:auto;display:block}
+.live-floor-grid svg g{cursor:pointer}.live-floor-grid svg g:focus-visible rect{stroke:#101828;stroke-width:4}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #fff;vertical-align:-2px;margin:0 4px 0 10px}
+.live-floor-side{position:sticky;top:90px;display:grid;gap:10px;background:#fff;border:1px solid var(--color-border-default);border-radius:12px;padding:14px 16px}
+.live-floor-side h3{margin:0;font-size:18px}.live-floor-side fieldset{display:grid;gap:8px;border:1px solid var(--color-border-soft,#EAECF0);border-radius:10px;padding:10px 12px}
+.live-floor-side legend{font-weight:650;font-size:13px;padding:0 4px}
+.live-floor-side .occupant{display:grid;gap:2px;background:var(--color-brand-soft-16,#FFF1E8);border-radius:10px;padding:10px 12px}
+.interested{margin:4px 0 0;padding-left:18px}
+.live-floor-list .cms-row-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:8px}
+.live-floor-list .seg{display:inline-flex;gap:4px}
+.cms-table tr.is-selected td{background:var(--color-brand-soft-16,#FFF1E8)}
+@media (max-width:900px){.live-floor-grid{grid-template-columns:1fr}.live-floor-side{position:static}}
+
+/* Clickable dashboard cards */
+a.imdx-cms-kpi.is-link{text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
+a.imdx-cms-kpi.is-link:hover{border-color:var(--color-brand-border,#FDBA8C);box-shadow:0 4px 12px rgba(16,24,40,.10);transform:translateY(-1px)}
+a.imdx-cms-kpi.is-link:focus-visible{outline:3px solid #FDE3D3;outline-offset:2px}
+.imdx-cms-kpi-more{font-size:12px;font-weight:600;color:var(--color-brand-hover,#9A3412);margin-top:auto}
+a.imdx-cms-kpi.is-feature .imdx-cms-kpi-more{color:#fff}
+.imdx-cms .floor-group .tabline{display:flex;flex-wrap:wrap;gap:6px}
+.imdx-cms .floor-group .tabline button:not(.chosen){background:#fff!important;color:var(--color-text-primary)!important;border:1px solid var(--color-border-default)!important;box-shadow:none!important}
+.imdx-cms .floor-group .tabline button:not(.chosen):hover{background:var(--color-surface-chip)}

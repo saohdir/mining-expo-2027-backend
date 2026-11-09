@@ -21,13 +21,14 @@ export async function GET(_req: NextRequest, {params}: {params: Promise<{id: str
     const {id} = await params;
     z.string().uuid().parse(id);
     const plan = await db.floorplan.findUnique({
-      where: {id}, select: {eventId: true, status: true, rowVersion: true,
+      where: {id}, select: {eventId: true, status: true, rowVersion: true, replacesId: true,
         _count: {select: {units: true}}}
     });
     if (!plan) throw new HttpError(404, "NOT_FOUND", "Floorplan missing.");
-    const blockers = await floorplanBlockers(db, plan.eventId);
+    const blockers = await floorplanBlockers(db, plan.replacesId);
+    const replaces = plan.replacesId ? await db.floorplan.findUnique({where: {id: plan.replacesId}, select: {id: true, title: true, versionNo: true, status: true}}) : null;
     return NextResponse.json({
-      ...blockers, status: plan.status, rowVersion: plan.rowVersion,
+      ...blockers, status: plan.status, rowVersion: plan.rowVersion, replaces,
       hasUnits: plan._count.units > 0,
       canPublish: blockers.canPublish && plan.status === "DRAFT" && plan._count.units > 0
     }, {headers: {"Cache-Control": "private,no-store"}});
@@ -57,7 +58,12 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
       if (plan.backgroundUrl && (!plan.backgroundAlt || !plan.backgroundRights)) {
         throw new HttpError(409, "BACKGROUND_METADATA", "Background image needs alt text and a rights status before publishing.");
       }
-      const blockers = await floorplanBlockers(tx, plan.eventId);
+      // A draft replaces only the floor it was made from (replacesId); without one it goes live as an additional floor.
+      const replaced = plan.replacesId ? await tx.floorplan.findUnique({where: {id: plan.replacesId}, select: {id: true, status: true, active: true}}) : null;
+      if (plan.replacesId && replaced?.status !== "PUBLISHED") {
+        throw new HttpError(409, "REPLACED_FLOOR_CHANGED", "The floor this draft replaces is no longer live. Create a new version from the current floor.");
+      }
+      const blockers = await floorplanBlockers(tx, plan.replacesId);
       let remap: {moved: number; requests?: number} | null = null;
       if (!blockers.canPublish) {
         // FR-098 / AT-081: replacing a map with commitments requires the previewed remap report.
@@ -71,17 +77,17 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         }
         remap = await applyRemap(tx, preview, actor.id);
       }
-      const previous = await tx.floorplan.findMany({
-        where: {eventId: plan.eventId, status: "PUBLISHED"},
+      const previous = replaced ? await tx.floorplan.findMany({
+        where: {id: replaced.id, status: "PUBLISHED"},
         select: {id: true, versionNo: true}
-      });
-      await tx.floorplan.updateMany({
-        where: {eventId: plan.eventId, status: "PUBLISHED"},
+      }) : [];
+      if (replaced) await tx.floorplan.updateMany({
+        where: {id: replaced.id, status: "PUBLISHED"},
         data: {status: "ARCHIVED", rowVersion: {increment: 1}}
       });
       const changed = await tx.floorplan.updateMany({
         where: {id, status: "DRAFT", rowVersion: input.rowVersion},
-        data: {status: "PUBLISHED", publishedAt: new Date(), rowVersion: {increment: 1}}
+        data: {status: "PUBLISHED", publishedAt: new Date(), active: replaced ? replaced.active : true, rowVersion: {increment: 1}}
       });
       if (changed.count !== 1) throw new HttpError(409, "VERSION_CONFLICT", "Draft changed concurrently.");
       await tx.auditLog.create({

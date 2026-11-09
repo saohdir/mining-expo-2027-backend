@@ -250,9 +250,12 @@ model Floorplan {
   publishedAt DateTime?
   backgroundAlt String?
   backgroundRights String?
+  active Boolean @default(true)
+  replacesId String?
   units BoothUnit[]
   boothRequests BoothRequest[]
   @@unique([eventId,versionNo])
+  @@index([replacesId])
 }
 model BoothUnit {
   id String @id @default(uuid())
@@ -277,6 +280,9 @@ model BoothUnit {
   rotation Int @default(0)
   internalNotes String?
   placed Boolean @default(true)
+  occupantCompany String?
+  occupantContact String?
+  splitFromId String?
   assignments BoothAssignment[]
   holds BoothHold[]
   @@unique([floorplanId,code])
