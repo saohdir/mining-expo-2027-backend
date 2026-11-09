@@ -1181,6 +1181,69 @@
  "exhibitors": {
   "make-your-next-connection": [
    {
+    "key": "make-your-next-connection.9",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "THREE REASONS TO EXHIBIT"
+   },
+   {
+    "key": "make-your-next-connection.10",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Where China and Indonesia\n*do business.*"
+   },
+   {
+    "key": "make-your-next-connection.11",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Three reasons to put your company in front of the people shaping coal, energy and mining cooperation between the two countries."
+   },
+   {
+    "key": "make-your-next-connection.12",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Meet the decision-makers"
+   },
+   {
+    "key": "make-your-next-connection.13",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Government agencies, industry associations, leading energy companies, trade and investment bodies, and specialists in coal technology, equipment trade, geological exploration and engineering contracting from China and Indonesia — gathered on one high-level platform."
+   },
+   {
+    "key": "make-your-next-connection.14",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Turn policy into projects"
+   },
+   {
+    "key": "make-your-next-connection.15",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Bilateral coal and energy policy meets real business: coal trade, clean and low-carbon solutions such as coal preparation and coal chemicals, technology and equipment, coal and new-energy integration, and targeted project matchmaking across the whole value chain."
+   },
+   {
+    "key": "make-your-next-connection.16",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Build on proven partnerships"
+   },
+   {
+    "key": "make-your-next-connection.17",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Learn from China–Indonesia coal and energy cooperation that already delivers results, and use it to open new collaboration across more sectors."
+   },
+   {
     "key": "make-your-next-connection.0",
     "kind": "text",
     "tag": "span",
@@ -1288,172 +1351,340 @@
     "text": "From extraction at the source to applications that create new value. Explore the sectors represented at the exhibition."
    },
    {
-    "key": "a-world-of-opportunity.6",
+    "key": "a-world-of-opportunity.30",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-01.webp",
+    "alt": "Mining Extraction Equipment & Technology — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of-opportunity.31",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "01"
+    "text": "01 / 08"
    },
    {
-    "key": "a-world-of-opportunity.7",
+    "key": "a-world-of-opportunity.32",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Mining Extraction Equipment & Technology"
+   },
+   {
+    "key": "a-world-of-opportunity.33",
     "kind": "text",
     "tag": "span",
-    "mode": "rich",
-    "text": "**Mining Extraction Equipment & Technology**Mining machinery, drilling, hauling and underground solutions"
+    "mode": "plain",
+    "text": "Mining machinery, drilling, hauling and underground solutions"
    },
    {
-    "key": "a-world-of-opportunity.8",
+    "key": "a-world-of-opportunity.34",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Full-process equipment for open-pit and underground mining, including excavators, haulage trucks, loaders, roadheaders, drill rigs and material transport systems."
    },
    {
-    "key": "a-world-of-opportunity.9",
+    "key": "a-world-of-opportunity.35",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of-opportunity.36",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-02.webp",
+    "alt": "Mineral Processing & Beneficiation — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of-opportunity.37",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "02"
+    "text": "02 / 08"
    },
    {
-    "key": "a-world-of-opportunity.10",
+    "key": "a-world-of-opportunity.38",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Mineral Processing & Beneficiation"
+   },
+   {
+    "key": "a-world-of-opportunity.39",
     "kind": "text",
     "tag": "span",
-    "mode": "rich",
-    "text": "**Mineral Processing & Beneficiation**Crushing, grinding, screening and separation technologies"
+    "mode": "plain",
+    "text": "Crushing, grinding, screening and separation technologies"
    },
    {
-    "key": "a-world-of-opportunity.11",
+    "key": "a-world-of-opportunity.40",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Processing and beneficiation equipment for crushing, grinding, classification, screening, flotation, filtration and material-handling operations."
    },
    {
-    "key": "a-world-of-opportunity.12",
+    "key": "a-world-of-opportunity.41",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of-opportunity.42",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-03.webp",
+    "alt": "Metallurgy & Deep Processing — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of-opportunity.43",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "03"
+    "text": "03 / 08"
    },
    {
-    "key": "a-world-of-opportunity.13",
+    "key": "a-world-of-opportunity.44",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Metallurgy & Deep Processing"
+   },
+   {
+    "key": "a-world-of-opportunity.45",
     "kind": "text",
     "tag": "span",
-    "mode": "rich",
-    "text": "**Metallurgy & Deep Processing**Smelting, refining, casting and high-value processing"
+    "mode": "plain",
+    "text": "Smelting, refining, casting and high-value processing"
    },
    {
-    "key": "a-world-of-opportunity.14",
+    "key": "a-world-of-opportunity.46",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Furnaces, converters, kilns, refining and smelting systems, metallurgy solutions, casting, rolling, heat treatment and advanced manufacturing."
    },
    {
-    "key": "a-world-of-opportunity.15",
+    "key": "a-world-of-opportunity.47",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of-opportunity.48",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-04.webp",
+    "alt": "Downstream Materials & Applications — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of-opportunity.49",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "04"
+    "text": "04 / 08"
    },
    {
-    "key": "a-world-of-opportunity.16",
+    "key": "a-world-of-opportunity.50",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Downstream Materials & Applications"
+   },
+   {
+    "key": "a-world-of-opportunity.51",
     "kind": "text",
     "tag": "span",
-    "mode": "rich",
-    "text": "**Downstream Materials & Applications**Nickel, copper, batteries and industrial applications"
+    "mode": "plain",
+    "text": "Nickel, copper, batteries and industrial applications"
    },
    {
-    "key": "a-world-of-opportunity.17",
+    "key": "a-world-of-opportunity.52",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Nickel, copper, tin, aluminum, battery materials, stainless steel, alloys, industrial components and downstream partnership opportunities."
    },
    {
-    "key": "a-world-of-opportunity.18",
+    "key": "a-world-of-opportunity.53",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of-opportunity.54",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-05.webp",
+    "alt": "Digital Intelligence & Automation — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of-opportunity.55",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "05"
+    "text": "05 / 08"
    },
    {
-    "key": "a-world-of-opportunity.19",
+    "key": "a-world-of-opportunity.56",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Digital Intelligence & Automation"
+   },
+   {
+    "key": "a-world-of-opportunity.57",
     "kind": "text",
     "tag": "span",
-    "mode": "rich",
-    "text": "**Digital Intelligence & Automation**Smart mining, industrial data and automation"
+    "mode": "plain",
+    "text": "Smart mining, industrial data and automation"
    },
    {
-    "key": "a-world-of-opportunity.20",
+    "key": "a-world-of-opportunity.58",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Digital intelligence, industrial IoT, monitoring, connected systems and automation. Details subject to organizer confirmation."
    },
    {
-    "key": "a-world-of-opportunity.21",
+    "key": "a-world-of-opportunity.59",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of-opportunity.60",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-06.webp",
+    "alt": "Safety, Environment & Green Mining — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of-opportunity.61",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "06"
+    "text": "06 / 08"
    },
    {
-    "key": "a-world-of-opportunity.22",
+    "key": "a-world-of-opportunity.62",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Safety, Environment & Green Mining"
+   },
+   {
+    "key": "a-world-of-opportunity.63",
     "kind": "text",
     "tag": "span",
-    "mode": "rich",
-    "text": "**Safety, Environment & Green Mining**Safer, cleaner and more sustainable operations"
+    "mode": "plain",
+    "text": "Safer, cleaner and more sustainable operations"
    },
    {
-    "key": "a-world-of-opportunity.23",
+    "key": "a-world-of-opportunity.64",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Safety equipment, environmental protection, green mine management and responsible operations. Details subject to organizer confirmation."
    },
    {
-    "key": "a-world-of-opportunity.24",
+    "key": "a-world-of-opportunity.65",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of-opportunity.66",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-07.webp",
+    "alt": "Supporting Equipment & Consumables — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of-opportunity.67",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "07"
+    "text": "07 / 08"
    },
    {
-    "key": "a-world-of-opportunity.25",
+    "key": "a-world-of-opportunity.68",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Supporting Equipment & Consumables"
+   },
+   {
+    "key": "a-world-of-opportunity.69",
     "kind": "text",
     "tag": "span",
-    "mode": "rich",
-    "text": "**Supporting Equipment & Consumables**Components, spare parts and critical support systems"
+    "mode": "plain",
+    "text": "Components, spare parts and critical support systems"
    },
    {
-    "key": "a-world-of-opportunity.26",
+    "key": "a-world-of-opportunity.70",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Supporting equipment, spare parts, consumables and technologies for mining and downstream industrial facilities."
    },
    {
-    "key": "a-world-of-opportunity.27",
+    "key": "a-world-of-opportunity.71",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
+   },
+   {
+    "key": "a-world-of-opportunity.72",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-08.webp",
+    "alt": "Exploration, Engineering & Investment — illustrative industrial photography"
+   },
+   {
+    "key": "a-world-of-opportunity.73",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "08"
+    "text": "08 / 08"
    },
    {
-    "key": "a-world-of-opportunity.28",
+    "key": "a-world-of-opportunity.74",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Exploration, Engineering & Investment"
+   },
+   {
+    "key": "a-world-of-opportunity.75",
     "kind": "text",
     "tag": "span",
-    "mode": "rich",
-    "text": "**Exploration, Engineering & Investment**Testing, services, financing and partnerships"
+    "mode": "plain",
+    "text": "Testing, services, financing and partnerships"
    },
    {
-    "key": "a-world-of-opportunity.29",
+    "key": "a-world-of-opportunity.76",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Exploration, testing, project engineering, services and investment or financing support for the mining value chain."
+   },
+   {
+    "key": "a-world-of-opportunity.77",
+    "kind": "text",
+    "tag": "span",
+    "mode": "own",
+    "text": "EXPLORE CATEGORY"
    }
   ],
   "exhibitor-downloads": [
@@ -1473,36 +1704,6 @@
     "mode": "own",
     "text": "View the published floorplan",
     "href": "/floorplan"
-   }
-  ],
-  "exhibitor-directory": [
-   {
-    "key": "exhibitor-directory.0",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "plain",
-    "text": "Exhibitor directory"
-   },
-   {
-    "key": "exhibitor-directory.1",
-    "kind": "text",
-    "tag": "label",
-    "mode": "own",
-    "text": "Search exhibitor or booth"
-   },
-   {
-    "key": "exhibitor-directory.2",
-    "kind": "text",
-    "tag": "label",
-    "mode": "own",
-    "text": "Category"
-   },
-   {
-    "key": "exhibitor-directory.3",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "No approved exhibitors are listed yet."
    }
   ]
  },

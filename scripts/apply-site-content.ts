@@ -7,13 +7,15 @@
  *   docker compose --env-file .env.uat -f deploy/compose.uat.yml exec app npx tsx scripts/apply-site-content.ts --confirm            # drafts only
  *   docker compose --env-file .env.uat -f deploy/compose.uat.yml exec app npx tsx scripts/apply-site-content.ts --confirm --publish  # drafts + publish
  *
+ *   … --confirm --publish --page=exhibitors   # only the listed page(s), e.g. after a page's design changed
+ *
  * Every layout is validated with the same rules as the CMS. Publishing creates a normal revision (rollback in CMS → Pages & layout).
  * English pages other than privacy/terms are never touched. Re-running is safe (it replaces the seeded drafts/versions again).
  */
 import fs from "node:fs";
 import path from "node:path";
 import {Prisma, PrismaClient} from "@prisma/client";
-import {defaultLayout, layoutProblems, layoutSchema, PAGE_FIELDS, PAGE_KEYS, type Layout} from "../src/lib/page-layout";
+import {defaultLayout, layoutProblems, layoutSchema, PAGE_FIELDS, PAGE_KEYS, pruneLayout, type Layout} from "../src/lib/page-layout";
 
 const db = new PrismaClient();
 const dir = path.join(__dirname, "i18n");
@@ -25,8 +27,12 @@ const SYSTEM = "system:apply-site-content";
 
 async function baseBlocks(page: string) {
   const en = await db.pageLayout.findUnique({where: {pageKey_locale: {pageKey: page, locale: "en"}}});
-  const pub = en?.published ? layoutSchema.safeParse(en.published) : null;
-  return (pub?.success ? pub.data.blocks : defaultLayout(page).blocks).filter(b => b.type === "static" || page !== "privacy" && page !== "terms");
+  const pub = en?.published ? layoutSchema.safeParse(pruneLayout(page, en.published)) : null;
+  // Sections added to the static site after the English layout was published are appended in design order.
+  const blocks = pub?.success ? pub.data.blocks : defaultLayout(page).blocks;
+  const listed = new Set(blocks.flatMap(b => b.type === "static" ? [b.ref] : []));
+  const added = defaultLayout(page).blocks.filter(b => b.type === "static" && !listed.has(b.ref));
+  return [...blocks, ...added].filter(b => b.type === "static" || page !== "privacy" && page !== "terms");
 }
 
 function translatedFields(page: string) {
@@ -68,7 +74,9 @@ async function main() {
   if (!process.argv.includes("--confirm")) throw new Error("Add --confirm (writes page layouts in DATABASE_URL). Add --publish to publish them too.");
   const publish = process.argv.includes("--publish");
   let total = 0;
-  for (const page of PAGE_KEYS) {
+  const only = process.argv.find(a => a.startsWith("--page="))?.slice(7).split(",");
+  if (only?.some(p => !PAGE_KEYS.includes(p))) throw new Error("Unknown page in --page=. Pages: " + PAGE_KEYS.join(", "));
+  for (const page of only || PAGE_KEYS) {
     const blocks = page === "site" ? [] : await baseBlocks(page);
     if (page === "privacy" || page === "terms") {
       total += await save(page, "en", legalLayout(page, "en", blocks), publish);
@@ -79,6 +87,6 @@ async function main() {
     }
     console.log(`  ${publish ? "published" : "draft saved"}: ${page}`);
   }
-  console.log(`Done: ${total} field overrides across ${PAGE_KEYS.length} pages (${publish ? "published" : "drafts only — publish in CMS or re-run with --publish"}).`);
+  console.log(`Done: ${total} field overrides across ${(only || PAGE_KEYS).length} pages (${publish ? "published" : "drafts only — publish in CMS or re-run with --publish"}).`);
 }
 main().catch(e => { console.error(e instanceof Error ? e.message : e); process.exitCode = 1; }).finally(() => db.$disconnect());

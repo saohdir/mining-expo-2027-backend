@@ -62,3 +62,14 @@ export function layoutProblems(pageKey: string, layout: Layout) {
 }
 /** Default layout = the designed page exactly as built (all static sections, original order). */
 export const defaultLayout = (pageKey: string): Layout => ({seo: {title: "", description: ""}, fields: {}, blocks: (PAGE_MANIFEST[pageKey] || []).map(b => ({id: "s-" + b.id, type: "static" as const, ref: b.id, hidden: false}))});
+
+/** Stored layouts outlive the static HTML: when a designed section or element is removed from the site, drop the stale
+ * section references and field overrides (instead of failing validation or applying them to the wrong element). */
+export function pruneLayout<T>(pageKey: string, stored: T): T {
+  const parsed = layoutSchema.safeParse(stored);
+  if (!parsed.success) return stored;
+  const known = new Set((PAGE_MANIFEST[pageKey] || []).map(b => b.id)), fields = fieldIndex(pageKey);
+  const l = parsed.data;
+  return {...l, blocks: l.blocks.filter(b => b.type !== "static" || known.has(b.ref)),
+    fields: Object.fromEntries(Object.entries(l.fields || {}).filter(([k]) => fields.has(k)))} as T;
+}
