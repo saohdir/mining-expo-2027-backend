@@ -4,6 +4,10 @@ import {test} from "node:test";
 import assert from "node:assert/strict";
 import {createRequire} from "node:module";
 import {BASE, lastOtp, lastLink} from "./lib.mjs";
+import {PrismaClient} from "@prisma/client";
+const db = new PrismaClient();
+let ev = null;
+test.after(async () => { if (ev) await db.event.update({where: {id: ev.id}, data: {published: ev.published, visitorOpen: ev.visitorOpen}}); await db.$disconnect(); });
 let chromium = null;
 try { ({chromium} = createRequire(import.meta.url)("playwright")); } catch { /* skipped */ }
 const skip = chromium ? false : "playwright not installed";
@@ -42,6 +46,9 @@ test("FR-093 resize handle changes unit size and marks the draft unsaved", {skip
 });
 
 test("FR-117/119/029 customer hub: OTP sign-in, three journeys, action banners, registration reference", {skip}, async () => {
+  // Self-contained: the hub needs a published event with visitor registration open.
+  ev = await db.event.findUniqueOrThrow({where: {code: "IMDX-2027"}});
+  await db.event.update({where: {id: ev.id}, data: {published: true, visitorOpen: true}});
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({viewport: {width: 390, height: 844}});
@@ -67,7 +74,7 @@ test("FR-117/119/029 customer hub: OTP sign-in, three journeys, action banners, 
     await page.getByRole("heading", {name: "Event experience"}).waitFor();
     for (const t of ["Visit exhibition", "Join conference", "Reserve booth"]) await page.getByRole("heading", {name: t}).waitFor();
     await page.getByRole("region", {name: "Action needed"}).getByText("Add your company to your profile.").waitFor();
-    await page.getByRole("button", {name: "Exhibition visitor", exact: true}).click();
+    await page.getByRole("tab", {name: "Exhibition visitor", exact: true}).click();
     // Participant details: salutation, job, company (email from sign-up), WhatsApp verified by OTP.
     const register = page.getByRole("button", {name: "Register as exhibition visitor"});
     assert.equal(await register.isDisabled(), true, "registration waits for participant details");

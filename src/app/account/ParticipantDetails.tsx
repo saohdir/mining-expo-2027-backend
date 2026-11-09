@@ -2,7 +2,16 @@
 import {useEffect, useState} from "react";
 
 export type Participant = {email: string | null; phone?: string | null; verifiedPhoneAt?: string | null;
-  profile: {salutation?: string | null; fullName: string; jobTitle?: string | null; organization?: string | null} | null};
+  profile: {salutation?: string | null; fullName: string; jobTitle?: string | null; organization?: string | null; futureContactOptIn?: boolean} | null};
+
+/** Optional, separate consent (UU PDP): may the organizer contact this person about future IMDX editions? */
+export function FutureContact({p, onSaved}: {p: Participant; onSaved: () => void}) {
+  const [busy, setBusy] = useState(false), on = Boolean(p.profile?.futureContactOptIn);
+  if (!p.profile) return null;
+  return <label className="consent future-contact"><input type="checkbox" checked={on} disabled={busy} onChange={e => { setBusy(true);
+    send("/api/customer/me", "PATCH", {fullName: p.profile!.fullName, futureContactOptIn: e.target.checked}).then(onSaved).catch(() => {}).finally(() => setBusy(false)); }} />
+    <span>Keep me informed about future IMDX events (optional). You can withdraw this any time in your profile.</span></label>;
+}
 async function send(path: string, method: string, body: unknown) {
   const r = await fetch(path, {method, cache: "no-store", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
   const j = await r.json().catch(() => ({}));
@@ -55,6 +64,7 @@ export function ParticipantDetails({p, onSaved, intro}: {p: Participant; onSaved
       <div><button disabled={busy || saved}>{saved ? "Saved ✓" : "Save details"}</button></div>
     </form>
     <WhatsAppVerify p={p} onVerified={onSaved} />
+    <FutureContact p={p} onSaved={onSaved} />
     {msg && <p className="micro" role="status">{msg}</p>}
   </div>;
 }

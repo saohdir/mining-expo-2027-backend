@@ -82,6 +82,7 @@ const navGroups:Group[]=[
     {label:"Check-ins",href:"/admin/reports",icon:"activity",roles:["SUPER_ADMIN","OPERATIONS","VIEWER"]}
   ]},
   {title:"Insights",items:[
+    {label:"Participant Prospects",href:"/admin/prospects",icon:"users",roles:["SUPER_ADMIN","SALES","OPERATIONS"]},
     {label:"Reports & Exports",href:"/admin/reports",icon:"chart",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","VIEWER"]}
   ]},
   {title:"Content",items:[
