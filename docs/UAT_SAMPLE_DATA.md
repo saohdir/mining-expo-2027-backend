@@ -16,9 +16,18 @@ Everything is labelled "sample"/"示例". Remove the sample content with `--remo
 | News | 3 sample posts (EN + 中文) | CMS → Website Content → News |
 | SMS | `SMS_PROVIDER=mailpit`: SMS codes arrive in Mailpit as `<number>@sms.uat.invalid` | `.env.uat` `SMS_PROVIDER=twilio` + `TWILIO_*` |
 | WhatsApp | `WHATSAPP_PROVIDER=mailpit`: template messages arrive in Mailpit as `<number>@whatsapp.uat.invalid` | `.env.uat` `WHATSAPP_PROVIDER=meta` + `WHATSAPP_*` |
+| Sample participants | 20 accounts `sample01…20@sample.imdx.invalid`: 12 visitors (6 checked in on 26 May), 8 conference delegates (paid / unpaid / free), 5 exhibitor requests (new indoor, custom size, outdoor, offered, confirmed + paid) with 7 invoices | They feed CMS lists, finance and reports; remove with `--remove` before go-live |
 | Legal texts | privacy + terms v1.0 (EN + 中文), prepared drafts | CMS → Pages & layout → privacy / terms (after legal review) |
 
 Customer flows enabled on UAT by this setup: visitor registration (QR pass), conference booking (paid → manual invoice with the dummy
 bank account; free reception → organizer confirmation), booth request on the floorplan (→ quotation → invoice), exhibitor
 representatives, group delegates, fee estimate. Money must never be transferred to the dummy account — the invoice PDF and the
 footer show "UAT / NOT VALID FOR REAL PAYMENT".
+
+## Registration forms (Product Owner request, 9 Nov 2026)
+- **Exhibition visitor** and **conference delegate**: salutation (Bapak/Ibu), full name, job title, company, e-mail from sign-up and a
+  WhatsApp number verified with a one-time code sent by SMS or WhatsApp. One account = one person. The server refuses registration
+  until all are present (`PROFILE_INCOMPLETE`).
+- **Exhibitor**: company name, PIC name, PIC WhatsApp (verified by code), products to display, indoor/outdoor, optional custom size
+  (when no displayed booth fits) — then preferred booths, filtered to indoor or outdoor units (outdoor = hall/zone "Outdoor").
+- Reports: registrations export adds Salutation, Job title, WhatsApp; booth export adds PIC WhatsApp, Products, Indoor/Outdoor, Custom size.

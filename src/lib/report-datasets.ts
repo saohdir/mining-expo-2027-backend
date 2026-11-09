@@ -25,14 +25,15 @@ export async function registrations(role: AdminRole, basis: string, r: Range, f:
   let cursor: {id: string} | undefined;
   for (;;) {
     const rec = await db.enrollment.findMany({where, orderBy: [{createdAt: "desc"}, {id: "desc"}], take: 5000, ...(cursor ? {cursor, skip: 1} : {}),
-      include: {account: {select: {email: true, profile: {select: {fullName: true, organization: true}}}}, conference: {select: {title: true}},
+      include: {account: {select: {email: true, phone: true, profile: {select: {salutation: true, fullName: true, organization: true, jobTitle: true}}}}, conference: {select: {title: true}},
         passes: {select: {admissions: {select: {admittedAt: true}, orderBy: {admittedAt: "asc"}, take: 1}}}}});
-    for (const x of rec) rows.push([x.id, x.type, x.status, x.account.profile?.fullName || "", ...(contact ? [x.account.email || ""] : []), x.account.profile?.organization || "", x.conference?.title || "",
+    for (const x of rec) rows.push([x.id, x.type, x.status, x.account.profile?.salutation === "IBU" ? "Ibu" : x.account.profile?.salutation === "BAPAK" ? "Bapak" : "", x.account.profile?.fullName || "", x.account.profile?.jobTitle || "",
+      ...(contact ? [x.account.email || "", x.account.phone || ""] : []), x.account.profile?.organization || "", x.conference?.title || "",
       iso(x.createdAt), iso(x.confirmedAt), iso(x.passes.flatMap(p => p.admissions)[0]?.admittedAt)]);
     if (rec.length < 5000) break;
     cursor = {id: rec[rec.length - 1].id};
   }
-  return {sheet: "Registrations", columns: ["Registration ID", "Type", "Status", "Customer", ...(contact ? ["Email"] : []), "Organization", "Conference", "Created UTC", "Confirmed UTC", "First check-in UTC"], rows} as Dataset;
+  return {sheet: "Registrations", columns: ["Registration ID", "Type", "Status", "Salutation", "Customer", "Job title", ...(contact ? ["Email", "WhatsApp"] : []), "Organization", "Conference", "Created UTC", "Confirmed UTC", "First check-in UTC"], rows} as Dataset;
 }
 
 export async function booths(role: AdminRole, basis: string, r: Range, f: {status?: string; hall?: string; zone?: string; q?: string}, limit = SYNC_LIMIT) {
@@ -45,13 +46,14 @@ export async function booths(role: AdminRole, basis: string, r: Range, f: {statu
     assignments: {where: {active: true}, include: {boothUnit: {select: {code: true, hall: true, zone: true, areaSqm: true}}}},
     offers: {orderBy: {revision: "desc"}, take: 1}, invoices: {include: {transfers: true, adjustments: true}}}});
   const money = ["SUPER_ADMIN", "SALES", "FINANCE"].includes(role);
-  return {sheet: "Booth requests", columns: ["Request ID", "Company", "Contact", ...(money ? ["Email"] : []), "Status", "Requested m²", "Offered m²", ...(money ? ["Quoted IDR", "Paid IDR", "Outstanding IDR"] : []),
+  return {sheet: "Booth requests", columns: ["Request ID", "Company", "Contact", ...(money ? ["Email", "PIC WhatsApp"] : []), "Products", "Indoor/Outdoor", "Custom size", "Status", "Requested m²", "Offered m²", ...(money ? ["Quoted IDR", "Paid IDR", "Outstanding IDR"] : []),
     "Assigned units", "Hall", "Zone", "Assigned m²", "Created UTC"],
     rows: rec.map(x => {
       const inv = x.invoices.find(i => !["CANCELLED", "VOID", "DRAFT"].includes(i.status));
       const t = inv ? ledgerTotals(inv.totalMinor, inv.transfers, inv.adjustments) : null;
       const units = x.assignments.map(a => a.boothUnit);
-      return [x.id, String((x.companySnapshot as {name?: string})?.name || ""), x.account.profile?.fullName || "", ...(money ? [x.account.email || ""] : []), x.status, Number(x.requestedAreaSqm),
+      const cs = (x.companySnapshot || {}) as {name?: string; contactName?: string; picWhatsapp?: string; products?: string; location?: string; customSize?: string};
+      return [x.id, String(cs.name || ""), cs.contactName || x.account.profile?.fullName || "", ...(money ? [x.account.email || "", cs.picWhatsapp || ""] : []), cs.products || "", cs.location || "", cs.customSize || "", x.status, Number(x.requestedAreaSqm),
         x.offers[0] ? Number(x.offers[0].offeredAreaSqm) : "", ...(money ? [x.offers[0]?.quotedPriceMinor.toString() || "", t?.paid.toString() || "0", t?.outstanding.toString() || ""] : []),
         units.map(u => u.code).join(" "), [...new Set(units.map(u => u.hall).filter(Boolean))].join(" "), [...new Set(units.map(u => u.zone).filter(Boolean))].join(" "),
         units.reduce((a, u) => a + Number(u.areaSqm), 0) || "", iso(x.createdAt)];

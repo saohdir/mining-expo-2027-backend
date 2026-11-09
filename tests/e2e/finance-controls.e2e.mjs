@@ -44,7 +44,13 @@ test("AT-063: email + WhatsApp sharing recorded as delivery history", async () =
   ok(l, 200, "ledger");
   assert.equal(l.body.deliveries[0].channel, "EMAIL");
   assert.match(l.body.deliveries[0].destinationMasked, /\*\*\*@test\.local/);
+  const acc = await db.invoice.findUniqueOrThrow({where: {id: S.invoice}, select: {accountId: true}});
+  const before = await db.customerAccount.findUniqueOrThrow({where: {id: acc.accountId}, select: {verifiedPhoneAt: true}});
+  await db.customerAccount.update({where: {id: acc.accountId}, data: {verifiedPhoneAt: null}});
   ok(await R.SALES.post(`/api/admin/invoices/${S.invoice}/send`, {channel: "WHATSAPP", reason: "E2E whatsapp"}), 409, "no verified phone → 409");
+  await db.customerAccount.update({where: {id: acc.accountId}, data: {verifiedPhoneAt: before.verifiedPhoneAt}});
+  const wa = await R.SALES.post(`/api/admin/invoices/${S.invoice}/send`, {channel: "WHATSAPP", reason: "E2E whatsapp"}); ok(wa, 200, "verified phone → manual WhatsApp compose link");
+  assert.match(wa.body.manualComposeUrl, /^https:\/\/wa\.me\/62812/);
 });
 
 test("AT-064: customer proof is PENDING only; invoice stays unpaid; Finance verifies against it", async () => {

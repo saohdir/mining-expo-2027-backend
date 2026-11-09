@@ -23,6 +23,7 @@ enum AccountStatus {
 enum Channel {
   EMAIL
   SMS
+  WHATSAPP
 }
 enum EnrollmentType {
   VISITOR
@@ -159,6 +160,7 @@ model CustomerProfile {
   id String @id @default(uuid())
   accountId String @unique
   account CustomerAccount @relation(fields:[accountId],references:[id])
+  salutation String?
   fullName String
   organization String?
   jobTitle String?
