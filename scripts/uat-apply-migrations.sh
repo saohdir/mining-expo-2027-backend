@@ -39,6 +39,7 @@ MIGRATIONS=(
  "20261116010000_marketing_consent|SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='CustomerProfile' AND column_name='futureContactOptIn')"
  "20261117010000_floor_activation|SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='Floorplan' AND column_name='active')"
  "20261118010000_programme_items|SELECT to_regclass('public.\"ProgrammeItem\"') IS NOT NULL"
+ "20261119010000_event_gallery|SELECT to_regclass('public.\"GalleryItem\"') IS NOT NULL"
 )
 q(){ "${DC[@]}" exec -T postgres psql -U "$DBU" -d "$DBN" -tAq -c "$1" 2>/dev/null | tr -d '[:space:]'; }
 

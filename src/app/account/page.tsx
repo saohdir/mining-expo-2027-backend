@@ -32,6 +32,14 @@ export default function AccountPage(){
    if(intent.unit){const u=plan.units?.find((x:{id:string;status:string})=>x.id===intent.unit);if(u&&u.status==="AVAILABLE"){setChosen([u.id]);setMessage("Your selected booth "+(u as {code?:string}).code+" is preselected. Complete the request below — it is a preference, not a reservation.")}else setMessage("The booth you selected is no longer available. Please choose another available unit.")}}catch{}
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[me,plan]);
+ // Sign-in popup on the public website: /account?embed=1 is shown in an iframe; once signed in, the parent page is told where to go.
+ const [embed,setEmbed]=useState(false);
+ useEffect(()=>{setEmbed(new URLSearchParams(window.location.search).get("embed")==="1"&&window.parent!==window)},[]);
+ useEffect(()=>{if(!embed)return;const post=(m:object)=>window.parent.postMessage({source:"imdx-account",...m},window.location.origin);
+   const ro=new ResizeObserver(()=>post({type:"size",height:document.documentElement.scrollHeight}));ro.observe(document.body);
+   if(me){const t=new URLSearchParams(window.location.search).get("tab");post({type:"signed-in",next:"/account"+(t&&/^[a-z]+$/.test(t)?"?tab="+t:"")})}
+   const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape")post({type:"close"})};window.addEventListener("keydown",onKey);
+   return()=>{ro.disconnect();window.removeEventListener("keydown",onKey)}},[embed,me]);
  const [registrationOpen,setRegistrationOpen]=useState(false);
  const [team,setTeam]=useState({staff:false,estimator:false});
  useEffect(()=>{void request("/api/health").then(h=>setRegistrationOpen(Boolean(h.registrationEnabled))).catch(()=>{})},[]);
@@ -40,8 +48,9 @@ export default function AccountPage(){
  const event=events[0];
  const selectedConference=event?.conferences?.find(c=>c.id===conference);
  return <main className="portal-shell">
-  <nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>Customer account / UAT</span><a href="/admin">Admin CMS</a></nav>
-  {loading?<section>Loading account information…</section>:!me?<AuthPanel registrationOpen={registrationOpen} onSignedIn={()=>void reload()}/>:<>
+  {embed ? <div className="auth-embed">{loading ? <p role="status">Loading…</p> : me ? <p role="status">Signed in — opening your account…</p> : <AuthPanel registrationOpen={registrationOpen} onSignedIn={()=>void reload()}/>}</div> : <>
+  <nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>Customer account / UAT</span><a href="/">Back to website</a></nav>
+  {loading?<section>Loading account information…</section>:!me?<div className="auth-modal-backdrop"><div className="auth-modal" role="dialog" aria-modal="true" aria-label="Sign in or create your IMDX account"><a className="auth-modal-close" href="/" aria-label="Close and go back to the website">×</a><AuthPanel registrationOpen={registrationOpen} onSignedIn={()=>void reload()}/></div></div>:<>
     <header className="portal-heading portal-hero"><div><p className="eyebrow">MY IMDX 2027</p><h1>Welcome, <em>{[me.profile?.salutation==="IBU"?"Ibu":me.profile?.salutation==="BAPAK"?"Bapak":"",me.profile?.fullName||"participant"].filter(Boolean).join(" ")}</em></h1>
       <p>Your visit, conference seats and booth — in one place.</p></div>
       <ul className="event-chips" aria-label="Event"><li>📅 26–28 May 2027</li><li>📍 {event?.venue||"JIEXPO Kemayoran, Jakarta"}</li>{me.email&&<li>✉️ {me.email}</li>}</ul></header>
@@ -158,5 +167,6 @@ export default function AccountPage(){
       <button disabled={busy}>Save profile</button></form><AccountSecurity smsAvailable={smsAvailable} onChanged={()=>void reload()}/></section>}
     <div className="portal-footer-actions"><button className="ghost" onClick={()=>void doAction(()=>request("/api/auth/logout",{method:"POST"}),"Signed out.")}>Sign out</button></div>
   </>}
- </main>;
+ </>}
+  </main>;
 }

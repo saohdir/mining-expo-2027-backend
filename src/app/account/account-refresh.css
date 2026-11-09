@@ -71,3 +71,15 @@
   .account-app .tabline.portal-tabs{top:60px}
   .event-chips li{font-size:12px}
 }
+
+/* Sign-in / registration as a popup (owner request): /account when signed out, and the embedded form inside the website popup. */
+.account-app .auth-modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px 16px;overflow-y:auto;
+  background:radial-gradient(1200px 600px at 10% -10%,rgba(194,65,12,.35),transparent 60%),linear-gradient(135deg,rgba(16,24,40,.78),rgba(82,15,0,.78)),url(/assets/where-progress-hero.webp) center/cover no-repeat}
+.account-app .auth-modal{position:relative;width:min(520px,100%);max-height:calc(100vh - 48px);overflow:auto;background:#fff;border-radius:20px;box-shadow:0 30px 80px rgba(16,24,40,.35);padding:30px 28px 26px;animation:auth-pop .25s ease-out}
+.account-app .auth-modal-close{position:absolute;top:12px;right:14px;width:36px;height:36px;display:grid;place-items:center;border-radius:50%;color:#475467;text-decoration:none;font-size:24px;line-height:1}
+.account-app .auth-modal-close:hover{background:#F2F4F7;color:#101828}
+.account-app .auth-modal .portal-auth,.account-app .auth-embed .portal-auth{margin:0;padding:0;border:0;box-shadow:none;background:transparent;max-width:none}
+.account-app .auth-embed{padding:22px 22px 18px;background:#fff;min-height:100%}
+.account-app:has(.auth-embed) .portal-shell,.account-app:has(.auth-embed){background:#fff;padding:0;margin:0}
+@keyframes auth-pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.account-app .auth-modal{animation:none}}

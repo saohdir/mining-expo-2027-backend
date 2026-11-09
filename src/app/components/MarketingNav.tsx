@@ -1,30 +1,30 @@
 "use client";
 
 import {useEffect, useState} from "react";
+import type React from "react";
 
 const navigation = [
   {label: "About", items: [
     {label: "Event Overview", href: "/about/"},
-    {label: "Exhibition Scope", href: "/exhibition/"},
     {label: "Organizers & Partners", href: "/partners/"},
     {label: "The Venue", href: "/the-venue/"}
   ]},
   {label: "Exhibit", items: [
     {label: "Why Exhibit", href: "/exhibitors/"},
-    {label: "Booth Requests", href: "/account"}
+    {label: "Booth Requests", href: "/floorplan"}
   ]},
   {label: "Visit", items: [
     {label: "Visitor Information", href: "/visitors/"},
-    {label: "Visitor Registration", href: "/account"},
+    {label: "Visitor Registration", href: "/floorplan"},
     {label: "The Venue", href: "/the-venue/"}
   ]},
-  {label: "Programme", items: [
+  {label: "Conferences", items: [
     {label: "Conferences", href: "/programme/"},
     {label: "My Conferences", href: "/account"}
   ]},
   {label: "Media", items: [
     {label: "News & Updates", href: "/news/"},
-    {label: "Photo & Motion Highlights", href: "/highlights/"}
+    {label: "Event Highlight", href: "/highlights/"}
   ]}
 ] as const;
 
@@ -35,6 +35,9 @@ const navigation = [
 export default function MarketingNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  // Inside the website's sign-in popup (/account?embed=1) the page shows only the form.
+  const [embed, setEmbed] = useState(false);
+  useEffect(() => { setEmbed(new URLSearchParams(window.location.search).get("embed") === "1" && window.parent !== window); }, []);
 
   useEffect(() => {
     const escape = (event: KeyboardEvent) => {
@@ -51,6 +54,15 @@ export default function MarketingNav() {
     setMobileOpen(false);
     setExpanded(null);
   };
+
+  // Navbar "Visitor Registration" (owner request): signed in → account visitor tab, otherwise → floorplan.
+  const visitorRegistration = async (e: React.MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault(); close();
+    const signedIn = await fetch("/api/customer/me", {cache: "no-store"}).then(r => r.ok).catch(() => false);
+    window.location.assign(signedIn ? "/account?tab=visit" : "/floorplan");
+  };
+  if (embed) return null;
 
   return <>
     <div className="imdx-ribbon" role="note">
@@ -81,7 +93,7 @@ export default function MarketingNav() {
                 {group.label}<span className="imdx-caret" aria-hidden="true">⌄</span>
               </button>
               <div className="imdx-dropdown" id={id}>
-                {group.items.map(item => <a key={item.href+item.label} href={item.href} onClick={close}>{item.label}</a>)}
+                {group.items.map(item => <a key={item.href+item.label} href={item.href} onClick={item.label === "Visitor Registration" ? visitorRegistration : close}>{item.label}</a>)}
               </div>
             </div>;
           })}

@@ -829,3 +829,45 @@ model ProgrammeRevision {
   createdAt DateTime @default(now())
   @@unique([itemId,version])
 }
+
+/// Event Highlights gallery (/highlights/): photos and videos grouped by exhibition year (year buttons on the page).
+model GalleryYear {
+  year Int @id
+  label String?
+  published Boolean @default(true)
+  sortOrder Int @default(0)
+  createdAt DateTime @default(now())
+  items GalleryItem[]
+}
+model GalleryItem {
+  id String @id @default(uuid())
+  year Int
+  galleryYear GalleryYear @relation(fields:[year],references:[year])
+  kind String
+  status String @default("DRAFT")
+  processing String @default("PENDING")
+  processingError String?
+  fileKey String?
+  thumbKey String?
+  originalKey String?
+  originalName String?
+  originalBytes Int
+  bytes Int?
+  width Int?
+  height Int?
+  durationSec Float?
+  titleEn String?
+  titleZh String?
+  captionEn String?
+  captionZh String?
+  altEn String?
+  altZh String?
+  rightsStatus String?
+  sortOrder Int @default(0)
+  publishedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updatedBy String
+  @@index([year,status,sortOrder])
+  @@index([processing])
+}
