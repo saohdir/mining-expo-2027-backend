@@ -56,5 +56,7 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Install ffmpeg (gallery video compression, as in the Dockerfile)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg
       - name: API E2E (business flow + CMS regression)
         run: bash scripts/e2e-local.sh
