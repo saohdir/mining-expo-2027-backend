@@ -19,7 +19,7 @@
 import {Prisma, PrismaClient} from "@prisma/client";
 import {ESTIMATOR_KEY, tariffSchema} from "../src/lib/fee-estimator";
 import {CHARGES_KEY, chargesConfigSchema} from "../src/lib/invoice-charges";
-import {defaultLayout, layoutProblems, layoutSchema, type Layout} from "../src/lib/page-layout";
+import {defaultLayout, layoutProblems, layoutSchema, type Layout, pruneLayout} from "../src/lib/page-layout";
 import {hashToken, randomToken, sealToken} from "../src/lib/security";
 import {shortCodeFor, shortCodeHash} from "../src/lib/pass-code";
 
@@ -124,7 +124,7 @@ const PACKAGES: Record<string, {heading: string; items: [string, string][]}> = {
 async function packages(remove: boolean) {
   for (const locale of ["en", "zh"]) {
     const row = await db.pageLayout.findUnique({where: {pageKey_locale: {pageKey: "partners", locale}}});
-    const cur = row?.published ? layoutSchema.parse(row.published) : defaultLayout("partners");
+    const cur = row?.published ? layoutSchema.parse(pruneLayout("partners", row.published)) : defaultLayout("partners");
     const blocks = cur.blocks.filter(b => b.id !== "sample-packages");
     if (!remove) blocks.push({id: "sample-packages", type: "cards", hidden: false, data: {heading: PACKAGES[locale].heading, items: PACKAGES[locale].items.map(([title, text]) => ({title, text, href: "/contact/", imageUrl: "", imageAlt: ""}))}});
     const layout: Layout = layoutSchema.parse({...cur, blocks});
@@ -268,7 +268,8 @@ async function main() {
   const evId = (await db.event.findUniqueOrThrow({where: {code: process.env.ACTIVE_EVENT_CODE || "IMDX-2027"}})).id;
   if (!remove) { await eventAndProgrammes(); await floorplan(evId); }
   await participants(evId, remove);
-  await content(remove); await packages(remove); await settings(remove);
+  // Owner decision (Nov 2026): no sponsorship packages section on /partners/ — always remove the earlier sample block.
+  await content(remove); await packages(true); await settings(remove);
   if (remove) console.log("Note: event/programme/floorplan values are kept (edit them in CMS); unpublish the sample floorplan there once the real one is ready.");
   console.log("Done.");
 }

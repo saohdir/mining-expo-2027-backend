@@ -3291,25 +3291,11 @@
  "partners": {
   "built-around": [
    {
-    "key": "built-around.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "ORGANIZERS & INDUSTRY NETWORK"
-   },
-   {
     "key": "built-around.1",
     "kind": "text",
     "tag": "h2",
     "mode": "rich",
-    "text": "Built around *industry collaboration.*"
-   },
-   {
-    "key": "built-around.2",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Selected institutions and organizers mentioned in the preliminary event invitation. Names, logos and involvement are subject to organizer confirmation."
+    "text": "Organizer & *Partners*"
    }
   ],
   "confirmed-organizers-partners": [
@@ -3318,39 +3304,7 @@
     "kind": "text",
     "tag": "h2",
     "mode": "plain",
-    "text": "Confirmed organizers & partners"
-   }
-  ],
-  "partner-or-sponsor-imdx-2027": [
-   {
-    "key": "partner-or-sponsor-imdx-2027.0",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "plain",
-    "text": "Partner or sponsor IMDX 2027"
-   },
-   {
-    "key": "partner-or-sponsor-imdx-2027.1",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Packages are confirmed by the organizer. Tell us about your goals and we will contact you."
-   },
-   {
-    "key": "partner-or-sponsor-imdx-2027.2",
-    "kind": "text",
-    "tag": "a",
-    "mode": "own",
-    "text": "Enquire about partnership",
-    "href": "/contact/?topic=PARTNER#imdx-contact-form"
-   },
-   {
-    "key": "partner-or-sponsor-imdx-2027.3",
-    "kind": "text",
-    "tag": "a",
-    "mode": "own",
-    "text": "Sponsorship enquiry",
-    "href": "/contact/?topic=SPONSOR#imdx-contact-form"
+    "text": "Media Partners"
    }
   ]
  },
@@ -3612,32 +3566,6 @@
     "tag": "span",
     "mode": "plain",
     "text": "2027 · SCHEDULE TBA"
-   }
-  ],
-  "confirmed-schedule": [
-   {
-    "key": "confirmed-schedule.0",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "plain",
-    "text": "Confirmed schedule"
-   },
-   {
-    "key": "confirmed-schedule.1",
-    "kind": "text",
-    "tag": "label",
-    "mode": "own",
-    "text": "Day"
-   }
-  ],
-  "all-programmes": [
-   {
-    "key": "all-programmes.0",
-    "kind": "text",
-    "tag": "a",
-    "mode": "own",
-    "text": "See all published programmes",
-    "href": "/conferences"
    }
   ]
  },

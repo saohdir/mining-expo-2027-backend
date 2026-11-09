@@ -5,6 +5,9 @@ const types={".html":"text/html",".css":"text/css",".js":"text/javascript",".web
 http.createServer((req,res)=>{const u=new URL(req.url,"http://x");
  if(/^\/(api|_next|account|admin|floorplan|conferences)(\/|$)/.test(u.pathname)){const p=http.request({host:"127.0.0.1",port:backend,path:req.url,method:req.method,headers:{...req.headers,"x-forwarded-for":"10.0.0."+Math.floor(Math.random()*200)}},r=>{res.writeHead(r.statusCode,r.headers);r.pipe(res)});req.pipe(p);return}
  if(u.pathname==="/zh"){res.writeHead(301,{location:"/zh/"});res.end();return}
+ // CR-PROGRAMME: same as nginx — /programme/<slug>/ (also under /zh/) serves programme/item.html after a published check, else 404.
+ if(/^(?:\/zh)?\/programme\/[a-z0-9]+(?:-[a-z0-9]+)*\/?$/.test(u.pathname)){const c=http.request({host:"127.0.0.1",port:backend,path:"/api/public/programme-exists",method:"GET",headers:{"x-original-uri":req.url,cookie:req.headers.cookie||""}},r=>{r.resume();
+   const ok=r.statusCode===204,f=path.join(root,ok?"programme/item.html":"404.html");res.writeHead(ok?200:404,{"content-type":"text/html"});fs.createReadStream(f).pipe(res)});c.on("error",()=>{res.writeHead(502);res.end()});c.end();return}
  // CR-LANG-01: same as nginx — /zh/... serves the same static file.
  let f=path.join(root,decodeURIComponent(u.pathname.replace(/^\/zh(?=\/)/,"")));if(fs.existsSync(f)&&fs.statSync(f).isDirectory())f=path.join(f,"index.html");
  if(!f.startsWith(root)||!fs.existsSync(f)){res.writeHead(404);res.end("404");return}
