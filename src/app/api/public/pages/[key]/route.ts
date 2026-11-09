@@ -1,7 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import {db} from "@/lib/db";
 import {failure} from "@/lib/errors";
-import {PAGE_KEYS} from "@/lib/page-layout";
+import {PAGE_KEYS, pruneLayout} from "@/lib/page-layout";
 import {toLocale} from "@/lib/locales";
 
 /** Published layout only (drafts never public). null ⇒ show the page exactly as designed. Cached ≤60 s. */
@@ -13,6 +13,6 @@ export async function GET(req: NextRequest, {params}: {params: Promise<{key: str
     const loc = toLocale(req.nextUrl.searchParams.get("locale"));
     let row = await db.pageLayout.findUnique({where: {pageKey_locale: {pageKey: k, locale: loc}}, select: {published: true, version: true}});
     if (!row?.published && loc !== "en") row = await db.pageLayout.findUnique({where: {pageKey_locale: {pageKey: k, locale: "en"}}, select: {published: true, version: true}});
-    return NextResponse.json({layout: row?.published ?? null, version: row?.version ?? 0}, {headers: cache});
+    return NextResponse.json({layout: row?.published ? pruneLayout(k, row.published) : null, version: row?.version ?? 0}, {headers: cache});
   } catch (e) { return failure(e); }
 }

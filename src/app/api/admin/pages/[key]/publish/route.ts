@@ -5,7 +5,7 @@ import {Prisma} from "@prisma/client";
 import {db} from "@/lib/db";
 import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
-import {layoutProblems, layoutSchema, PAGE_KEYS} from "@/lib/page-layout";
+import {layoutProblems, layoutSchema, PAGE_KEYS, pruneLayout} from "@/lib/page-layout";
 
 /** Publish the draft as a new immutable revision (audited, reason required). With CONTENT_APPROVAL_REQUIRED=true
  * publishing is a second-person approval step. */
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{key: st
       // FR-041 role-based content approval (four-eyes, opt-in): the editor who last changed the draft cannot publish it.
       if (process.env.CONTENT_APPROVAL_REQUIRED === "true" && row.draftUpdatedBy === actor.id)
         throw new HttpError(409, "APPROVAL_REQUIRED", "Another editor or a Super Admin must review and publish this draft.");
-      const layout = layoutSchema.parse(row.draft);
+      const layout = layoutSchema.parse(pruneLayout(k, row.draft));
       const problems = layoutProblems(k, layout); if (problems.length) throw new HttpError(400, "INVALID_LAYOUT", problems.join("; "));
       const version = row.version + 1;
       await tx.pageRevision.create({data: {pageKey: k, locale: loc, version, layout: layout as Prisma.InputJsonValue, reason, publishedBy: actor.id}});
