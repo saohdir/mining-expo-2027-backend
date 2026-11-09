@@ -23,7 +23,8 @@ test("programme editor keeps organizer approval explicit",()=>{
  assert.match(programmeUi,/published/);
 });
 test("portal design system matches approved public IMDX tokens",()=>{
- for(const token of ["#FF5912","#520F00","#88584B","#ECD5C2","#FFFDFB","Space Grotesk"])
+ // #C2410C = WCAG AA brand orange (NFR-02), replacing #FF5912 which was ~3:1 on white.
+ for(const token of ["#C2410C","#520F00","#88584B","#ECD5C2","#FFFDFB","Space Grotesk"])
    assert.ok(marketingTokens.includes(token),token);
 });
 
