@@ -32,14 +32,6 @@
     "href": "about/"
    },
    {
-    "key": "site-header.4",
-    "kind": "text",
-    "tag": "a",
-    "mode": "plain",
-    "text": "Exhibition Scope",
-    "href": "exhibition/"
-   },
-   {
     "key": "site-header.5",
     "kind": "text",
     "tag": "a",
@@ -76,7 +68,7 @@
     "tag": "a",
     "mode": "plain",
     "text": "Booth Reservation",
-    "href": "exhibitors/#exhibitors"
+    "href": "/floorplan"
    },
    {
     "key": "site-header.10",
@@ -99,7 +91,7 @@
     "tag": "a",
     "mode": "plain",
     "text": "Visitor Registration",
-    "href": "visitors/#visitor"
+    "href": "/floorplan"
    },
    {
     "key": "site-header.13",
@@ -122,7 +114,7 @@
     "kind": "text",
     "tag": "button",
     "mode": "own",
-    "text": "Programme"
+    "text": "Conferences"
    },
    {
     "key": "site-header.16",
@@ -152,7 +144,7 @@
     "kind": "text",
     "tag": "a",
     "mode": "plain",
-    "text": "Photo & Motion Highlights",
+    "text": "Event Highlight",
     "href": "highlights/"
    },
    {
@@ -1700,106 +1692,34 @@
   ]
  },
  "highlights": {
-  "the-industry-in": [
+  "approved-event-photos": [
    {
-    "key": "the-industry-in.0",
+    "key": "approved-event-photos.10",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "VISUAL SHOWCASE"
+    "text": "PHOTOS & VIDEOS"
    },
    {
-    "key": "the-industry-in.1",
+    "key": "approved-event-photos.11",
     "kind": "text",
     "tag": "h2",
     "mode": "rich",
-    "text": "The industry in *motion.*"
+    "text": "Moments from *the exhibition.*"
    },
    {
-    "key": "the-industry-in.2",
+    "key": "approved-event-photos.12",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "A photographic concept of the mining and downstream industries. Stock footage and images are illustrative, not photographs of IMDX 2027."
+    "text": "Choose a year to see photos and videos from that edition of the exhibition."
    },
    {
-    "key": "the-industry-in.3",
+    "key": "approved-event-photos.13",
     "kind": "text",
-    "tag": "span",
+    "tag": "p",
     "mode": "plain",
-    "text": "INDUSTRY SHOWCASE / CONCEPT REEL"
-   },
-   {
-    "key": "the-industry-in.4",
-    "kind": "text",
-    "tag": "strong",
-    "mode": "plain",
-    "text": "Technology. Transformation. Opportunity."
-   },
-   {
-    "key": "the-industry-in.5",
-    "kind": "text",
-    "tag": "small",
-    "mode": "plain",
-    "text": "Animated photo sequence • illustrative media"
-   },
-   {
-    "key": "the-industry-in.6",
-    "kind": "text",
-    "tag": "button",
-    "mode": "plain",
-    "text": "❚❚ Pause motion"
-   },
-   {
-    "key": "the-industry-in.7",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "OPEN-PIT MINING **01**"
-   },
-   {
-    "key": "the-industry-in.8",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "DOWNSTREAM PROCESSING **02**"
-   },
-   {
-    "key": "the-industry-in.9",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "EQUIPMENT & ENGINEERING **03**"
-   },
-   {
-    "key": "the-industry-in.10",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "RESOURCE OPERATIONS **04**"
-   },
-   {
-    "key": "the-industry-in.11",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "IMAGERY FOR DESIGN PRESENTATION ONLY"
-   },
-   {
-    "key": "the-industry-in.12",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "Official exhibition photography & videos can be inserted once the organizer provides usage-approved assets."
-   }
-  ],
-  "approved-event-photos": [
-   {
-    "key": "approved-event-photos.0",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "plain",
-    "text": "Approved event photos"
+    "text": "Photos and videos will be published here after the exhibition."
    }
   ]
  },
@@ -2528,8 +2448,8 @@
     "kind": "text",
     "tag": "a",
     "mode": "own",
-    "text": "Explore the exhibit scope",
-    "href": "#sectors"
+    "text": "Read article",
+    "href": "/news/article/?slug=mining-metallurgy-downstream-meet-in-jakarta"
    },
    {
     "key": "exhibition.7",
@@ -2557,8 +2477,8 @@
     "kind": "text",
     "tag": "a",
     "mode": "plain",
-    "text": "Read overview ↗",
-    "href": "#about"
+    "text": "Read article ↗",
+    "href": "/news/article/?slug=from-raw-resources-to-higher-value-manufacturing"
    },
    {
     "key": "exhibition.11",
@@ -2586,8 +2506,8 @@
     "kind": "text",
     "tag": "a",
     "mode": "plain",
-    "text": "Explore exhibiting ↗",
-    "href": "#exhibitors"
+    "text": "Read article ↗",
+    "href": "/news/article/?slug=showcase-solutions-across-the-mining-value-chain"
    }
   ],
   "make-your-next-connection": [
@@ -3209,8 +3129,8 @@
     "kind": "text",
     "tag": "a",
     "mode": "own",
-    "text": "Explore the exhibit scope",
-    "href": "#sectors"
+    "text": "Read article",
+    "href": "/news/article/?slug=mining-metallurgy-downstream-meet-in-jakarta"
    },
    {
     "key": "exhibition.7",
@@ -3238,8 +3158,8 @@
     "kind": "text",
     "tag": "a",
     "mode": "plain",
-    "text": "Read overview ↗",
-    "href": "#about"
+    "text": "Read article ↗",
+    "href": "/news/article/?slug=from-raw-resources-to-higher-value-manufacturing"
    },
    {
     "key": "exhibition.11",
@@ -3267,24 +3187,8 @@
     "kind": "text",
     "tag": "a",
     "mode": "plain",
-    "text": "Explore exhibiting ↗",
-    "href": "#exhibitors"
-   }
-  ],
-  "latest-news": [
-   {
-    "key": "latest-news.0",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "plain",
-    "text": "Latest news"
-   },
-   {
-    "key": "latest-news.1",
-    "kind": "text",
-    "tag": "button",
-    "mode": "plain",
-    "text": "Load more"
+    "text": "Read article ↗",
+    "href": "/news/article/?slug=showcase-solutions-across-the-mining-value-chain"
    }
   ]
  },

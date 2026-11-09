@@ -107,7 +107,7 @@ async function main() {
       }
       continue;
     }
-    const regular = !p.isLegacy;
+    const regular = !p.isLegacy || approve; // with --approve-legacy, reference pages are created approved + published as well
     await db.programmeItem.create({data: {slug: p.slug, category: p.category, programmeStatus: p.programmeStatus, isLegacy: p.isLegacy, displayOrder: p.displayOrder,
       imageUrl: p.imageUrl, imageRightsStatus: "ORGANIZER_PROVIDED", status: regular ? "PUBLISHED" : "DRAFT", publishedAt: regular ? new Date() : null,
       editorialStatus: regular ? "APPROVED" : "PENDING_REVIEW", updatedBy: by,

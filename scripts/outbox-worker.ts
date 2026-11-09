@@ -6,6 +6,7 @@ import {scheduledRetention} from "../src/lib/retention";
 import {writeHeartbeat} from "../src/lib/ops-health";
 import {dispatchMailouts, MAILOUT_FOOTER} from "../src/lib/mailouts";
 import {deliverWhatsApp, queueWhatsAppCopy} from "../src/lib/messaging";
+import {processPendingVideos} from "../src/lib/gallery";
 import {PrismaClient} from "@prisma/client";
 import nodemailer from "nodemailer";
 const db=new PrismaClient();
@@ -82,6 +83,7 @@ async function main(){console.info("IMDX outbox worker launched");while(true){co
  {name:"outbox-drain",run:()=>drain()},
  {name:"export-jobs",run:()=>processExportJobs(db)},
  {name:"retention",run:()=>scheduledRetention(db)},
- {name:"mailouts",run:()=>dispatchMailouts(db)}
+ {name:"mailouts",run:()=>dispatchMailouts(db)},
+ {name:"gallery-videos",run:()=>processPendingVideos(db)}
 ]);await writeHeartbeat(db,results).catch(()=>console.error("Heartbeat write failed"));await delay(Number(process.env.WORKER_INTERVAL_MS||20000))}}
 main().catch(e=>{console.error(e);process.exit(1)}).finally(()=>db.$disconnect());

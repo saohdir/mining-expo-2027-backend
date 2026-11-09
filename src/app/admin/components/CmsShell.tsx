@@ -88,6 +88,7 @@ const navGroups:Group[]=[
   {title:"Content",items:[
     {label:"Events & Programmes",href:"/admin/programmes",icon:"calendar",roles:["SUPER_ADMIN","SALES","OPERATIONS","CONTENT_EDITOR","FINANCE"]},
     {label:"Programme Pages",href:"/admin/programme-pages",icon:"calendar",roles:["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"]},
+    {label:"Event Gallery",href:"/admin/gallery",icon:"floorplan",roles:["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"]},
     {label:"Pages & Layout",href:"/admin/pages",icon:"floorplan",roles:["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"]},
     {label:"Website Content",href:"/admin/content",icon:"calendar",roles:["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"]},
     {label:"Lead Inbox",href:"/admin/leads",icon:"bell",roles:["SUPER_ADMIN","SALES","OPERATIONS"]},

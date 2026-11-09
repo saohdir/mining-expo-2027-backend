@@ -75,10 +75,6 @@
     {
       "id": "organizer-contacts",
       "label": "Organizer contacts"
-    },
-    {
-      "id": "container",
-      "label": "container"
     }
   ],
   "exhibition": [
@@ -107,22 +103,14 @@
   ],
   "highlights": [
     {
-      "id": "the-industry-in",
-      "label": "The industry in motion."
-    },
-    {
       "id": "approved-event-photos",
-      "label": "Approved event photos"
+      "label": "Event gallery (photos & videos by year)"
     }
   ],
   "news": [
     {
       "id": "exhibition",
       "label": "Exhibition insights &amp; updates."
-    },
-    {
-      "id": "latest-news",
-      "label": "Latest news"
     }
   ],
   "partners": [
