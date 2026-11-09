@@ -4,13 +4,13 @@ import {InvoicePanel,type CustomerInvoice} from "./InvoicePanel";
 import {AccountSecurity,AttendanceHistory} from "./AccountSecurity";
 import {ActionNeeded} from "./ActionNeeded";
 import {AuthPanel} from "./AuthPanel";
-import {BoothStaffPanel, GroupRegistrationPanel} from "./TeamPanels";
+import {BoothStaffPanel} from "./TeamPanels";
 import {FeeEstimate} from "./FeeEstimate";
 import {Journeys} from "./Journeys";
-import {FutureContact, ParticipantDetails, participantComplete, WhatsAppVerify} from "./ParticipantDetails";
+import {ParticipantDetails, participantComplete, WhatsAppVerify} from "./ParticipantDetails";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
-type AccountData={phone?:string|null;verifiedPhoneAt?:string|null;id:string;email:string|null;profile:{futureContactOptIn?:boolean;salutation?:string|null;fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
+type AccountData={phone?:string|null;verifiedPhoneAt?:string|null;id:string;email:string|null;profile:{salutation?:string|null;fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
  enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:CustomerBooth[];invoices:{id:string;boothRequestId:string|null;number:string;status:string;totalMinor:string}[]};
 type BoothOfferView={id:string;revision:number;offeredUnits:{id:string;code:string;hall:string|null;zone:string|null;areaSqm:string}[];offeredAreaSqm:string;quotedPriceMinor:string;expiresAt:string|null;acceptedAt:string|null;createdAt:string};
 type CustomerBooth={id:string;createdAt:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];holds:{id:string;expiresAt:string;boothUnit:{code:string;hall:string|null}}[];floorplan:{versionNo:number;units:{id:string;code:string;hall:string|null}[]};offers:BoothOfferView[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]};
@@ -33,9 +33,9 @@ export default function AccountPage(){
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[me,plan]);
  const [registrationOpen,setRegistrationOpen]=useState(false);
- const [team,setTeam]=useState({staff:false,groups:false,estimator:false});
+ const [team,setTeam]=useState({staff:false,estimator:false});
  useEffect(()=>{void request("/api/health").then(h=>setRegistrationOpen(Boolean(h.registrationEnabled))).catch(()=>{})},[]);
- useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>{setSmsAvailable(Boolean(x.smsOtp));setTeam({staff:Boolean(x.exhibitorStaff),groups:Boolean(x.groupEnrollment),estimator:Boolean(x.feeEstimator)})}).catch(()=>{})},[reload]);
+ useEffect(()=>{void reload();void request("/api/public/capabilities").then(x=>{setSmsAvailable(Boolean(x.smsOtp));setTeam({staff:Boolean(x.exhibitorStaff),estimator:Boolean(x.feeEstimator)})}).catch(()=>{})},[reload]);
  async function doAction(task:()=>Promise<unknown>,success:string){setBusy(true);setMessage("");try{await task();setMessage(success);await reload()}catch(e){setMessage(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
  const event=events[0];
  const selectedConference=event?.conferences?.find(c=>c.id===conference);
@@ -72,7 +72,6 @@ export default function AccountPage(){
         <small>Seat counts are indicative and checked again when you submit. Payment is only confirmed by Finance.</small></div>}
        <button disabled={busy||!selectedConference||selectedConference.registrationState!=="AVAILABLE"||!participantComplete(me)}>Submit conference registration</button>
        {selectedConference?.registrationState==="FULL"&&<button type="button" className="ghost" disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/waitlist",{conferenceId:selectedConference.id}),"You are on the waitlist. This is not a booking; the organizer will contact you if a seat is released.")}>Join waitlist</button>}</form>:<p>Conference registration has not been published by the organizer yet.</p>}
-      {team.groups&&event?.conferences?.length?<GroupRegistrationPanel conferences={event.conferences}/>:null}
     </section>}
     {tab==="booth"&&<section><h2>Exhibitor booth request</h2><p>Choose preferred units on the published floorplan. Your selections are <strong>not a reservation</strong> until operations approve and assign them.</p>
      {me.requests.map(x=>{const offer=x.offers[0];return <article className="booth-customer-card" key={x.id}>
@@ -111,7 +110,6 @@ export default function AccountPage(){
         <label>PIC name (person in charge)<input value={picName||me.profile?.fullName||""} required minLength={2} maxLength={120} onChange={e=>setPicName(e.target.value)}/></label>
        </div>
        <WhatsAppVerify p={me} label="PIC WhatsApp number" onVerified={()=>void reload()}/>
-       <FutureContact p={me} onSaved={()=>void reload()}/>
        <label>Products to display at the booth<textarea value={products} required minLength={3} maxLength={1000} placeholder="e.g. haul trucks, crushers, mine-site software" onChange={e=>setProducts(e.target.value)}/></label>
        <div className="cms-row-actions" role="radiogroup" aria-label="Booth location">
         <label className="consent"><input type="radio" name="booth-loc" checked={location==="INDOOR"} onChange={()=>{setLocation("INDOOR");setChosen([])}}/> Indoor booth</label>
