@@ -17,19 +17,21 @@ async function api(url:string, method="GET", body?:unknown) {
   if(!response.ok)throw Error(value.message||value.error||"Request failed");
   return value;
 }
-// Preserve the normal request list after changes, including an exact deep-linked
-// request that may fall outside the most recent 100. Never replace the list
-// with a one-record result after sending a quotation or releasing a hold.
-async function fetchBoothList(target?:string):Promise<Booth[]>{
-  const data=await api("/api/admin/booth-requests");
+// Preserve the request list after changes, including an exact deep-linked request that may fall outside the current page.
+// Never replace the list with a one-record result after sending a quotation or releasing a hold.
+type ListQuery={page:number;q:string;status:string;sort:string};
+async function fetchBoothList(target:string|undefined,query:ListQuery):Promise<{records:Booth[];total:number}>{
+  const p=new URLSearchParams({page:String(query.page),pageSize:"25",sort:query.sort||"created:desc",...(query.q?{q:query.q}:{}),...(query.status?{status:query.status}:{})});
+  const data=await api("/api/admin/booth-requests?"+p);
   const records=(data.records||[]) as Booth[];
   if(target&&!records.some(record=>record.id===target)){
     const detail=await api("/api/admin/booth-requests?id="+encodeURIComponent(target));
     const selected=(detail.records||[])[0] as Booth|undefined;
-    if(selected)return [selected,...records];
+    if(selected)return {records:[selected,...records],total:data.total??records.length};
   }
-  return records;
+  return {records,total:data.total??records.length};
 }
+const BOOTH_STATUSES=["NEW","UNDER_REVIEW","OFFERED","ACCEPTED","WAITING_INVOICE","INVOICED","ALLOCATION_PENDING","CONFIRMED","CANCELLED","REJECTED"];
 const idr=(n:string)=>"Rp "+Number(n||0).toLocaleString("id-ID");
 const wib=(date:string)=>new Date(date).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB";
 
@@ -37,7 +39,7 @@ export default function BoothManagement(){
   const [actor,setActor]=useState<Actor|null>(null);
   const [records,setRecords]=useState<Booth[]>([]);
   const [id,setId]=useState("");
-  const [search,setSearch]=useState("");
+  const [search,setSearch]=useState(""),[query,setQuery]=useState<ListQuery>({page:1,q:"",status:"",sort:"created:desc"}),[total,setTotal]=useState(0);
   const [units,setUnits]=useState<string[]>([]);
   const [price,setPrice]=useState("");
   const [notes,setNotes]=useState("");
@@ -60,9 +62,7 @@ export default function BoothManagement(){
     ["ISSUED","SENT","OVERDUE"].includes(invoiceStatus||"")?"AWAITING_PAYMENT":
     invoiceStatus==="CANCELLED"?"CANCELLED":"NOT_INVOICED";
   const eligibleForQuote=selected&&["UNDER_REVIEW","OFFERED"].includes(selected.status)&&selected.floorplan.status==="PUBLISHED";
-  const filtered=records.filter(r=>
-    (r.account.profile?.fullName||r.account.email||"").toLowerCase().includes(search.toLowerCase())||
-    r.id.toLowerCase().includes(search.toLowerCase()));
+  const filtered=records;
 
   const updateSelection=(record:Booth)=> {
     setId(record.id);
@@ -75,21 +75,28 @@ export default function BoothManagement(){
   };
   const load=async(preserveId?:string)=>{
     const target=preserveId||id;
-    const next=await fetchBoothList(target);
-    setRecords(next);
+    const {records:next,total:count}=await fetchBoothList(target,query);
+    setRecords(next);setTotal(count);
     const current=next.find(r=>r.id===(preserveId||id))||next[0];
     if(current)updateSelection(current);else setId("");
   };
   useEffect(()=>{let alive=true;(async()=>{try{
     const person=await api("/api/admin/me");
     if(!alive)return;setActor(person);
-    const target=new URLSearchParams(window.location.search).get("request");
-    const next=await fetchBoothList(target||undefined);
-    if(!alive)return;setRecords(next);
+    const sp=new URLSearchParams(window.location.search);const target=sp.get("request");
+    const initial={...query,status:BOOTH_STATUSES.includes(sp.get("status")||"")?sp.get("status")!:""};
+    if(initial.status)setQuery(initial);
+    const {records:next,total:count}=await fetchBoothList(target||undefined,initial);
+    if(!alive)return;setRecords(next);setTotal(count);
     const chosen=next.find(record=>record.id===target)||next[0];
     if(chosen)updateSelection(chosen);
   }catch(e){if(alive)setMessage(e instanceof Error?e.message:"Unable to load CMS")}
-  finally{if(alive)setLoading(false)}})();return()=>{alive=false}},[]);
+  finally{if(alive)setLoading(false)}})();return()=>{alive=false}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
+  // List controls: server-side search, status filter, sort and pages (the selected request stays open).
+  const [listBusy,setListBusy]=useState(false);
+  const relist=async(next:ListQuery)=>{setQuery(next);setListBusy(true);try{const {records:r,total:count}=await fetchBoothList(id||undefined,next);setRecords(r);setTotal(count)}catch(e){setMessage(e instanceof Error?e.message:"Unable to load requests")}finally{setListBusy(false)}};
   const run=async(action:()=>Promise<unknown>,success:string)=>{
     setSaving(true);setMessage("");
     try{await action();const current=id;await load(current);setMessage(success)}
@@ -115,26 +122,32 @@ export default function BoothManagement(){
     return api("/api/admin/booth-requests/"+selected.id+"/status","POST",{status:next,reason:reason.trim()});
   };
 
-  return <main className="portal-shell">
-    <nav className="portal-top"><span>CMS / EXHIBITOR OPERATIONS</span><a href="/admin">Back to CMS ↗</a></nav>
-    <header className="portal-heading"><p className="eyebrow">05 / EXHIBITOR SALES & OPERATIONS</p>
-      <h1>Booth <em>management.</em></h1>
-      <p>Review preferences, create organizer quotations, capture acceptance and assign available units only after verified manual payments.</p></header>
+  return <main className="portal-shell cms-booths">
+    <header className="imdx-cms-heading"><div><h1>Booth requests</h1>
+      <p>Review preferences, create organizer quotations, capture acceptance and assign available units only after verified manual payments.</p></div></header>
     {message&&<p className="notice" role="status">{message}</p>}
     {loading?<section className="cms-panel">Loading booth requests…</section>:!actor?
       <section className="cms-panel"><p>Sign in to your authorized CMS account first.</p><a className="button-link" href="/admin">CMS sign in</a></section>:
       <div className="booth-admin-layout">
        <section className="cms-panel">
         <h2>Requests</h2>
-        <label>Search by customer or request ID<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Find request"/></label>
-        <p className="micro">Showing {filtered.length} of {records.length} latest records.</p>
-        {filtered.map(record=><button type="button" key={record.id}
+        <form className="booth-list-filters" role="search" onSubmit={e=>{e.preventDefault();void relist({...query,page:1,q:search.trim()})}}>
+          <label>Search customer, company or request ID<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Find request"/></label>
+          <label>Status<select value={query.status} onChange={e=>void relist({...query,page:1,status:e.target.value})}><option value="">All statuses</option>{BOOTH_STATUSES.map(s=><option key={s} value={s}>{s.toLowerCase().replaceAll("_"," ")}</option>)}</select></label>
+          <label>Sort<select value={query.sort} onChange={e=>void relist({...query,page:1,sort:e.target.value})}><option value="created:desc">Newest first</option><option value="created:asc">Oldest first</option></select></label>
+        </form>
+        <p className="micro" aria-live="polite">{listBusy?"Loading…":`${total} request${total===1?"":"s"}${query.q||query.status?" match these filters":""}`}</p>
+        <div className="booth-admin-records" aria-busy={listBusy}>
+        {filtered.map(record=><button type="button" key={record.id} aria-pressed={id===record.id}
           className={"booth-admin-record"+(id===record.id?" selected":"")} onClick={()=>updateSelection(record)}>
-          <span className="eyebrow">{record.status.replaceAll("_"," ")} / {record.id.slice(0,8)}</span>
-          <strong>{record.account.profile?.fullName||record.account.email||"Customer"}</strong>
-          <span>{record.requestedAreaSqm} m² requested · v{record.floorplan.versionNo}</span>
+          <span className="booth-admin-record-top"><strong>{record.account.profile?.fullName||record.account.email||"Customer"}</strong><CmsStatus domain="Booth request" value={record.status}/></span>
+          <span>{record.account.profile?.organization||record.account.email||"—"}</span>
+          <span className="micro">{record.requestedAreaSqm} m² requested · floorplan v{record.floorplan.versionNo} · {record.id.slice(0,8)}</span>
         </button>)}
-        {filtered.length===0&&<p className="micro">No matching requests.</p>}
+        {filtered.length===0&&!listBusy&&<p className="micro">No matching requests. Clear the search or status filter.</p>}
+        </div>
+        {total>25&&<nav className="cms-dl-pager" aria-label="Pagination"><button type="button" className="ghost cms-small" disabled={query.page<=1||listBusy} onClick={()=>void relist({...query,page:query.page-1})}>‹ Previous</button>
+          <span>Page {query.page} of {Math.ceil(total/25)}</span><button type="button" className="ghost cms-small" disabled={query.page>=Math.ceil(total/25)||listBusy} onClick={()=>void relist({...query,page:query.page+1})}>Next ›</button></nav>}
        </section>
        <section className="cms-panel">
         {!selected?<p>No booth requests recorded yet.</p>:<>

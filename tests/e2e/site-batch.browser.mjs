@@ -66,7 +66,7 @@ test("navbar, sign-in popup, home cards, removed sections, Event Highlight galle
     await page.locator('[data-cms-f="site-header.22"]').click(); await page.locator(".auth-popup.is-ready").waitFor();
     await form.getByLabel("Email address").fill(email); await form.getByLabel("Password", {exact: true}).fill(TEST_PASSWORD);
     await form.getByRole("button", {name: "Sign in"}).click();
-    await page.waitForURL(/\/account$/); await page.getByRole("tab", {name: "Overview"}).waitFor();
+    await page.waitForURL(/\/account$/); await page.getByRole("tab", {name: "Home"}).waitFor();
     assert.equal(await page.getByText("Admin CMS").count(), 0, "no Admin CMS link");
     // Signed in: Visitor Registration → account visitor tab; Register button → account directly.
     await page.goto(SITE + "/"); await page.locator('[data-cms-f="site-header.12"]').evaluate(a => a.click()); await page.waitForURL(/\/account\?tab=visit$/);

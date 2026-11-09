@@ -34,8 +34,11 @@ export async function GET(req:NextRequest){try{
    {account:{profile:{fullName:{contains:search,mode:"insensitive"}}}}
   ]}:{})
  };
+ // Optional sort (additive): created | customer | type | status, ":asc" or ":desc". Default unchanged (newest first).
+ const [sk,sd]=(p.get("sort")||"created:desc").split(":");const dir:Prisma.SortOrder=sd==="asc"?"asc":"desc";
+ const orderBy:Prisma.EnrollmentOrderByWithRelationInput[]=sk==="customer"?[{account:{profile:{fullName:dir}}},{createdAt:"desc"}]:sk==="type"?[{type:dir},{createdAt:"desc"}]:sk==="status"?[{status:dir},{createdAt:"desc"}]:[{createdAt:dir}];
  const [total,rows]=await Promise.all([db.enrollment.count({where}),db.enrollment.findMany({
- where,take:limit,skip:(page-1)*limit,orderBy:{createdAt:"desc"},
+ where,take:limit,skip:(page-1)*limit,orderBy,
  include:{account:{select:{email:true,phone:true,profile:{select:{fullName:true,organization:true}}}},conference:{select:{title:true}}}
  })]);
  await db.auditLog.create({data:{adminId:actor.id,action:"REGISTRATION_LIST_VIEW",resourceType:"Report",resourceId:"registrations",afterState:{page,limit,filters:Object.fromEntries(p.entries())}}});

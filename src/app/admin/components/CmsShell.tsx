@@ -54,56 +54,67 @@ export function CmsIcon({name,size=20}:{name:IconName;size?:number}){
 }
 
 type NavItem={label:string;href:string;icon:IconName;roles:CmsRole[]};
-type Group={title:string;items:NavItem[]};
+type Group={title:string;items:NavItem[];collapsible?:boolean};
 const ALL:CmsRole[]=["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","CONTENT_EDITOR","CHECKIN_STAFF","VIEWER"];
-const OPS:CmsRole[]=["SUPER_ADMIN","OPERATIONS"];
-const SALES:CmsRole[]=["SUPER_ADMIN","SALES","OPERATIONS"];
+const STAFF:CmsRole[]=["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"];
 const FIN:CmsRole[]=["SUPER_ADMIN","FINANCE","SALES"];
+const WEB:CmsRole[]=["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"];
+const SA:CmsRole[]=["SUPER_ADMIN"];
+/** Grouped by the job staff are doing (Directus-style modules). One entry per page — no duplicates; permissions are
+ * unchanged (every API still checks the role server-side). Settings & compliance sit in one collapsible group. */
 const navGroups:Group[]=[
-  {title:"Main",items:[
-    {label:"Overview",href:"/admin",icon:"overview",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")},
-    {label:"Customers & Registrations",href:"/admin/registrations",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
-    {label:"Customer Accounts",href:"/admin/customers",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
-    {label:"Booth Requests",href:"/admin/booths",icon:"booths",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS"]},
-    {label:"Groups & Representatives",href:"/admin/groups",icon:"users",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","VIEWER"]}
+  {title:"",items:[{label:"Overview",href:"/admin",icon:"overview",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")}]},
+  {title:"People",items:[
+    {label:"Customers",href:"/admin/customers",icon:"users",roles:STAFF},
+    {label:"Registrations",href:"/admin/registrations",icon:"tickets",roles:STAFF},
+    {label:"Groups & representatives",href:"/admin/groups",icon:"users",roles:[...STAFF,"VIEWER"]}
+  ]},
+  {title:"Exhibition",items:[
+    {label:"Booth requests",href:"/admin/booths",icon:"booths",roles:STAFF},
+    {label:"Floorplans",href:"/admin/floorplans",icon:"floorplan",roles:STAFF}
   ]},
   {title:"Finance",items:[
-    {label:"Payment Requests",href:"/admin/workspace?section=finance#cms-payment-requests",icon:"request",roles:FIN},
     {label:"Invoices",href:"/admin/workspace?section=finance#cms-invoices",icon:"invoice",roles:FIN},
-    {label:"Payments & Reconciliation",href:"/admin/payments",icon:"payments",roles:["SUPER_ADMIN","FINANCE","SALES"]},
-    {label:"Invoice Taxes & Fees",href:"/admin/invoice-charges",icon:"invoice",roles:["SUPER_ADMIN","FINANCE","SALES"]}
+    {label:"Payments",href:"/admin/payments",icon:"payments",roles:FIN}
   ]},
-  {title:"Operations",items:[
-    {label:"Floorplans",href:"/admin/floorplans",icon:"floorplan",roles:["SUPER_ADMIN","OPERATIONS","SALES","FINANCE"]},
-    {label:"Booth Units & Assignments",href:"/admin/booths",icon:"box",roles:OPS},
-    {label:"Gate QR Scanner",href:"/admin/check-in",icon:"scan",roles:["SUPER_ADMIN","OPERATIONS","CHECKIN_STAFF"]},
-    {label:"Gates & Passes",href:"/admin/check-in/settings",icon:"settings",roles:["SUPER_ADMIN","OPERATIONS"]},
-    {label:"Pre-registration & Badges",href:"/admin/bulk",icon:"users",roles:["SUPER_ADMIN","OPERATIONS"]},
-    {label:"Check-ins",href:"/admin/reports",icon:"activity",roles:["SUPER_ADMIN","OPERATIONS","VIEWER"]}
+  {title:"On-site",items:[
+    {label:"Gate QR scanner",href:"/admin/check-in",icon:"scan",roles:["SUPER_ADMIN","OPERATIONS","CHECKIN_STAFF"]},
+    {label:"Gates & passes",href:"/admin/check-in/settings",icon:"shield",roles:["SUPER_ADMIN","OPERATIONS"]},
+    {label:"Pre-registration & badges",href:"/admin/bulk",icon:"file",roles:["SUPER_ADMIN","OPERATIONS"]}
+  ]},
+  {title:"Conferences",items:[
+    {label:"Programmes",href:"/admin/programmes",icon:"calendar",roles:["SUPER_ADMIN","SALES","OPERATIONS","CONTENT_EDITOR","FINANCE"]},
+    {label:"Programme pages",href:"/admin/programme-pages",icon:"file",roles:WEB}
+  ]},
+  {title:"Website",items:[
+    {label:"Pages & layout",href:"/admin/pages",icon:"floorplan",roles:WEB},
+    {label:"Website content",href:"/admin/content",icon:"file",roles:WEB},
+    {label:"Event gallery",href:"/admin/gallery",icon:"box",roles:WEB},
+    {label:"Lead inbox",href:"/admin/leads",icon:"bell",roles:["SUPER_ADMIN","SALES","OPERATIONS"]}
   ]},
   {title:"Insights",items:[
-    {label:"Participant Prospects",href:"/admin/prospects",icon:"users",roles:["SUPER_ADMIN","SALES","OPERATIONS"]},
-    {label:"Reports & Exports",href:"/admin/reports",icon:"chart",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","VIEWER"]}
+    {label:"Reports & exports",href:"/admin/reports",icon:"chart",roles:["SUPER_ADMIN","SALES","FINANCE","OPERATIONS","VIEWER"]},
+    {label:"Participant prospects",href:"/admin/prospects",icon:"activity",roles:["SUPER_ADMIN","SALES","OPERATIONS"]},
+    {label:"Notifications",href:"/admin/notifications",icon:"bell",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")}
   ]},
-  {title:"Content",items:[
-    {label:"Events & Programmes",href:"/admin/programmes",icon:"calendar",roles:["SUPER_ADMIN","SALES","OPERATIONS","CONTENT_EDITOR","FINANCE"]},
-    {label:"Programme Pages",href:"/admin/programme-pages",icon:"calendar",roles:["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"]},
-    {label:"Event Gallery",href:"/admin/gallery",icon:"floorplan",roles:["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"]},
-    {label:"Pages & Layout",href:"/admin/pages",icon:"floorplan",roles:["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"]},
-    {label:"Website Content",href:"/admin/content",icon:"calendar",roles:["SUPER_ADMIN","CONTENT_EDITOR","OPERATIONS","SALES","FINANCE","VIEWER"]},
-    {label:"Lead Inbox",href:"/admin/leads",icon:"bell",roles:["SUPER_ADMIN","SALES","OPERATIONS"]},
-    {label:"Event Settings",href:"/admin/workspace?section=settings",icon:"settings",roles:["SUPER_ADMIN"]},
-    {label:"Settings Status",href:"/admin/settings",icon:"settings",roles:["SUPER_ADMIN"]},
-    {label:"Fee Estimator",href:"/admin/estimator",icon:"invoice",roles:["SUPER_ADMIN","SALES","FINANCE"]},
-    {label:"Staff & Roles",href:"/admin/staff",icon:"shield",roles:["SUPER_ADMIN"]},
-    {label:"Data Requests",href:"/admin/data-requests",icon:"shield",roles:["SUPER_ADMIN"]},
-    {label:"Data Retention",href:"/admin/retention",icon:"shield",roles:["SUPER_ADMIN"]}
-  ]},
-  {title:"System",items:[
-    {label:"Notifications",href:"/admin/notifications",icon:"bell",roles:ALL.filter(r=>r!=="CHECKIN_STAFF")},
-    {label:"Audit Log",href:"/admin/audit",icon:"shield",roles:["SUPER_ADMIN"]}
+  {title:"Settings",collapsible:true,items:[
+    {label:"Event settings",href:"/admin/workspace?section=settings",icon:"settings",roles:SA},
+    {label:"Staff & roles",href:"/admin/staff",icon:"shield",roles:SA},
+    {label:"Invoice taxes & fees",href:"/admin/invoice-charges",icon:"invoice",roles:FIN},
+    {label:"Fee estimator",href:"/admin/estimator",icon:"invoice",roles:FIN},
+    {label:"System status",href:"/admin/settings",icon:"activity",roles:SA},
+    {label:"Data requests",href:"/admin/data-requests",icon:"shield",roles:SA},
+    {label:"Data retention",href:"/admin/retention",icon:"shield",roles:SA},
+    {label:"Audit log",href:"/admin/audit",icon:"file",roles:SA}
   ]}
 ];
+/** The page a URL belongs to: exact path first, then workspace sections, then the longest matching prefix. */
+function currentItem(pathname:string,search:string){
+  const items=navGroups.flatMap(g=>g.items.map(i=>({...i,group:g.title})));
+  const section=new URLSearchParams(search).get("section");
+  if(pathname==="/admin/workspace")return items.find(i=>i.href.startsWith("/admin/workspace?section="+(section||"finance")))||null;
+  return items.find(i=>i.href.split("?")[0]===pathname)||items.filter(i=>i.href!=="/admin"&&pathname.startsWith(i.href.split("?")[0]+"/")).sort((a,b)=>b.href.length-a.href.length)[0]||null;
+}
 type Note={id:string;type:string;readAt:string|null;createdAt:string;recordId:string};
 type Result={type:string;label:string;hint:string;href:string};
 const labelize=(v:string)=>v.replace(/_/g," ").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
@@ -121,6 +132,14 @@ export default function CmsShell({children}:{children:ReactNode}){
   const [noteOpen,setNoteOpen]=useState(false);
   const [sessionError,setSessionError]=useState("");
   const searchRef=useRef<HTMLDivElement>(null);
+  const searchInput=useRef<HTMLInputElement>(null);
+  const [query,setQuery]=useState("");
+  const [settingsOpen,setSettingsOpen]=useState(false);
+  useEffect(()=>{setQuery(window.location.search)},[pathname]);
+  // Quick search from anywhere: Ctrl+K / Cmd+K or "/" (outside text fields).
+  useEffect(()=>{const onKey=(e:KeyboardEvent)=>{const t=e.target as HTMLElement|null;const typing=!!t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable);
+    if(((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k")||(e.key==="/"&&!typing)){e.preventDefault();searchInput.current?.focus();searchInput.current?.select();setSearchOpen(true)}};
+    window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[]);
 
   const refresh=useCallback(async()=>{
     try{
@@ -169,10 +188,8 @@ export default function CmsShell({children}:{children:ReactNode}){
   },[]);
   const groups=useMemo(()=>navGroups.map(g=>({...g,items:g.items.filter(i=>actor&&i.roles.includes(actor.role))}))
     .filter(g=>g.items.length),[actor]);
-  const active=(href:string)=>href===pathname||(
-    href.startsWith("/admin/workspace")&&pathname==="/admin/workspace" &&
-    typeof window!=="undefined"&&window.location.search.includes("section="+
-      (new URLSearchParams(href.split("?")[1]?.split("#")[0]||"")).get("section")));
+  const here=currentItem(pathname,query);
+  const active=(href:string)=>here?.href===href;
   const unread=notes.some(n=>!n.readAt);
   const markRead=async(id:string)=>{
     const response=await fetch("/api/admin/notifications",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
@@ -186,14 +203,16 @@ export default function CmsShell({children}:{children:ReactNode}){
           <a href="/admin" aria-label="IMDX CMS overview"><img src="/assets/imd-logo-orange.webp" alt="IMDX 2027" width="130" height="52"/></a>
           <span>ORGANIZER CMS</span>
         </div>
-        <nav className="imdx-cms-nav">
-          {groups.map(g=><div className="imdx-cms-nav-group" key={g.title}>
-            <p className="imdx-cms-group-title">{g.title}</p>
-            {g.items.map(item=><Link key={item.label} href={item.href}
+        <nav className="imdx-cms-nav" aria-label="CMS sections">
+          {groups.map(g=>{const links=g.items.map(item=><Link key={item.label} href={item.href}
               className={"imdx-cms-nav-link"+(active(item.href)?" is-active":"")}
-              title={item.label} aria-current={active(item.href)?"page":undefined} onClick={()=>setDrawer(false)}>
-              <CmsIcon name={item.icon}/><span>{item.label}</span></Link>)}
-          </div>)}
+              aria-current={active(item.href)?"page":undefined} onClick={()=>setDrawer(false)}>
+              <CmsIcon name={item.icon} size={18}/><span>{item.label}</span></Link>);
+            if(g.collapsible){const open=settingsOpen||g.items.some(i=>active(i.href));
+              return <div className={"imdx-cms-nav-group imdx-cms-nav-collapsible"+(open?" is-open":"")} key={g.title}>
+                <button type="button" className="imdx-cms-group-toggle" aria-expanded={open} aria-controls="cms-nav-settings" onClick={()=>setSettingsOpen(!open)}>{g.title}<span aria-hidden="true">{open?"−":"+"}</span></button>
+                <div id="cms-nav-settings" className="imdx-cms-nav-collapse">{links}</div></div>}
+            return <div className="imdx-cms-nav-group" key={g.title||"main"}>{g.title&&<p className="imdx-cms-group-title">{g.title}</p>}{links}</div>})}
         </nav>
         <div className="imdx-cms-side-foot">IMDX 2027 <span>UAT / PRE-LAUNCH</span></div>
       </aside>
@@ -207,10 +226,11 @@ export default function CmsShell({children}:{children:ReactNode}){
             </button>
             <div className="imdx-cms-global-search" ref={searchRef}>
               <CmsIcon name="search" size={18}/>
-              <input aria-label="Search CMS" placeholder="Search reference, name, email, invoice no."
+              <input ref={searchInput} aria-label="Search CMS" aria-keyshortcuts="Control+K" placeholder="Search reference, name, email, invoice no."
                 value={search} onFocus={()=>setSearchOpen(true)}
                 onKeyDown={e=>{if(e.key==="Escape"){setSearchOpen(false);e.currentTarget.blur()}}}
                 onChange={e=>{setSearch(e.target.value);setSearchOpen(true)}}/>
+              <kbd className="imdx-cms-kbd" aria-hidden="true">Ctrl K</kbd>
               {searchOpen&&search.trim().length>1&&<div className="imdx-cms-search-results" role="region" aria-label="CMS search results">
                 {searching?<p>Searching…</p>:results.length?results.map((r,i)=><Link key={i} href={r.href} onClick={()=>{setSearchOpen(false);setSearch("")}}>
                   <span>{r.type}</span><strong>{r.label}</strong><small>{r.hint}</small>
@@ -248,6 +268,7 @@ export default function CmsShell({children}:{children:ReactNode}){
         </div>}
         {sessionError&&<div role="alert" className="imdx-cms-inline-alert">{sessionError}</div>}
         <div className="imdx-cms-content">
+          {actor&&here&&<nav className="imdx-cms-crumbs" aria-label="Breadcrumb"><ol><li><Link href="/admin">IMDX CMS</Link></li>{here.group&&<li>{here.group}</li>}{here.href!=="/admin"&&<li aria-current="page">{here.label}</li>}</ol></nav>}
           {loading?<div className="imdx-cms-auth-state">Checking staff access…</div>:
             !actor&&pathname!=="/admin"?<div className="imdx-cms-auth-state">
               <CmsIcon name="shield" size={32}/><h2>Organizer access required</h2>

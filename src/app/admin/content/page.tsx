@@ -1,5 +1,6 @@
 "use client";
 import {useCallback, useEffect, useState} from "react";
+import CmsStatus from "../components/CmsStatus";
 type Item = {id: string; kind: string; locale: string; title: string; slug: string; summary: string | null; body: string | null; url: string | null; fileType: string | null; imageUrl: string | null; altText: string | null; rightsStatus: string | null; role: string | null; status: string; sortOrder: number; updatedAt: string; publishedAt: string | null};
 const KINDS = ["PARTNER", "ORGANIZER", "DOWNLOAD", "NEWS", "SCOPE", "CONTACT", "PAGE_BLOCK"];
 const LABEL: Record<string, string> = {NEWS: "News & updates", ORGANIZER: "Organizers", PARTNER: "Media partners"};
@@ -10,7 +11,7 @@ const slugify = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0
 /** FR-005/009/034/035/038 content: drafts visible only in CMS; publish requires rights + alt text for media. NEWS = home "Exhibition insights & updates" cards + article pages. */
 export default function ContentPage() {
   const [items, setItems] = useState<Item[]>([]), [kind, setKind] = useState("PARTNER"), [msg, setMsg] = useState("");
-  const [f, setF] = useState(EMPTY), [editing, setEditing] = useState<Item | null>(null);
+  const [f, setF] = useState(EMPTY), [editing, setEditing] = useState<Item | null>(null), [arming, setArming] = useState("");
   const load = useCallback(async () => { try { setItems((await call("/api/admin/content?kind=" + kind)).items); } catch (e) { setMsg((e as Error).message); } }, [kind]);
   useEffect(() => { void load(); setEditing(null); setF(EMPTY); }, [load]);
   const act = async (fn: () => Promise<unknown>, ok: string) => { setMsg(""); try { await fn(); setMsg(ok); await load(); } catch (e) { setMsg((e as Error).message); } };
@@ -28,13 +29,14 @@ export default function ContentPage() {
     <div className="tabline">{KINDS.map(k => <button key={k} type="button" className={k === kind ? "chosen" : ""} onClick={() => setKind(k)}>{LABEL[k] || k}</button>)}</div>
     {msg && <p role="status" className="micro">{msg}</p>}
     <table className="cms-table"><thead><tr>{logos && <th>Logo</th>}<th>Title</th><th>Locale</th><th>Status</th>{ordered && <th>Order</th>}<th>Rights</th><th /></tr></thead><tbody>
-      {items.map(i => <tr key={i.id}>{logos && <td>{i.imageUrl ? <img className="content-logo-thumb" src={i.imageUrl} alt="" /> : <span className="micro">no logo</span>}</td>}<td>{i.title}<br /><span className="micro">{i.slug}{i.role ? " · " + i.role : ""}</span></td><td>{i.locale}</td><td>{i.status}</td>{ordered && <td>{i.sortOrder}</td>}<td>{i.rightsStatus || "—"}</td>
+      {items.map(i => <tr key={i.id}>{logos && <td>{i.imageUrl ? <img className="content-logo-thumb" src={i.imageUrl} alt="" /> : <span className="micro">no logo</span>}</td>}<td>{i.title}<br /><span className="micro">{i.slug}{i.role ? " · " + i.role : ""}</span></td><td>{i.locale}</td><td><CmsStatus domain="Content" value={i.status}/></td>{ordered && <td>{i.sortOrder}</td>}<td>{i.rightsStatus || "—"}</td>
         <td><div className="cms-row-actions">
           <button className="ghost cms-small" onClick={() => edit(i)}>Edit</button>
           {i.status !== "PUBLISHED" && <button className="cms-small" onClick={() => void act(() => call("/api/admin/content/" + i.id, "PATCH", {status: "PUBLISHED", reason: "Publish approved content"}), "Published.")}>Publish</button>}
           {i.status === "PUBLISHED" && <button className="ghost cms-small" onClick={() => void act(() => call("/api/admin/content/" + i.id, "PATCH", {status: "DRAFT", reason: "Unpublish for review"}), "Moved to draft.")}>Unpublish</button>}
           {news && i.status === "PUBLISHED" && <a className="cms-small" href={preview(i)} target="_blank" rel="noreferrer">View page ↗</a>}
-          <button className="ghost cms-small" onClick={() => void act(() => call("/api/admin/content/" + i.id, "PATCH", {status: "ARCHIVED", reason: "Archive outdated content"}), "Archived.")}>Archive</button></div></td></tr>)}
+          {i.status !== "ARCHIVED" && (arming === i.id ? <><button className="cms-small cms-danger" onClick={() => { setArming(""); void act(() => call("/api/admin/content/" + i.id, "PATCH", {status: "ARCHIVED", reason: "Archive outdated content"}), "Archived. It is no longer shown on the website; publish it again to restore."); }}>Confirm archive</button>
+            <button className="ghost cms-small" onClick={() => setArming("")}>Keep</button></> : <button className="ghost cms-small" onClick={() => setArming(i.id)}>Archive</button>)}</div></td></tr>)}
     </tbody></table>
     <h2 id="content-form">{editing ? `Edit “${editing.title}” (${editing.locale})` : `New ${(LABEL[kind] || kind).toLowerCase()} draft`}</h2>
     {editing && <p className="micro">Changes to a published item are live immediately after saving. <button type="button" className="link" onClick={() => { setEditing(null); setF(EMPTY); }}>Cancel editing</button></p>}

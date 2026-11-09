@@ -74,7 +74,7 @@ test("FR-117/119/029 customer hub: OTP sign-in, three journeys, action banners, 
     await page.getByRole("heading", {name: "Event experience"}).waitFor();
     for (const t of ["Visit exhibition", "Join conference", "Reserve booth"]) await page.getByRole("heading", {name: t}).waitFor();
     await page.getByRole("region", {name: "Action needed"}).getByText("Add your company to your profile.").waitFor();
-    await page.getByRole("tab", {name: "Exhibition visitor", exact: true}).click();
+    await page.getByRole("button", {name: "My pass", exact: true}).click(); // phone: bottom navigation
     // Participant details: salutation, job, company (email from sign-up), WhatsApp verified by OTP.
     const register = page.getByRole("button", {name: "Register as exhibition visitor"});
     assert.equal(await register.isDisabled(), true, "registration waits for participant details");

@@ -37,7 +37,7 @@ test("Workspace finance and events tabs stay navigable after CSS hides legacy si
   assert.match(page,/setInvoiceAccount\(requestedAccount\)/);
   assert.match(page,/cms-payment-requests/);
   assert.match(page,/cms-invoices/);
-  assert.match(shell,/section=finance#cms-payment-requests/);
+  // Payment requests and invoices share the finance section; the menu has one "Invoices" entry for it.
   assert.match(shell,/section=finance#cms-invoices/);
 });
 test("Registry review calls protected server endpoint and supports booth-specific policy",()=>{
@@ -45,8 +45,8 @@ test("Registry review calls protected server endpoint and supports booth-specifi
   const api=source("src/app/api/admin/registrations/route.ts");
   assert.match(page,/\/api\/admin\/registrations\/"/);
   assert.match(page,/reviewReason\.trim\(\)/);
-  assert.match(page,/role==="OPERATIONS"/);
-  assert.match(page,/reviewing\.type!=="CONFERENCE"/);
+  assert.match(page,/role\s*===\s*"OPERATIONS"/);
+  assert.match(page,/rows\.every\(r\s*=>\s*r\.type\s*===\s*"CONFERENCE"\)/);
   assert.match(api,/id:\{startsWith:search,mode:"insensitive"\}/);
   const protectedRoute=source("src/app/api/admin/registrations/[id]/review/route.ts");
   assert.match(protectedRoute,/PAYMENT_REQUIRED/);
@@ -54,7 +54,8 @@ test("Registry review calls protected server endpoint and supports booth-specifi
 });
 test("CMS navigation roles agree with financial and programme API roles",()=>{
   const shell=source("src/app/admin/components/CmsShell.tsx");
-  assert.match(shell,/Payments & Reconciliation"[\s\S]{0,120}roles:\["SUPER_ADMIN","FINANCE","SALES"\]/);
+  assert.match(shell,/const FIN:CmsRole\[\]=\["SUPER_ADMIN","FINANCE","SALES"\]/);
+  assert.match(shell,/label:"Payments",href:"\/admin\/payments",icon:"payments",roles:FIN/);
   assert.doesNotMatch(shell,/Staff Settings",href/);
   const p=source("src/app/api/admin/payments/route.ts");
   assert.match(p,/admin\(\["SUPER_ADMIN","FINANCE","SALES"\]\)/);
@@ -63,6 +64,6 @@ test("Direct booth request lookup is supported beyond paginated latest-record sh
   const listing=source("src/app/api/admin/booth-requests/route.ts");
   const page=source("src/app/admin/booths/page.tsx");
   assert.match(listing,/targetId \? \{id: targetId\} : \{\}/);
-  assert.match(page,/new URLSearchParams\(window\.location\.search\)\.get\("request"\)/);
+  assert.match(page,/const sp=new URLSearchParams\(window\.location\.search\);const target=sp\.get\("request"\)/);
   assert.match(page,/\?id="\+encodeURIComponent\(target\)/);
 });

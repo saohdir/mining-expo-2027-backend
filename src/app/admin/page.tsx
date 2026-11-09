@@ -56,6 +56,19 @@ const label=(value:string)=>value.replaceAll("_"," ").toLowerCase().replace(/\b\
 const knownIcons:IconName[]=["overview","users","tickets","booths","request","invoice","payments","floorplan","box","scan","activity","chart","calendar","file","bell","shield","settings","menu","search","close","arrow","logout","clock","check"];
 const iconName=(s:string):IconName=>knownIcons.includes(s as IconName)?s as IconName:"chart";
 
+type Activity={action:string;type:string;reference:string;at:string;by:string;self:boolean};
+/** Recent staff activity, scoped to the signed-in role by the server (read-only). */
+function RecentActivity(){
+  const [rows,setRows]=useState<Activity[]|null>(null),[failed,setFailed]=useState(false);
+  useEffect(()=>{let live=true;fetch("/api/admin/activity",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{if(live)setRows(d.activity||[])}).catch(()=>{if(live)setFailed(true)});return()=>{live=false}},[]);
+  return <section className="imdx-cms-panel" aria-labelledby="cms-activity-h">
+    <div className="imdx-cms-panel-title"><h2 id="cms-activity-h">Recent activity</h2></div>
+    {failed?<div className="imdx-cms-empty">Activity is unavailable right now.</div>:!rows?<div className="imdx-cms-empty" aria-busy="true">Loading activity…</div>
+     :!rows.length?<div className="imdx-cms-empty">No recent changes in your area yet.</div>
+     :<ul className="cms-activity">{rows.map((r,i)=><li key={i}><span className="who" aria-hidden="true">{r.by.slice(0,1).toUpperCase()}</span>
+       <div><b>{r.action}</b><small>{r.type} · {r.reference} · {r.self?"you":r.by} · {new Date(r.at).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})} WIB</small></div></li>)}</ul>}
+  </section>;
+}
 export default function AdminOverview(){
   const {actor,loading}=useCmsSession();
   const [period,setPeriod]=useState<Period>("month");
@@ -85,8 +98,8 @@ export default function AdminOverview(){
     <div className="imdx-cms-breadcrumb">IMDX 2027 <span>/</span> Organizer CMS <span>/</span> <b>Overview</b></div>
     <header className="imdx-cms-heading">
       <div><p className="eyebrow">EVENT AT A GLANCE</p>
-      <h1>Good to see you.<br/><em>Here’s your overview.</em></h1>
-      <p>{dashboard?.event||"IMDX 2027"} · {actor.role.replaceAll("_"," ")} dashboard · Secure operations</p></div>
+      <h1>Overview</h1>
+      <p>{dashboard?.event||"IMDX 2027"} · {label(actor.role)} view · what needs attention first, then the figures</p></div>
       <button type="button" className="ghost cms-small" onClick={()=>setRefreshCounter(x=>x+1)} disabled={fetching}>Refresh figures</button>
     </header>
     <section className="imdx-cms-filterbar" aria-label="Dashboard period filters">
@@ -101,6 +114,17 @@ export default function AdminOverview(){
     {period==="custom"&&(!from||!to)&&<div className="imdx-cms-empty">Select both WIB dates to load the custom report.</div>}
     {fetching&&!dashboard&&<div className="imdx-cms-empty">Loading server-aggregated figures…</div>}
     {dashboard&&<>
+      <div className="cms-ov-grid">
+        {actor.role!=="CONTENT_EDITOR"&&actor.role!=="VIEWER"&&<section className="imdx-cms-panel" id="cms-action-queue">
+          <div className="imdx-cms-panel-title"><h2>Needs action</h2><Link href="/admin/booths">Open workspace</Link></div>
+          {dashboard.queue.length?dashboard.queue.map((q,i)=><div className="imdx-cms-queue-item" key={q.reference+"-"+i}>
+            <span><CmsIcon name={q.type.includes("payment")?"payments":q.type.includes("Booth")?"booths":"clock"}/></span>
+            <div><strong>{q.label}</strong><small>{q.type} · Ref {q.reference} · {formatDay(q.createdAt)}</small></div>
+            <Link href={q.href}>{q.action}</Link>
+          </div>):<div className="imdx-cms-empty">No pending actions in this period.</div>}
+        </section>}
+        <RecentActivity/>
+      </div>
       <section className="imdx-cms-kpis" aria-label="Role-scoped key metrics">
         {dashboard.metrics.map(m=>{const href=METRIC_HREF[m.key];const body=<>
           <span className="imdx-cms-kpi-icon"><CmsIcon name={iconName(m.icon)} size={22}/></span>
@@ -112,14 +136,6 @@ export default function AdminOverview(){
       </section>
       <p className="imdx-cms-metric-note">Figures are server aggregates for {formatDay(scope?.from||"2026-11-01")} – {formatDay(scope?.to||"2026-11-08")} (WIB). Scope: {label(actor.role)}. Measure basis is stated on each card; live inventory figures are explicitly labeled.</p>
       <div className="imdx-cms-panels">
-        {actor.role!=="CONTENT_EDITOR"&&actor.role!=="VIEWER"&&<section className="imdx-cms-panel" id="cms-action-queue">
-          <div className="imdx-cms-panel-title"><h2>Needs action</h2><Link href="/admin/booths">Open workspace</Link></div>
-          {dashboard.queue.length?dashboard.queue.map((q,i)=><div className="imdx-cms-queue-item" key={q.reference+"-"+i}>
-            <span><CmsIcon name={q.type.includes("payment")?"payments":q.type.includes("Booth")?"booths":"clock"}/></span>
-            <div><strong>{q.label}</strong><small>{q.type} · Ref {q.reference} · {formatDay(q.createdAt)}</small></div>
-            <Link href={q.href}>{q.action}</Link>
-          </div>):<div className="imdx-cms-empty">No pending actions in this period.</div>}
-        </section>}
         <section className="imdx-cms-panel">
           <div className="imdx-cms-panel-title"><h2>Notification inbox</h2><Link href="/admin/notifications">View all</Link></div>
           {dashboard.notifications.length?dashboard.notifications.map(n=><div key={n.id} className="imdx-cms-inbox-row">

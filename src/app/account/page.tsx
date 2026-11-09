@@ -7,6 +7,8 @@ import {AuthPanel} from "./AuthPanel";
 import {BoothStaffPanel} from "./TeamPanels";
 import {FeeEstimate} from "./FeeEstimate";
 import {Journeys} from "./Journeys";
+import {PrepChecklist,RecentUpdates,prepItems} from "./PortalHome";
+import {DocumentsPanel} from "./DocumentsPanel";
 import {ParticipantDetails, participantComplete, WhatsAppVerify} from "./ParticipantDetails";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
@@ -18,6 +20,11 @@ type Floorplan={state:string;id?:string;version?:number;title?:string;floors?:{i
 async function request(path:string,options:RequestInit={}){const res=await fetch(path,{...options,headers:{...(options.body?{"Content-Type":"application/json"}:{}),...options.headers},cache:"no-store"});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error((data as ApiError).message||(data as ApiError).issues?.map(i=>i.message).join(", ")||"Request failed");return data;}
 const send=(path:string,data:unknown)=>request(path,{method:"POST",body:JSON.stringify(data)});
 const money=(v:string)=>"Rp "+Number(v).toLocaleString("id-ID",{maximumFractionDigits:0});
+/** Portal sections (ids kept stable: /account?tab=visit etc. are linked from e-mails and the website). */
+const SECTIONS:[string,string,string][]=[["overview","Home","home"],["visit","My pass","pass"],["conference","Conferences","mic"],["booth","Booth","booth"],["payments","Invoices","invoice"],["documents","Documents","doc"],["profile","Profile","user"]];
+const MOBILE=["overview","conference","visit","booth","payments"];
+function PIcon({name}:{name:string}){const d:Record<string,string>={home:"M3 11 12 4l9 7v9h-6v-6H9v6H3z",pass:"M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2",mic:"M4 5h16v11H8l-4 4zM8 9h8M8 12h5",booth:"M3 5h18v14H3zM3 10h18M10 10v9",invoice:"M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6",doc:"M6 2h9l5 5v15H6zM15 2v6h5",user:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",out:"M10 3H4v18h6M14 7l5 5-5 5M8 12h11"};
+ return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d={d[name]}/></svg>}
 export default function AccountPage(){
  const [me,setMe]=useState<AccountData|null>(null),[events,setEvents]=useState<EventRecord[]>([]),[plan,setPlan]=useState<Floorplan|null>(null),[invoices,setInvoices]=useState<{invoices:CustomerInvoice[]}|null>(null),[passes,setPasses]=useState<{passes:{passId:string;qrDataUrl:string;entitlement:string;manualCode:string}[]}|null>(null);
  const [loading,setLoading]=useState(true),[message,setMessage]=useState(""),[busy,setBusy]=useState(false),[mode,setMode]=useState<"register"|"login">("register"),[email,setEmail]=useState(""),[channel,setChannel]=useState<"EMAIL"|"SMS">("EMAIL"),[phone,setPhone]=useState(""),[smsAvailable,setSmsAvailable]=useState(false),[name,setName]=useState(""),[challenge,setChallenge]=useState(""),[otp,setOtp]=useState(""),[tab,setTab]=useState("overview");
@@ -47,23 +54,37 @@ export default function AccountPage(){
  async function doAction(task:()=>Promise<unknown>,success:string){setBusy(true);setMessage("");try{await task();setMessage(success);await reload()}catch(e){setMessage(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
  const event=events[0];
  const selectedConference=event?.conferences?.find(c=>c.id===conference);
- return <main className="portal-shell">
+ return <main className={"portal-shell"+(me&&!embed?" portal-app":"")}>
   {embed ? <div className="auth-embed">{loading ? <p role="status">Loading…</p> : me ? <p role="status">Signed in — opening your account…</p> : <AuthPanel registrationOpen={registrationOpen} onSignedIn={()=>void reload()}/>}</div> : <>
   <nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>Customer account / UAT</span><a href="/">Back to website</a></nav>
   {loading?<section>Loading account information…</section>:!me?<div className="auth-modal-backdrop"><div className="auth-modal" role="dialog" aria-modal="true" aria-label="Sign in or create your IMDX account"><a className="auth-modal-close" href="/" aria-label="Close and go back to the website">×</a><AuthPanel registrationOpen={registrationOpen} onSignedIn={()=>void reload()}/></div></div>:<>
-    <header className="portal-heading portal-hero"><div><p className="eyebrow">MY IMDX 2027</p><h1>Welcome, <em>{[me.profile?.salutation==="IBU"?"Ibu":me.profile?.salutation==="BAPAK"?"Bapak":"",me.profile?.fullName||"participant"].filter(Boolean).join(" ")}</em></h1>
-      <p>Your visit, conference seats and booth — in one place.</p></div>
-      <ul className="event-chips" aria-label="Event"><li>📅 26–28 May 2027</li><li>📍 {event?.venue||"JIEXPO Kemayoran, Jakarta"}</li>{me.email&&<li>✉️ {me.email}</li>}</ul></header>
-    <div className="tabline portal-tabs" role="tablist" aria-label="Account sections">{[["overview","Overview"],["visit","Exhibition visitor"],["conference","Conferences"],["booth","My booth"],["payments","Invoices & payments"],["profile","Profile"]].map(([id,title])=><button key={id} role="tab" aria-selected={tab===id} className={tab===id?"chosen":""} onClick={()=>setTab(id)}>{title}</button>)}</div>
+    {(()=>{const hasPass=Boolean(passes?.passes.length);const openInvoices=(invoices?.invoices||[]).filter(i=>["AWAITING_PAYMENT","DP_RECEIVED"].includes(i.state)).length;return <>
+    <aside className="portal-side" aria-label="My IMDX">
+      <p className="portal-side-title">My IMDX 2027</p>
+      <div className="portal-nav" role="tablist" aria-label="Account sections" aria-orientation="vertical">{SECTIONS.map(([id,title,icon])=><button key={id} type="button" role="tab" id={"tab-"+id} aria-selected={tab===id} className={tab===id?"chosen":""} onClick={()=>setTab(id)}><PIcon name={icon}/><span>{title}</span>{id==="payments"&&openInvoices>0&&<em aria-label={openInvoices+" open"}>{openInvoices}</em>}</button>)}</div>
+      <button type="button" className="portal-plain portal-pass-shortcut" onClick={()=>setTab("visit")}><PIcon name="pass"/><span><strong>{hasPass?"Show my QR pass":"Get my QR pass"}</strong><small>{hasPass?"For the gate at JIEXPO":"Register as a visitor first"}</small></span></button>
+      <button type="button" className="ghost portal-signout" onClick={()=>void doAction(()=>request("/api/auth/logout",{method:"POST"}),"Signed out.")}><PIcon name="out"/>Sign out</button>
+    </aside>
+    <nav className="portal-bottom" aria-label="Quick navigation">{MOBILE.map(id=>{const [,title,icon]=SECTIONS.find(x=>x[0]===id)!;return <button key={id} type="button" className={"portal-plain "+(id==="visit"?"is-pass ":"")+(tab===id?"chosen":"")} aria-current={tab===id?"page":undefined} aria-label={title} onClick={()=>setTab(id)}><PIcon name={icon}/><span aria-hidden="true">{id==="visit"?"Pass":title}</span></button>})}</nav>
+    </>})()}
+    <div className="portal-main">
+    <header className="portal-greet"><div><h1>Welcome, <em>{[me.profile?.salutation==="IBU"?"Ibu":me.profile?.salutation==="BAPAK"?"Bapak":"",me.profile?.fullName||"participant"].filter(Boolean).join(" ")}</em></h1>
+      <p><span className="portal-greet-event">{event?.title||"IMDX 2027"} · </span>26–28 May 2027 · {event?.venue||"JIEXPO Kemayoran, Jakarta"}</p></div>
+      <div className="portal-greet-tools"><button type="button" className="ghost portal-mobile-only" onClick={()=>setTab("profile")} aria-label="Profile"><PIcon name="user"/></button><button type="button" className="ghost portal-mobile-only" onClick={()=>setTab("documents")} aria-label="Documents"><PIcon name="doc"/></button></div></header>
     {message&&<div className="notice" role="status">{message}</div>}
-    {tab==="overview"&&<section><ActionNeeded me={me} invoices={invoices?.invoices||[]} go={t=>setTab(t as typeof tab)}/><h2>Event experience</h2><p className="micro">{event?.title||"IMDX 2027"} — follow each journey step by step. Payments are only by bank transfer to the account on your invoice.</p>
+    {tab==="overview"&&<>
+      <ActionNeeded me={me} invoices={invoices?.invoices||[]} go={t=>setTab(t as typeof tab)}/>
+      <section aria-labelledby="exp-h"><h2 id="exp-h">Event experience</h2><p className="micro">Follow each journey step by step. Payments are made by bank transfer to the account on your invoice.</p>
       <Journeys me={me} hasExpoPass={Boolean(passes?.passes.some(p=>p.entitlement==="EXPO_ENTRY"))} invoices={invoices?.invoices||[]} go={t=>setTab(t as typeof tab)}/>
-      </section>}
-    {tab==="visit"&&<section><AttendanceHistory/><h2>Exhibition visitor</h2><p>Each visitor has a unique QR pass. At the event, the organizer checks admission in the secured CMS.</p>
+      </section>
+      <div className="portal-two"><PrepChecklist items={prepItems(me,Boolean(passes?.passes.some(p=>p.entitlement==="EXPO_ENTRY")),invoices?.invoices||[])} go={t=>setTab(t as typeof tab)}/><RecentUpdates go={t=>setTab(t as typeof tab)}/></div>
+      </>}
+    {tab==="visit"&&<section><h2>My pass</h2><p>Each visitor has a personal QR pass. Show it at the entrance gate; staff scan it to admit you.</p>
       {me.enrollments.filter(x=>x.type==="VISITOR").map(r=><div className="record" key={r.id}><strong>Visitor registration</strong><span className="status">{r.status}</span></div>)}
       {me.enrollments.every(x=>x.type!=="VISITOR")&&<ParticipantDetails p={me} onSaved={()=>void reload()} intro="Complete these details to receive your personal exhibition visitor pass."/>}
       {me.enrollments.every(x=>x.type!=="VISITOR")&&<button disabled={busy||!event||!participantComplete(me)} onClick={()=>void doAction(()=>send("/api/customer/registrations",{eventCode:event?.code,kind:"VISITOR",consent:true}),"Registration submitted.")}>Register as exhibition visitor</button>}
       {passes?.passes.length?passes.passes.map(p=><figure key={p.passId} className="pass printable-pass"><img width={220} height={220} src={p.qrDataUrl} alt={"Personal entry QR pass, "+p.entitlement}/><figcaption>Private pass · {p.entitlement} · Do not share</figcaption><p className="micro">Manual code for gate staff: <strong style={{letterSpacing:"0.12em"}}>{p.manualCode}</strong></p><div className="cms-row-actions no-print"><a href={p.qrDataUrl} download={"imdx-pass-"+p.passId.slice(0,8)+".png"}>Download QR</a><button type="button" onClick={()=>window.print()}>Print pass</button></div></figure>):<p className="micro">QR will appear after your visitor registration is eligible and confirmed.</p>}
+      <AttendanceHistory/>
      </section>}
     {tab==="conference"&&<section><h2>My conferences</h2><p>Registration and payment are separate. A submitted request does not confirm payment.</p>
       {me.enrollments.filter(x=>x.type==="CONFERENCE").map(x=><div key={x.id} className="record"><div><strong>{x.conference?.title||"Conference"}</strong><span className="micro"> · {x.status}</span></div>
@@ -158,14 +179,16 @@ export default function AccountPage(){
        {team.estimator&&<FeeEstimate area={area}/>}
        <label>Notes / preferred arrangement<textarea value={notes} onChange={e=>setNotes(e.target.value)} maxLength={1000}/></label><div className="record" role="note" aria-label="Request summary"><div><strong>Review before sending</strong><p className="micro">Preferred booths: {chosen.map(id=>plan.units?.find(u=>u.id===id)?.code).filter(Boolean).join(", ")||"none selected"} · Requested area: {area} m². No price or deposit applies yet: the organizer will send a quotation; any deposit (DP) and due date appear only on your official invoice. See the <a href="/terms/" target="_blank" rel="noreferrer">registration &amp; payment terms</a>.</p></div></div><button disabled={busy||(chosen.length===0&&!customSize.trim())||!company.trim()||products.trim().length<3||!me.verifiedPhoneAt} type="submit">Submit booth request</button></form></>:<p>The organizer has not published a booth floorplan. You can return after publication.</p>}
     </section>}
-    {tab==="payments"&&<section><h2>Invoices & bank transfer</h2><p>No Midtrans or automated payment gateway. Only verified organizer bank transfers change your paid status.</p>
+    {tab==="payments"&&<section><h2>Invoices</h2><p>Pay by bank transfer to the account shown on your invoice, then send your transfer proof here. Finance checks every transfer; your status changes once the payment is verified.</p>
       {invoices?.invoices?.length?invoices.invoices.map(x=><InvoicePanel key={x.id} invoice={x} onChanged={()=>void reload()}/>):<p>No issued invoices yet. Request an invoice from your conference or booth card.</p>}
      </section>}
+    {tab==="documents"&&<DocumentsPanel invoices={invoices?.invoices||[]} passes={passes?.passes||[]} exhibitor={me.requests.length>0}/>}
     {tab==="profile"&&<section><h2>My profile</h2><p>Verified email: <strong>{me.email||"—"}</strong>{me.phone?<> · Verified phone: <strong>{me.phone}</strong></>:null}</p><p className="micro">Your name is matched at the gate. If you change it after a pass was issued, ask the organizer to reissue your pass.</p><form key={me.id} onSubmit={e=>{e.preventDefault();const form=new FormData(e.currentTarget);void doAction(()=>request("/api/customer/me",{method:"PATCH",body:JSON.stringify(Object.fromEntries(form))}),"Profile saved.")}}>
       <div className="form-grid"><label>Full name<input name="fullName" required defaultValue={me.profile?.fullName}/></label><label>Company<input name="organization" defaultValue={me.profile?.organization||""}/></label>
       <label>Job title<input name="jobTitle" defaultValue={me.profile?.jobTitle||""}/></label><label>Country<input name="country" defaultValue={me.profile?.country||"Indonesia"}/></label><label>Business updates by<select name="notifyChannel" defaultValue={(me.profile as {notifyChannel?:string}|null)?.notifyChannel||"EMAIL"}><option value="EMAIL">Email (default)</option><option value="WHATSAPP" disabled={!me.phone}>WhatsApp (verified mobile required)</option></select></label></div>
       <button disabled={busy}>Save profile</button></form><AccountSecurity smsAvailable={smsAvailable} onChanged={()=>void reload()}/></section>}
-    <div className="portal-footer-actions"><button className="ghost" onClick={()=>void doAction(()=>request("/api/auth/logout",{method:"POST"}),"Signed out.")}>Sign out</button></div>
+    <button type="button" className="ghost portal-mobile-only portal-signout-mobile" onClick={()=>void doAction(()=>request("/api/auth/logout",{method:"POST"}),"Signed out.")}>Sign out</button>
+    </div>
   </>}
  </>}
   </main>;
