@@ -34,7 +34,7 @@ export default function BulkTools() {
         {sum.skipped.length > 0 && <details><summary>Skipped</summary><ul>{sum.skipped.map(s => <li key={"s" + s.line}>Line {s.line}: {s.email} — {s.reason}</li>)}</ul></details>}</div>}
     </section>
     <section className="cms-card"><h2>Badge printing</h2>
-      <p className="micro">A6 name badges for people holding an active pass. Badges show identity only; entry always uses the person's own QR pass.</p>
+      <p className="micro">A6 name badges for people holding an active pass. Badges show identity only; entry always uses the person&apos;s own QR pass.</p>
       {counts && <p>{Object.entries(counts).map(([k, v]) => k + ": " + v).join(" · ")}</p>}
       <label>Category<select value={category} onChange={e => setCategory(e.target.value)}><option value="">All</option>{["VISITOR", "DELEGATE", "EXHIBITOR"].map(c => <option key={c}>{c}</option>)}</select></label>
       <a className="button-link" href={"/api/admin/badges?format=pdf" + (category ? "&category=" + category : "")}>Download badge PDF</a>
