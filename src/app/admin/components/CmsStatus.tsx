@@ -1,6 +1,6 @@
 import {CmsIcon} from "./CmsShell";
 
-type Domain="Account"|"Registration"|"Booth request"|"Invoice"|"Payment"|"Receipt"|"Booth unit"|"Pass"|"Check-in"|"Assignment";
+type Domain="Content"|"Account"|"Registration"|"Booth request"|"Invoice"|"Payment"|"Receipt"|"Booth unit"|"Pass"|"Check-in"|"Assignment";
 type Tone="neutral"|"waiting"|"action"|"partial"|"positive"|"negative"|"negative-muted";
 const tones:Record<string,Tone>={
   PENDING_VERIFICATION:"waiting", ACTIVE:"positive", SUSPENDED:"negative", CLOSED:"neutral",
@@ -15,7 +15,8 @@ const tones:Record<string,Tone>={
   NOT_ISSUED:"neutral",REVOKED:"negative",EXPIRED:"negative",
   ASSIGNED:"positive",NOT_ASSIGNED:"neutral",
   VALID_ACCEPTED:"positive",ALREADY_CHECKED_IN:"waiting",WRONG_ZONE:"waiting",NOT_YET_VALID:"waiting",
-  UNPAID:"negative",INVALID:"negative",OFFLINE_ERROR:"neutral"
+  UNPAID:"negative",INVALID:"negative",OFFLINE_ERROR:"neutral",
+  PUBLISHED:"positive",ARCHIVED:"negative-muted",SCHEDULED:"waiting"
 };
 const labels:Record<string,string>={
   DP_RECEIVED:"DP received",PAID_IN_FULL:"Paid in full",ALLOCATION_PENDING:"Allocation pending",

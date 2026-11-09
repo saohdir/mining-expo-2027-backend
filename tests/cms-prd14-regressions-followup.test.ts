@@ -7,7 +7,7 @@ test("Sales attendance report matches visible CMS Reports permission and remains
   const route=read("src/app/api/admin/reports/attendance/route.ts");
   const nav=read("src/app/admin/components/CmsShell.tsx");
   assert.match(route,/admin\(\["SUPER_ADMIN",\s*"OPERATIONS",\s*"FINANCE",\s*"SALES",\s*"VIEWER"\]\)/);
-  assert.match(nav,/Reports & Exports/);
+  assert.match(nav,/Reports & exports/);
   assert.match(route,/registeredUnique:/);
   assert.match(route,/arrivedUnique:/);
   assert.doesNotMatch(route,/profile:\s*\{select/);
@@ -60,9 +60,9 @@ test("New programme draft is selected immediately after create instead of first 
 
 test("Booth request list stays populated after saving a selected request outside latest 100",()=>{
   const code=read("src/app/admin/booths/page.tsx");
-  assert.match(code,/async function fetchBoothList\(target\?:string\)/);
-  assert.match(code,/const data=await api\("\/api\/admin\/booth-requests"\)/);
+  assert.match(code,/async function fetchBoothList\(target:string\|undefined,query:ListQuery\)/);
+  assert.match(code,/const data=await api\("\/api\/admin\/booth-requests\?"\+p\)/);
   assert.match(code,/if\(target&&!records\.some\(record=>record\.id===target\)\)/);
-  assert.match(code,/return \[selected,\.\.\.records\]/);
-  assert.match(code,/const next=await fetchBoothList\(target\)/);
+  assert.match(code,/return \{records:\[selected,\.\.\.records\]/);
+  assert.match(code,/await fetchBoothList\(target,query\)/);
 });

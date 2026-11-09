@@ -1,4 +1,5 @@
 "use client";
+import {CustomerPicker} from "../components/CustomerPicker";
 import {Suspense,useCallback,useEffect,useState} from "react";
 import {useSearchParams} from "next/navigation";
 type Dict=Record<string,unknown>;
@@ -81,7 +82,7 @@ function AdminWorkspace(){
  <form onSubmit={e=>{e.preventDefault();void act(async()=>{await api("/api/admin/auth/login","POST",{email,password});setPassword("")},"Signed in.")}}>
  <label>Staff email<input required type="email" value={email} autoComplete="username" onChange={e=>setEmail(e.target.value)}/></label><label>Password<input required type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></label><button disabled={busy}>{busy?"Signing in…":"Sign in to CMS"}</button></form>{msg&&<p className="notice">{msg}</p>}<p className="micro">Admin accounts are provisioned securely by an authorized project operator; there is no public admin registration.</p></section>:
  <>
- <header className="portal-heading"><p className="eyebrow">PRE-GO-LIVE / RESTRICTED</p><h1>Operations <em>dashboard.</em></h1><p>Signed in as {actor.email} · {actor.role}. Invoice/QR actions are logged and role-protected server-side.</p></header>
+ <header className="imdx-cms-heading"><div><h1>{({overview:"Operations overview",registrations:"Registrations",bookings:"Booth requests",finance:"Invoices & payment requests",notifications:"Notifications",settings:"Event settings"} as Record<string,string>)[tab]||"Operations"}</h1><p>Invoice and QR actions are logged and role-protected server-side.</p></div></header>
  {msg&&<div className="notice" role="status">{msg}</div>}
  {moduleErrors.length>0&&<div className="warning" role="alert"><strong>Some CMS modules could not load:</strong><ul>{moduleErrors.map(error=><li key={error}>{error}</li>)}</ul><button type="button" className="ghost cms-small" onClick={()=>void reload()}>Retry loading modules</button></div>}
  <nav className="cms-workspace-tabs" aria-label="Operational workspace sections">
@@ -89,7 +90,7 @@ function AdminWorkspace(){
     className={tab===id?"chosen":""} aria-current={tab===id?"page":undefined}
     onClick={()=>setTab(id)}>{label}</button>)}
  </nav>
- <div className="cms-layout"><aside className="cms-sidebar" aria-label="CMS modules">
+ <div className="cms-layout cms-workspace-layout"><aside className="cms-sidebar" aria-label="CMS modules">
  {[["overview","Overview"],["registrations","Registrations"],["bookings","Booth Requests"],["finance","Invoices & Finance"],["notifications","Notifications"],["settings","Event Settings"]].map(([id,label])=><button key={id} className={tab===id?"chosen":""} onClick={()=>setTab(id)}>{label}</button>)}
  <a className="button-link cms-small" href="/admin/reports">Reports &amp; Exports</a><a className="button-link cms-small" href="/admin/programmes">Programme Management</a><a className="button-link cms-small cms-payment-link" href="/admin/payments">Payment Management ↗</a><a className="button-link cms-small" href="/admin/floorplans">Floorplan Editor</a><a className="button-link cms-small" href="/admin/check-in">Gate QR Scanner</a>
  <button className="ghost" onClick={()=>void act(()=>api("/api/admin/auth/logout","POST"),"Signed out.")}>Sign out</button>
@@ -111,11 +112,9 @@ function AdminWorkspace(){
  <a href={"/admin/booths?request="+encodeURIComponent(b.id)} className="button-link cms-small">Open quotation workspace ↗</a>
  {["SUPER_ADMIN","FINANCE","SALES"].includes(actor.role)&&["ACCEPTED","WAITING_INVOICE","INVOICED"].includes(b.status)&&<button className="cms-small" onClick={()=>chooseInvoice(b.accountId,b.id,"boothRequestId")}>Prepare invoice</button>}</div></div>)}</>}
  {tab==="finance"&&<><h2>Invoice & manual bank transfer</h2><p className="micro">Payments are recorded by Finance in a dedicated, audited status screen. No online checkout.</p><a className="button-link cms-small" href="/admin/payments">Open Payment Management ↗</a><div className="cms-finance-main"><form onSubmit={e=>{e.preventDefault();void act(()=>api("/api/admin/invoices","POST",{accountId:invoiceAccount,[invoiceKind]:invoiceBooking,items:[{description:invoiceTitle,quantity:1,unitPriceMinor:invoiceAmount}],minimumDpMinor:invoiceDP}),"Invoice draft created. Finance must review and issue.")}}>
- <h3>Create draft invoice</h3><label>Customer account ID<input required value={invoiceAccount} onChange={e=>setInvoiceAccount(e.target.value)}/></label>
- <label>{invoiceKind==="enrollmentId"?"Conference enrollment ID":"Booth request ID"}<input required value={invoiceBooking} onChange={e=>setInvoiceBooking(e.target.value)}/></label>
- <label>Booking type<select value={invoiceKind} onChange={e=>setInvoiceKind(e.target.value as typeof invoiceKind)}><option value="enrollmentId">Conference</option><option value="boothRequestId">Booth</option></select></label>
+ <h3>Create draft invoice</h3><CustomerPicker accountId={invoiceAccount} bookingId={invoiceBooking} kind={invoiceKind} onChange={v=>{setInvoiceAccount(v.accountId);setInvoiceBooking(v.bookingId);setInvoiceKind(v.kind)}}/>
  <label>Description<input value={invoiceTitle} onChange={e=>setInvoiceTitle(e.target.value)}/></label><label>Invoice amount (IDR)<input required type="number" min="1" step="1" value={invoiceAmount} onChange={e=>setInvoiceAmount(e.target.value)}/></label>
- <label>Minimum DP (IDR)<input type="number" min="0" step="1" value={invoiceDP} onChange={e=>setInvoiceDP(e.target.value)}/></label><button disabled={busy}>Save draft</button></form></div>
+ <label>Minimum DP (IDR)<input type="number" min="0" step="1" value={invoiceDP} onChange={e=>setInvoiceDP(e.target.value)}/></label><button disabled={busy||!invoiceAccount||!invoiceBooking} title={!invoiceAccount||!invoiceBooking?"Choose the customer and the booking first":undefined}>Save draft</button></form></div>
 
  <h3 id="cms-payment-requests">Customer payment requests</h3>{requests.map(x=><div key={x.id} className="record"><span>{x.account.profile?.fullName||x.account.email} · {x.status}</span><button className="cms-small" disabled={!x.enrollmentId&&!x.boothRequestId} onClick={()=>chooseInvoice(x.accountId,x.enrollmentId||x.boothRequestId||"",x.enrollmentId?"enrollmentId":"boothRequestId")}>Prepare invoice</button></div>)}
  <h3 id="cms-invoices">Invoices</h3><div className="cms-table-wrap"><table className="cms-table"><thead><tr><th>No.</th><th>Status</th><th>Amount IDR</th><th>Action</th></tr></thead><tbody>{invoices.map(x=><tr key={x.id}><td>{x.number}</td><td>{x.status}</td><td>{formatMoney(x.totalMinor)}</td><td className="cms-row-actions">

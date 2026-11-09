@@ -14,13 +14,22 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({message:"Invalid booth request reference."},
         {status:400,headers:{"Cache-Control":"private,no-store"}});
     }
+    // Optional paged mode (additive): ?page=&pageSize=&q=&sort=created:asc|desc. Without ?page the original latest-100 list is returned.
+    const sp = req.nextUrl.searchParams, paged = sp.has("page");
+    const page = Math.max(1, Math.min(10000, Number(sp.get("page")) || 1));
+    const pageSize = [10, 25, 50, 100].includes(Number(sp.get("pageSize"))) ? Number(sp.get("pageSize")) : 25;
+    const q = (sp.get("q") || "").trim().slice(0, 100);
     const where = {
+      ...(q ? {OR: [{id: {startsWith: q.toLowerCase()}}, {account: {email: {contains: q, mode: "insensitive" as const}}},
+        {account: {profile: {fullName: {contains: q, mode: "insensitive" as const}}}}, {account: {profile: {organization: {contains: q, mode: "insensitive" as const}}}}]} : {}),
       ...(state && allowed.includes(state as typeof allowed[number])
         ? {status: state as typeof allowed[number]} : {}),
       ...(targetId ? {id: targetId} : {})
     };
+    const total = paged ? await db.boothRequest.count({where}) : undefined;
     const records = await db.boothRequest.findMany({
-      where, take: 100, orderBy: {createdAt: "desc"},
+      where, take: paged ? pageSize : 100, skip: paged ? (page - 1) * pageSize : 0,
+      orderBy: {createdAt: sp.get("sort") === "created:asc" ? "asc" : "desc"},
       include: {
         account: {select: {email: true, phone: true, profile: {select: {fullName: true, organization: true}}}},
         floorplan: {
@@ -36,6 +45,7 @@ export async function GET(req: NextRequest) {
       }
     });
     return NextResponse.json({
+      ...(paged ? {total, page, pageSize} : {}),
       records: records.map(r => ({
         ...r, requestedAreaSqm: String(r.requestedAreaSqm),
         offeredAreaSqm: r.offeredAreaSqm === null ? null : String(r.offeredAreaSqm),
