@@ -36,6 +36,7 @@ MIGRATIONS=(
  "20261113010000_lang_zh|SELECT COALESCE((SELECT pg_get_constraintdef(oid) LIKE '%zh%' FROM pg_constraint WHERE conname='PageLayout_locale_check'), false)"
  "20261114010000_mailouts_discounts|SELECT to_regclass('public.\"Mailout\"') IS NOT NULL"
  "20261115010000_participant_details|SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='CustomerProfile' AND column_name='salutation')"
+ "20261116010000_marketing_consent|SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='CustomerProfile' AND column_name='futureContactOptIn')"
 )
 q(){ "${DC[@]}" exec -T postgres psql -U "$DBU" -d "$DBN" -tAq -c "$1" 2>/dev/null | tr -d '[:space:]'; }
 

@@ -177,7 +177,14 @@ const PEOPLE: [string, string, string, string][] = [
 async function participants(eventId: string, remove: boolean) {
   const accounts = await db.customerAccount.findMany({where: {email: {endsWith: DOMAIN}}, select: {id: true}});
   if (remove || accounts.length) {
-    if (!remove) { console.log(`participants: ${accounts.length} sample participants already exist — left unchanged`); return; }
+    if (!remove) {
+      // Backfill the future-contact sample consent (added later) without touching registrations: 3 of 4 agreed.
+      const all = await db.customerAccount.findMany({where: {email: {endsWith: DOMAIN}}, select: {id: true, email: true}});
+      let n = 0;
+      for (const a of all) { const i = Number(a.email?.match(/sample(\d+)@/)?.[1] || 1) - 1;
+        if (i % 4 !== 3) n += (await db.customerProfile.updateMany({where: {accountId: a.id, futureContactAt: null, futureContactOptIn: false}, data: {futureContactOptIn: true, futureContactAt: new Date()}})).count; }
+      console.log(`participants: ${accounts.length} sample participants already exist — registrations unchanged; future-contact consent set on ${n}`); return;
+    }
     const ids = accounts.map(a => a.id);
     const passIds = (await db.eventPass.findMany({where: {accountId: {in: ids}}, select: {id: true}})).map(p => p.id);
     const reqs = await db.boothRequest.findMany({where: {accountId: {in: ids}}, select: {id: true, assignments: {select: {boothUnitId: true}}}});
@@ -200,7 +207,7 @@ async function participants(eventId: string, remove: boolean) {
   const mkAccount = async (i: number) => {
     const [salutation, fullName, jobTitle, organization] = PEOPLE[i];
     return db.customerAccount.create({data: {email: `sample${String(i + 1).padStart(2, "0")}${DOMAIN}`, status: "ACTIVE", verifiedEmailAt: now, phone: "+62812999" + String(10000 + i), verifiedPhoneAt: now,
-      profile: {create: {salutation, fullName: fullName + " (sample)", jobTitle, organization, country: "Indonesia", consentVersion: "uat-sample", consentAt: now}}}, include: {profile: true}});
+      profile: {create: {salutation, fullName: fullName + " (sample)", jobTitle, organization, country: /Co\.|Ltd|Group|Systems/.test(organization) ? "China" : "Indonesia", consentVersion: "uat-sample", consentAt: now, futureContactOptIn: i % 4 !== 3, futureContactAt: i % 4 !== 3 ? now : null}}}, include: {profile: true}});
   };
   const snap = (a: Awaited<ReturnType<typeof mkAccount>>) => ({salutation: a.profile!.salutation, fullName: a.profile!.fullName, jobTitle: a.profile!.jobTitle, organization: a.profile!.organization, email: a.email, whatsapp: a.phone, sample: true});
   const pass = async (accountId: string, enrollmentId: string, entitlement: string) => { const t = randomToken();

@@ -169,6 +169,8 @@ model CustomerProfile {
   consentAt DateTime
   updatedAt DateTime @updatedAt
   notifyChannel String @default("EMAIL")
+  futureContactOptIn Boolean @default(false)
+  futureContactAt DateTime?
 }
 model OtpChallenge {
   id String @id @default(uuid())

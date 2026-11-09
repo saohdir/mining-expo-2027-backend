@@ -6,10 +6,11 @@ import {ActionNeeded} from "./ActionNeeded";
 import {AuthPanel} from "./AuthPanel";
 import {BoothStaffPanel, GroupRegistrationPanel} from "./TeamPanels";
 import {FeeEstimate} from "./FeeEstimate";
-import {ParticipantDetails, participantComplete, WhatsAppVerify} from "./ParticipantDetails";
+import {Journeys} from "./Journeys";
+import {FutureContact, ParticipantDetails, participantComplete, WhatsAppVerify} from "./ParticipantDetails";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
-type AccountData={phone?:string|null;verifiedPhoneAt?:string|null;id:string;email:string|null;profile:{salutation?:string|null;fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
+type AccountData={phone?:string|null;verifiedPhoneAt?:string|null;id:string;email:string|null;profile:{futureContactOptIn?:boolean;salutation?:string|null;fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
  enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:CustomerBooth[];invoices:{id:string;boothRequestId:string|null;number:string;status:string;totalMinor:string}[]};
 type BoothOfferView={id:string;revision:number;offeredUnits:{id:string;code:string;hall:string|null;zone:string|null;areaSqm:string}[];offeredAreaSqm:string;quotedPriceMinor:string;expiresAt:string|null;acceptedAt:string|null;createdAt:string};
 type CustomerBooth={id:string;createdAt:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];holds:{id:string;expiresAt:string;boothUnit:{code:string;hall:string|null}}[];floorplan:{versionNo:number;units:{id:string;code:string;hall:string|null}[]};offers:BoothOfferView[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]};
@@ -41,14 +42,14 @@ export default function AccountPage(){
  return <main className="portal-shell">
   <nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>Customer account / UAT</span><a href="/admin">Admin CMS</a></nav>
   {loading?<section>Loading account information…</section>:!me?<AuthPanel registrationOpen={registrationOpen} onSignedIn={()=>void reload()}/>:<>
-    <header className="portal-heading"><p className="eyebrow">ACCOUNT DASHBOARD / IMDX 2027</p><h1>Welcome, <em>{me.profile?.fullName||"participant"}</em></h1><p>Manage your exhibition visit, conference booking and booth requests from one account.</p></header>
-    <div className="tabline portal-tabs">{[["overview","Overview"],["visit","Exhibition visitor"],["conference","Conferences"],["booth","My booth"],["payments","Invoices & payments"],["profile","Profile"]].map(([id,title])=><button key={id} className={tab===id?"chosen":""} onClick={()=>setTab(id)}>{title}</button>)}</div>
+    <header className="portal-heading portal-hero"><div><p className="eyebrow">MY IMDX 2027</p><h1>Welcome, <em>{[me.profile?.salutation==="IBU"?"Ibu":me.profile?.salutation==="BAPAK"?"Bapak":"",me.profile?.fullName||"participant"].filter(Boolean).join(" ")}</em></h1>
+      <p>Your visit, conference seats and booth — in one place.</p></div>
+      <ul className="event-chips" aria-label="Event"><li>📅 26–28 May 2027</li><li>📍 {event?.venue||"JIEXPO Kemayoran, Jakarta"}</li>{me.email&&<li>✉️ {me.email}</li>}</ul></header>
+    <div className="tabline portal-tabs" role="tablist" aria-label="Account sections">{[["overview","Overview"],["visit","Exhibition visitor"],["conference","Conferences"],["booth","My booth"],["payments","Invoices & payments"],["profile","Profile"]].map(([id,title])=><button key={id} role="tab" aria-selected={tab===id} className={tab===id?"chosen":""} onClick={()=>setTab(id)}>{title}</button>)}</div>
     {message&&<div className="notice" role="status">{message}</div>}
-    {tab==="overview"&&<section><ActionNeeded me={me} invoices={invoices?.invoices||[]} go={t=>setTab(t as typeof tab)}/><h2>Event experience</h2><p><strong>{event?.title||"IMDX 2027"}</strong> · {event?.venue||"JIEXPO Kemayoran, Jakarta"} · 26–28 May 2027</p><div className="dashboard-grid">
-      <article><h3>Visit exhibition</h3><p>Get your personal entry QR after registration is confirmed.</p><button onClick={()=>setTab("visit")}>Register / view pass ↗</button></article>
-      <article><h3>Join conference</h3><p>Conference registrations use manual invoices, not payment gateways.</p><button onClick={()=>setTab("conference")}>Explore conferences ↗</button></article>
-      <article><h3>Reserve booth</h3><p>Choose preferred booth units; final allocation requires organizer approval.</p><button onClick={()=>setTab("booth")}>View floorplan ↗</button></article>
-      </div></section>}
+    {tab==="overview"&&<section><ActionNeeded me={me} invoices={invoices?.invoices||[]} go={t=>setTab(t as typeof tab)}/><h2>Event experience</h2><p className="micro">{event?.title||"IMDX 2027"} — follow each journey step by step. Payments are only by bank transfer to the account on your invoice.</p>
+      <Journeys me={me} hasExpoPass={Boolean(passes?.passes.some(p=>p.entitlement==="EXPO_ENTRY"))} invoices={invoices?.invoices||[]} go={t=>setTab(t as typeof tab)}/>
+      </section>}
     {tab==="visit"&&<section><AttendanceHistory/><h2>Exhibition visitor</h2><p>Each visitor has a unique QR pass. At the event, the organizer checks admission in the secured CMS.</p>
       {me.enrollments.filter(x=>x.type==="VISITOR").map(r=><div className="record" key={r.id}><strong>Visitor registration</strong><span className="status">{r.status}</span></div>)}
       {me.enrollments.every(x=>x.type!=="VISITOR")&&<ParticipantDetails p={me} onSaved={()=>void reload()} intro="Complete these details to receive your personal exhibition visitor pass."/>}
@@ -110,6 +111,7 @@ export default function AccountPage(){
         <label>PIC name (person in charge)<input value={picName||me.profile?.fullName||""} required minLength={2} maxLength={120} onChange={e=>setPicName(e.target.value)}/></label>
        </div>
        <WhatsAppVerify p={me} label="PIC WhatsApp number" onVerified={()=>void reload()}/>
+       <FutureContact p={me} onSaved={()=>void reload()}/>
        <label>Products to display at the booth<textarea value={products} required minLength={3} maxLength={1000} placeholder="e.g. haul trucks, crushers, mine-site software" onChange={e=>setProducts(e.target.value)}/></label>
        <div className="cms-row-actions" role="radiogroup" aria-label="Booth location">
         <label className="consent"><input type="radio" name="booth-loc" checked={location==="INDOOR"} onChange={()=>{setLocation("INDOOR");setChosen([])}}/> Indoor booth</label>

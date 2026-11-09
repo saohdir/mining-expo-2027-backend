@@ -31,3 +31,14 @@ footer show "UAT / NOT VALID FOR REAL PAYMENT".
 - **Exhibitor**: company name, PIC name, PIC WhatsApp (verified by code), products to display, indoor/outdoor, optional custom size
   (when no displayed booth fits) — then preferred booths, filtered to indoor or outdoor units (outdoor = hall/zone "Outdoor").
 - Reports: registrations export adds Salutation, Job title, WhatsApp; booth export adds PIC WhatsApp, Products, Indoor/Outdoor, Custom size.
+
+## Prospect report for the next edition (Product Owner request, 9 Nov 2026)
+CMS → Insights → **Participant Prospects** (`/admin/prospects`; Super Admin, Sales, Operations): one row per person who registered
+as exhibition visitor, conference delegate or exhibitor, with salutation, name, job title, company, e-mail, verified WhatsApp,
+country, programmes, exhibitor products/location, attendance (checked in or not) and registration date. Filters: type, programme,
+attendance, contact permission, search. Summary tiles and charts (by role, top companies, top job titles). **Export Excel** is audited
+(`PROSPECTS_EXPORTED`).
+
+Contact permission (UU PDP): customers can tick an optional, separate box "Keep me informed about future IMDX events" in their
+participant details or exhibitor form (withdrawable any time). The report and export default to people who agreed; "Everyone"
+is for internal analysis only. Sample participants: 3 out of 4 agreed (re-run the sample seed after the consent migration).

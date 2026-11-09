@@ -220,6 +220,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-028 | P0 | VERIFIED | outbox + worker isolation (UT), save independent of email | — | — | — |
 | FR-031 | P0 | VERIFIED | XLSX/PDF exports: inclusive WIB dates, type/status filters, ExportJob + audit, formula-safe (E2E AT-070/071) | async jobs for >2,000 rows (NFR-26) | — | — |
+| PO-REQ prospects | — | VERIFIED | `/admin/prospects` + `/api/admin/reports/prospects` (JSON/XLSX): person-level visitor/conference/exhibitor list, attendance, summary charts, consent-filtered export, RBAC SA/Sales/Ops, audit (E2E `prospects.e2e.mjs`). Migration `20261116010000_marketing_consent` | — | — | — |
 | FR-121 | P0 | VERIFIED | date basis created/confirmed/checkedIn, assigned, issued/paid; WIB inclusive; type/status/hall/zone filters; ExportJob (E2E) | amount filter | — | — |
 | FR-122 | P0 | VERIFIED | role-scoped columns; background jobs ≤100k rows, encrypted private file, requester-only download, 24 h expiry, audited (E2E) | — | — | — |
 | FR-146 | P0 | VERIFIED | outbox emails: OTP, request received, quote, invoice, payment verified/corrected, refund, booking cancelled, pass ready/revoked/reissued, programme change, contact change; retry/backoff (E2E outbox rows + worker) | delivery to real provider (UAT) | — | — |
@@ -319,3 +320,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - CMS field editing (designed-section text/links/images + header/footer), NFR-10 analytics, NFR-07/29 backups/drill/ops status, NFR-01/02 public quality test; NFR table added. Migration `20261112010000_analytics` (additive).
 - Remaining technical P0 (branch `feat/prd14-p0-remaining`): AT-077 E2E; FR-125 configured taxes/fees; FR-150 retention engine → VERIFIED (values still owner decisions D-01/D-13, engines off until saved). Migration `20261111010000_p0_remaining` (additive).
 - P1/P2 extensions (branch `feat/prd14-p1-p2`): FR-157/156/059/154/113/032/159/158/041 built behind flags (default off). Migration `20261110030000_p1_p2_extensions` (additive). See `docs/P1_P2_EXTENSIONS.md`.
+- 2026-11-09 PO request: prospect report (next-edition follow-up) with separate future-contact consent; customer portal journeys redesign + CMS visual refresh. Migration `20261116010000_marketing_consent` (additive).

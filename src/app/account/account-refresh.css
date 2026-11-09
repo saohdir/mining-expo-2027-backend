@@ -1,0 +1,73 @@
+/* Customer portal refresh (Nov 2026): calm neutral canvas, white cards, one accessible brand accent,
+   journey cards with step trackers, pill tabs, clear forms. Scoped to /account. */
+.account-app{--a-bg:#F6F7F9;--a-card:#fff;--a-line:#E4E7EC;--a-ink:#101828;--a-ink2:#475467;--a-muted:#667085;--a-brand:#C2410C;--a-brand-dk:#9A3412;--a-brand-soft:#FFF1E8;
+  --a-ok:#067647;--a-ok-bg:#ECFDF3;--a-warn:#B54708;--a-warn-bg:#FFFAEB;--a-info:#175CD3;--a-info-bg:#EFF8FF;--a-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.08);
+  background:var(--a-bg);min-height:100vh;color:var(--a-ink)}
+.account-app .portal-shell{max-width:1180px}
+.account-app .portal-top{background:rgba(255,255,255,.95);border-bottom:1px solid var(--a-line);box-shadow:none;min-height:68px}
+/* Hero: compact greeting card */
+.account-app .portal-heading.portal-hero{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px;margin:24px 0 16px!important;padding:24px 28px;border:1px solid var(--a-line);border-radius:16px;
+  background:linear-gradient(120deg,#fff 0%,#fff 55%,#FFF4EC 100%);box-shadow:var(--a-shadow)}
+.account-app .portal-heading h1{font-size:clamp(26px,3vw,34px);letter-spacing:-.02em;line-height:1.15;margin:6px 0 4px;font-weight:650;color:var(--a-ink)}
+.account-app .portal-heading h1 em{font-style:normal;color:var(--a-brand)}
+.account-app .portal-heading p{margin:0;color:var(--a-ink2);font-size:16px}
+.account-app .eyebrow{font-size:11px;letter-spacing:.1em;font-weight:700;color:var(--a-brand-dk)}
+.event-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.event-chips li{font-size:13px;color:var(--a-ink2);background:#fff;border:1px solid var(--a-line);border-radius:999px;padding:5px 12px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+/* Pill tabs (scroll on mobile) */
+.account-app .tabline.portal-tabs{position:sticky;top:68px;z-index:20;background:var(--a-bg);border:0;margin:0 0 16px;padding:8px 0;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+.account-app .tabline.portal-tabs button{flex:0 0 auto;border:1px solid var(--a-line);border-radius:999px;background:#fff;color:var(--a-ink2);font-weight:600;font-size:14px;padding:8px 16px}
+.account-app .tabline.portal-tabs button:hover{border-color:#D0D5DD;color:var(--a-ink)}
+.account-app .tabline.portal-tabs button.chosen{background:var(--a-ink);color:#fff;border-color:var(--a-ink)}
+/* Cards & content */
+.account-app .portal-shell>section:not(.portal-hero){border:1px solid var(--a-line);border-radius:16px;box-shadow:var(--a-shadow);padding:clamp(18px,3vw,28px);margin:0 0 20px}
+.account-app section h2{font-size:22px;letter-spacing:-.01em;font-weight:650;margin:0 0 6px;color:var(--a-ink)}
+.account-app section h3{font-size:17px;font-weight:650;color:var(--a-ink)}
+.account-app section p{color:var(--a-ink2)}
+.account-app .micro{color:var(--a-muted)}
+.account-app .record{background:#fff;border:1px solid var(--a-line);border-radius:12px}
+.account-app .notice{background:var(--a-info-bg);border-color:#B2DDFF;color:#1849A9;border-radius:12px}
+.account-app .status{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;background:#F2F4F7;color:var(--a-ink2)}
+/* Buttons & inputs */
+.account-app button:not(.ghost):not(.link):not([role=tab]):not(.booth-choice){background:var(--a-brand);color:#fff;border:1px solid var(--a-brand);border-radius:10px;font-weight:650;padding:10px 16px}
+.account-app button:not(.ghost):not(.link):not([role=tab]):not(.booth-choice):hover{background:var(--a-brand-dk);border-color:var(--a-brand-dk)}
+.account-app button:disabled{opacity:.5;cursor:not-allowed}
+.account-app button.ghost{background:#fff;border:1px solid var(--a-line);color:var(--a-ink);border-radius:10px;font-weight:600}
+.account-app input:not([type=checkbox]):not([type=radio]),.account-app select,.account-app textarea{border:1px solid #D0D5DD;border-radius:10px;background:#fff;padding:10px 12px;font-size:15px;color:var(--a-ink)}
+.account-app input:focus-visible,.account-app select:focus-visible,.account-app textarea:focus-visible{outline:3px solid #FDE3D3;border-color:var(--a-brand)}
+.account-app label{font-weight:600;font-size:14px;color:var(--a-ink2)}
+.account-app input[readonly]{background:#F9FAFB;color:var(--a-muted)}
+/* Journeys */
+.journeys{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
+.journey{display:flex;flex-direction:column;gap:12px;background:#fff;border:1px solid var(--a-line);border-radius:16px;padding:20px;box-shadow:var(--a-shadow);position:relative}
+.journey::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;border-radius:16px 16px 0 0;background:#E4E7EC}
+.journey-progress::before{background:linear-gradient(90deg,var(--a-brand),#F79009)}
+.journey-done::before{background:var(--a-ok)}
+.journey-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.journey-top h3{margin:0}
+.journey-status{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;background:#F2F4F7;color:var(--a-ink2);white-space:nowrap}
+.journey-status.progress{background:var(--a-warn-bg);color:var(--a-warn)}
+.journey-status.done{background:var(--a-ok-bg);color:var(--a-ok)}
+.journey-blurb{margin:0;font-size:14px}
+.journey-steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.journey-steps li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--a-muted)}
+.journey-steps .dot{width:24px;height:24px;flex:0 0 24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;border:2px solid #D0D5DD;background:#fff;color:var(--a-muted)}
+.journey-steps li.done{color:var(--a-ink)}
+.journey-steps li.done .dot{background:var(--a-ok);border-color:var(--a-ok);color:#fff}
+.journey-steps li.current{color:var(--a-ink);font-weight:650}
+.journey-steps li.current .dot{border-color:var(--a-brand);color:var(--a-brand);box-shadow:0 0 0 4px var(--a-brand-soft)}
+.journey>button{margin-top:auto;align-self:flex-start}
+/* Forms: participant / exhibitor */
+.participant-details,.exhibitor-details,.whatsapp-verify{border:1px solid var(--a-line);border-radius:14px;padding:18px;margin:16px 0;background:#FCFCFD}
+.exhibitor-details legend,.whatsapp-verify legend{font-weight:700;color:var(--a-ink);padding:0 6px}
+.participant-details h3{margin-top:0}
+.future-contact{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:500!important;color:var(--a-ink2)!important}
+.action-needed{border:1px solid #FEDF89;background:var(--a-warn-bg);border-radius:14px;padding:14px 18px;margin-bottom:12px}
+.action-needed h2{font-size:16px!important;color:var(--a-warn)!important}
+.account-app .booth-choice{border-radius:12px;border:1px solid var(--a-line);background:#fff}
+.account-app .booth-choice.is-selected{border-color:var(--a-brand);box-shadow:0 0 0 3px var(--a-brand-soft)}
+@media (max-width:640px){
+  .account-app .portal-heading.portal-hero{padding:18px;margin-top:12px!important}
+  .account-app .tabline.portal-tabs{top:60px}
+  .event-chips li{font-size:12px}
+}
