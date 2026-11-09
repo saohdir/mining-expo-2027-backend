@@ -79,30 +79,32 @@ test("CMS editor: pick a page, reorder/hide blocks, add a block, save draft", {s
   } finally { await browser.close(); }
 });
 
-test("FR-001/NFR-09 language switch: ID layout served for Indonesian, EN fallback, preference remembered", {skip}, async () => {
+test("CR-LANG-01 language switch: zh layout served under /zh/, EN fallback, preference remembered", {skip}, async () => {
   const ed = await adminLogin("CONTENT_EDITOR");
-  const d = (await ed.get("/api/admin/pages/the-venue?locale=id")).body;
-  const layout = {seo: {title: "Lokasi IMDX 2027", description: "Informasi lokasi"}, blocks: [{id: "salam", type: "text", hidden: false, data: {eyebrow: "", heading: "Selamat datang di JIEXPO", body: "Informasi dalam Bahasa Indonesia."}}, ...d.draft.blocks]};
-  assert.equal((await ed.req("PUT", "/api/admin/pages/the-venue?locale=id", layout)).status, 200);
-  assert.equal((await ed.post("/api/admin/pages/the-venue/publish?locale=id", {reason: "Indonesian venue copy"})).status, 200);
+  const d = (await ed.get("/api/admin/pages/the-venue?locale=zh")).body;
+  const layout = {seo: {title: "展馆 | IMDX 2027", description: "展馆信息"}, blocks: [{id: "hello", type: "text", hidden: false, data: {eyebrow: "", heading: "欢迎来到JIEXPO", body: "中文展馆信息。"}}, ...d.draft.blocks]};
+  assert.equal((await ed.req("PUT", "/api/admin/pages/the-venue?locale=zh", layout)).status, 200);
+  assert.equal((await ed.post("/api/admin/pages/the-venue/publish?locale=zh", {reason: "Chinese venue copy"})).status, 200);
   const browser = await chromium.launch();
   try {
     const page = await (await browser.newContext()).newPage();
     await page.goto(SITE + "/the-venue/");
     await page.waitForTimeout(800);
-    assert.equal(await page.getByText("Selamat datang di JIEXPO").count(), 0, "English by default");
-    await page.getByRole("button", {name: "ID", exact: true}).click();
+    assert.equal(await page.getByText("欢迎来到JIEXPO").count(), 0, "English by default");
+    await page.locator('.lang-switch button[lang="zh-Hans"]').click();
+    await page.waitForURL(u => u.pathname === "/zh/the-venue/");
     await page.waitForFunction(() => document.documentElement.dataset.cmsLayout === "published");
-    await page.getByText("Selamat datang di JIEXPO").waitFor();
-    assert.equal(await page.evaluate(() => document.documentElement.lang), "id");
-    assert.equal(await page.title(), "Lokasi IMDX 2027");
+    await page.getByText("欢迎来到JIEXPO").waitFor();
+    assert.equal(await page.evaluate(() => document.documentElement.lang), "zh-Hans");
+    assert.equal(await page.title(), "展馆 | IMDX 2027");
     await page.goto(SITE + "/about/");
-    assert.equal(await page.evaluate(() => document.documentElement.lang), "id", "preference remembered across pages");
-    await page.getByRole("button", {name: "EN", exact: true}).click();
+    assert.equal(await page.evaluate(() => document.documentElement.lang), "zh-Hans", "preference remembered across pages");
+    await page.locator('.lang-switch button[lang="en"]').click();
+    await page.waitForURL(u => !u.pathname.startsWith("/zh"));
     await page.goto(SITE + "/the-venue/"); await page.waitForTimeout(800);
-    assert.equal(await page.getByText("Selamat datang di JIEXPO").count(), 0, "back to English");
+    assert.equal(await page.getByText("欢迎来到JIEXPO").count(), 0, "back to English");
   } finally {
     await browser.close();
-    await ed.post("/api/admin/pages/the-venue/rollback?locale=id", {version: 0, reason: "Restore after language test"});
+    await ed.post("/api/admin/pages/the-venue/rollback?locale=zh", {version: 0, reason: "Restore after language test"});
   }
 });
