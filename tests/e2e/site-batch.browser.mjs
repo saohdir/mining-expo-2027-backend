@@ -79,7 +79,7 @@ test("navbar, sign-in popup, home cards, removed sections, Event Highlight galle
     // Event Highlight gallery.
     await page.goto(SITE + `/highlights/?year=${Y}`);
     await page.locator(".gallery-tile").first().waitFor();
-    assert.equal(await page.locator("h1").first().textContent(), "EVENT HIGHLIGHT");
+    assert.equal(await page.locator("h1").first().textContent(), "Event Highlight");
     assert.equal(await page.locator('.gallery-years [aria-selected="true"]').textContent(), `IMDX ${Y}13`);
     assert.equal(await page.locator(".gallery-tile").count(), 12); assert.equal(await page.locator(".gallery-status").textContent(), "Page 1 of 2");
     await page.getByRole("button", {name: "Page 2"}).click(); await page.waitForURL(/[?&]page=2$/); // the newest year is the default, so ?year= is omitted
