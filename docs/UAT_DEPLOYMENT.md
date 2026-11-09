@@ -53,3 +53,15 @@ Read-only status first, then apply with a fresh backup. SQL is read from a git r
 
 All migrations are additive (new tables/columns/indexes with defaults), so the currently deployed code keeps working after they
 are applied. After everything is merged, the default ref `origin/main` can be used.
+
+## Backups, restore drill and monitoring (NFR-07/29)
+Install once on the VPS (root crontab, `crontab -e`):
+
+    15 2 * * * /bin/bash /opt/imdx/mining-expo-2027-backend/scripts/uat-backup.sh >> /var/log/imdx-backup.log 2>&1
+    40 3 * * 0 /bin/bash /opt/imdx/mining-expo-2027-backend/scripts/uat-restore-drill.sh >> /var/log/imdx-restore-drill.log 2>&1
+
+`uat-backup.sh` writes `/root/imdx-backups/db-<UTC>.dump` (verified with `pg_restore --list`) plus archives of the private-file and
+floorplan volumes, keeps 14 days (`KEEP_DAYS`). Copy that directory off the VPS regularly. `uat-restore-drill.sh` restores the newest
+dump into a temporary database, compares row counts with live, then drops it (live is only read).
+Monitoring: point an uptime monitor at `https://uat.imdx.tech/api/health?deep=1` (503 when the database or the worker is down);
+staff see worker heartbeat, notification retries/dead letters, failed exports and the finance backlog in CMS → Settings Status.

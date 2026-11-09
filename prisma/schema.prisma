@@ -724,3 +724,11 @@ model InvoiceSequence {
   key String @id
   nextNumber Int @default(1)
 }
+
+/// NFR-10 aggregated, non-PII analytics (maintained by DB triggers, see migration 20261112010000_analytics).
+model AnalyticsDaily {
+  day DateTime @db.Date
+  event String
+  count Int @default(0)
+  @@id([day,event])
+}

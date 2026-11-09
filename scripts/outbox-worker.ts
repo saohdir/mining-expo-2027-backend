@@ -3,6 +3,7 @@ import {runWorkerCycle} from "../src/lib/worker-cycle";
 import {processExportJobs} from "../src/lib/export-jobs";
 import {deliverCrm} from "../src/lib/crm-sync";
 import {scheduledRetention} from "../src/lib/retention";
+import {writeHeartbeat} from "../src/lib/ops-health";
 import {deliverWhatsApp, queueWhatsAppCopy} from "../src/lib/messaging";
 import {PrismaClient} from "@prisma/client";
 import nodemailer from "nodemailer";
@@ -73,10 +74,10 @@ async function drain(){
 }
 // Steps run independently: hold expiry failing (e.g. BoothHold not yet migrated)
 // must not stop outbox email delivery, and vice versa.
-async function main(){console.info("IMDX outbox worker launched");while(true){await runWorkerCycle([
+async function main(){console.info("IMDX outbox worker launched");while(true){const results=await runWorkerCycle([
  {name:"booth-hold-expiry",run:()=>expireBoothHolds(db)},
  {name:"outbox-drain",run:()=>drain()},
  {name:"export-jobs",run:()=>processExportJobs(db)},
  {name:"retention",run:()=>scheduledRetention(db)}
-]);await delay(Number(process.env.WORKER_INTERVAL_MS||20000))}}
+]);await writeHeartbeat(db,results).catch(()=>console.error("Heartbeat write failed"));await delay(Number(process.env.WORKER_INTERVAL_MS||20000))}}
 main().catch(e=>{console.error(e);process.exit(1)}).finally(()=>db.$disconnect());
