@@ -5,6 +5,7 @@ import type {PrismaClient} from "@prisma/client";
  * customers who chose WhatsApp updates AND verified their phone. Email remains the system of record.
  * Off unless ENABLE_MESSAGING_AUTOMATION=true and WHATSAPP_PROVIDER=meta with credentials. */
 export function whatsappConfigured() {
+  if (process.env.ENABLE_MESSAGING_AUTOMATION === "true" && process.env.WHATSAPP_PROVIDER === "mailpit") return true; // UAT stand-in
   return process.env.ENABLE_MESSAGING_AUTOMATION === "true" && process.env.WHATSAPP_PROVIDER === "meta" &&
     Boolean(process.env.WHATSAPP_PHONE_NUMBER_ID && process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_TEMPLATE_NAME);
 }
@@ -27,6 +28,11 @@ export async function deliverWhatsApp(db: PrismaClient, payload: {accountId?: st
   const acc = payload.accountId ? await db.customerAccount.findUnique({where: {id: payload.accountId}, select: {phone: true, verifiedPhoneAt: true, profile: {select: {notifyChannel: true}}}}) : null;
   if (!acc?.phone || !acc.verifiedPhoneAt || acc.profile?.notifyChannel !== "WHATSAPP") return "SKIPPED_NO_CONSENT";
   const to = waNumber(acc.phone); if (!to) return "SKIPPED_BAD_NUMBER";
+  if (process.env.WHATSAPP_PROVIDER === "mailpit") {
+    const {sendMail} = await import("./mailer");
+    await sendMail(to + "@whatsapp.uat.invalid", "[WhatsApp UAT] template " + (process.env.WHATSAPP_TEMPLATE_NAME || "imdx_update"), (payload.params || []).join("\n"));
+    return "SENT";
+  }
   const base = (process.env.WHATSAPP_API_BASE || "https://graph.facebook.com").replace(/\/$/, ""), version = process.env.WHATSAPP_API_VERSION || "v21.0";
   const r = await fetcher(`${base}/${version}/${encodeURIComponent(process.env.WHATSAPP_PHONE_NUMBER_ID!)}/messages`, {method: "POST", redirect: "error",
     headers: {"Authorization": "Bearer " + process.env.WHATSAPP_ACCESS_TOKEN, "Content-Type": "application/json"},

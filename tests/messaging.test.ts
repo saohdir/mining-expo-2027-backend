@@ -39,3 +39,11 @@ test("delivery sends a template message, re-checks consent, throws for retry", a
     await assert.rejects(deliverWhatsApp(db(account()), {accountId: "A1"}, (async () => new Response("", {status: 429})) as typeof fetch), /429/);
   });
 });
+
+test("UAT stand-in: WHATSAPP_PROVIDER=mailpit and SMS_PROVIDER=mailpit need no credentials", async () => {
+  const {smsAvailable} = await import("../src/lib/sms");
+  await withEnv({ENABLE_MESSAGING_AUTOMATION: "true", WHATSAPP_PROVIDER: "mailpit", WHATSAPP_ACCESS_TOKEN: undefined}, () => assert.equal(whatsappConfigured(), true));
+  await withEnv({ENABLE_MESSAGING_AUTOMATION: undefined, WHATSAPP_PROVIDER: "mailpit"}, () => assert.equal(whatsappConfigured(), false, "still behind the automation flag"));
+  await withEnv({SMS_PROVIDER: "mailpit"}, () => assert.equal(smsAvailable(), true));
+  await withEnv({SMS_PROVIDER: "twilio", TWILIO_ACCOUNT_SID: undefined}, () => assert.equal(smsAvailable(), false));
+});
