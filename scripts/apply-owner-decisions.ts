@@ -7,7 +7,7 @@
  * Deliberately NOT set here (facts only the organizer can provide): bank account (APPROVED_BANK_*), prices/packages/tariffs (D-02),
  * partner logos and downloads, WhatsApp/SMS provider credentials (D-04/D-05).
  */
-import {PrismaClient} from "@prisma/client";
+import {Prisma, PrismaClient} from "@prisma/client";
 import {policySchema, RETENTION_KEY} from "../src/lib/retention";
 import {CHARGES_KEY, chargesConfigSchema} from "../src/lib/invoice-charges";
 
@@ -20,7 +20,7 @@ async function setting(key: string, value: unknown, action: string) {
   const v = JSON.stringify(value);
   await db.$transaction([
     db.appSetting.upsert({where: {key}, update: {value: v, updatedBy: BY}, create: {key, value: v, updatedBy: BY}}),
-    db.auditLog.create({data: {action, resourceType: "AppSetting", resourceId: key, beforeState: before ? JSON.parse(before.value) : undefined, afterState: {value, source: BY}}})
+    db.auditLog.create({data: {action, resourceType: "AppSetting", resourceId: key, beforeState: before ? JSON.parse(before.value) : undefined, afterState: {value: value as Prisma.InputJsonValue, source: BY}}})
   ]);
 }
 

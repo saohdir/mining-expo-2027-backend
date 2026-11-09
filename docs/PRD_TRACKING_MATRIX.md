@@ -255,8 +255,8 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | --- | --- | --- | --- | --- |
 | FR-157 | P1 | VERIFIED | session zones, zone pass, WRONG_ZONE at other gates, `bySession` report (E2E) | Operations defines session gates |
 | FR-156 | P1 | VERIFIED (flag) | booth representative invites, limit, own account + pass, revoke (E2E) | PO approves policy + `EXHIBITOR_STAFF_LIMIT` |
-| FR-059 | P1 | PARTIAL (flag) | group delegate invitations, seat check on accept, group review + passes (E2E) | group discounts/corporate billing need approval (D-02) |
-| FR-154 | P1 | PARTIAL (flag) | CSV pre-registration dry run/import/accept, badge PDF (E2E, UT) | scheduled mailouts, scanned-ID reconciliation need approval |
+| FR-059 | P1 | VERIFIED (flag) | group delegate invitations, seat check on accept, group review + passes; configurable group-discount tiers as DISCOUNT invoice lines (E2E, UT) | discount rates set in Invoice Taxes & Fees when approved |
+| FR-154 | P1 | VERIFIED (flag) | CSV pre-registration, badge PDF, scheduled mailouts with maker-checker, attendance reconciliation (E2E, UT) | — |
 | FR-032 | P2 | VERIFIED (config) | signed CRM webhook via outbox, retry, idempotency (E2E, UT) | choose CRM + endpoint |
 | FR-159 | P2 | VERIFIED (flag) | estimator from approved tariffs, read-only (E2E, UT) | D-02 tariffs |
 | FR-158 | P2 | UNVERIFIED (flag) | WhatsApp template automation, consent re-check (UT, provider mocked) | D-05 provider account + approved template, live sandbox test; SMS automation waits for D-04 |

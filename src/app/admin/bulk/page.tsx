@@ -1,5 +1,6 @@
 "use client";
 import {useCallback, useEffect, useState} from "react";
+import {MailoutsPanel} from "./MailoutsPanel";
 type Summary = {dryRun: boolean; rows: number; valid: number; toInvite: number; skipped: {line: number; email: string; reason: string}[]; errors: {line: number; message: string}[]; sent?: number; failed?: {line: number; email: string}[]};
 type Inv = {id: string; email: string; fullName: string; status: string; createdAt: string};
 const call = async (u: string, m = "GET", b?: unknown) => { const r = await fetch(u, {method: m, cache: "no-store", headers: b ? {"Content-Type": "application/json"} : undefined, body: b ? JSON.stringify(b) : undefined}); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.message || "Request failed"); return j; };
@@ -38,6 +39,7 @@ export default function BulkTools() {
       <label>Category<select value={category} onChange={e => setCategory(e.target.value)}><option value="">All</option>{["VISITOR", "DELEGATE", "EXHIBITOR"].map(c => <option key={c}>{c}</option>)}</select></label>
       <a className="button-link" href={"/api/admin/badges?format=pdf" + (category ? "&category=" + category : "")}>Download badge PDF</a>
     </section>
+    <MailoutsPanel />
     <section><h2>Pre-registration invitations</h2>
       <table className="cms-table"><thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Invited (WIB)</th><th /></tr></thead><tbody>
         {list.map(i => <tr key={i.id}><td>{i.fullName}</td><td>{i.email}</td><td>{i.status}</td><td>{new Date(i.createdAt).toLocaleString("en-GB", {timeZone: "Asia/Jakarta"})}</td>

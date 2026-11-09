@@ -9,7 +9,10 @@ export const chargeSchema = z.object({
   rateBps: z.number().int().min(0).max(10000).optional(), fixedMinor: z.string().regex(/^\d{1,15}$/).optional(),
   appliesTo: z.array(z.enum(["BOOTH", "CONFERENCE", "VISITOR"])).min(1)
 }).strict().refine(c => (c.rateBps === undefined) !== (c.fixedMinor === undefined), "Give exactly one of rateBps or fixedMinor");
-export const chargesConfigSchema = z.object({charges: z.array(chargeSchema).max(10), approvedBy: z.string().min(2).max(120), approvedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/)}).strict();
+/** FR-059: optional group-delegate discount tiers (highest tier whose minimum the group reaches applies). */
+const tierSchema = z.object({minDelegates: z.number().int().min(2).max(500), rateBps: z.number().int().min(1).max(5000)}).strict();
+export const chargesConfigSchema = z.object({charges: z.array(chargeSchema).max(10), groupDiscounts: z.array(tierSchema).max(10).default([]),
+  approvedBy: z.string().min(2).max(120), approvedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/)}).strict();
 export type ChargesConfig = z.infer<typeof chargesConfigSchema>;
 export type BookingKind = "BOOTH" | "CONFERENCE" | "VISITOR";
 
@@ -21,4 +24,12 @@ export function computeCharges(cfg: ChargesConfig | null, subtotalMinor: bigint,
     const label = c.rateBps !== undefined ? `${c.label} (${(c.rateBps / 100).toFixed(c.rateBps % 100 ? 2 : 0)}%)` : c.label;
     return {kind: c.kind, description: label.slice(0, 200), quantity: 1, unitPriceMinor: amount, amountMinor: amount};
   }).filter(l => l.amountMinor > 0n);
+}
+
+/** FR-059: discount line for a group delegate's conference invoice; taxes are then computed on the discounted subtotal. */
+export function groupDiscount(cfg: ChargesConfig | null, subtotalMinor: bigint, groupSize: number) {
+  const tier = (cfg?.groupDiscounts || []).filter(t => groupSize >= t.minDelegates).sort((a, b) => b.rateBps - a.rateBps)[0];
+  if (!tier || subtotalMinor <= 0n) return null;
+  const amount = (subtotalMinor * BigInt(tier.rateBps) + 5000n) / 10000n;
+  return {kind: "DISCOUNT", description: `Group discount (${groupSize} delegates, ${(tier.rateBps / 100).toFixed(tier.rateBps % 100 ? 2 : 0)}%)`, quantity: 1, unitPriceMinor: -amount, amountMinor: -amount};
 }
