@@ -50,12 +50,14 @@ test("version clone never re-publishes historical plan or transfers old IDs",()=
 });
 test("publish requires prior blockers and row version and is serialized",()=>{
   const code=read("src/app/api/admin/floorplans/[id]/publish/route.ts");
-  assert.match(code,/floorplanBlockers\(tx, plan\.eventId\)/);
+  assert.match(code,/floorplanBlockers\(tx, plan\.replacesId\)/);
   assert.match(code,/REMAP_REQUIRED/);
   assert.match(code,/rowVersion: input\.rowVersion/);
   assert.match(code,/Prisma\.TransactionIsolationLevel\.Serializable/);
   const sql=read("prisma/migrations/20261108090000_floorplan_holds/migration.sql");
   assert.match(sql,/Floorplan_one_published_per_event/);
+  // Several live floors per event: the single-published index is dropped; a draft replaces only its own floor.
+  assert.match(read("prisma/migrations/20261117010000_floor_activation/migration.sql"),/DROP INDEX IF EXISTS "Floorplan_one_published_per_event"/);
   assert.match(sql,/BoothHold_one_active_per_unit/);
 });
 test("hold creation and release are staff-only and atomic, customer preference does not hold",()=>{

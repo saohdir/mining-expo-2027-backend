@@ -3,7 +3,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 
 type Unit = {id: string; code: string; category: string; hall: string | null; zone: string | null; x: number; y: number; w: number; h: number; rotation?: number;
   areaSqm: string; lengthM: string | null; widthM: string | null; dimensionLabel: string | null; status: string; approvedPublicName: string | null; categoryColor: string | null};
-type Plan = {state: "PUBLISHED" | "COMING_SOON"; version?: number; title?: string; backgroundUrl?: string | null; backgroundAlt?: string | null; canvas?: {width: number; height: number}; units: Unit[]};
+type Plan = {state: "PUBLISHED" | "COMING_SOON"; id?: string; floors?: {id: string; title: string; version: number}[]; version?: number; title?: string; backgroundUrl?: string | null; backgroundAlt?: string | null; canvas?: {width: number; height: number}; units: Unit[]};
 const LABEL: Record<string, string> = {AVAILABLE: "Available", RESERVED: "Reserved", OCCUPIED: "Occupied", BLOCKED: "Unavailable"};
 const size = (u: Unit) => u.lengthM && u.widthM ? `${u.lengthM} by ${u.widthM} metres` : (u.dimensionLabel || "");
 export const accessibleName = (u: Unit) => [u.code, size(u), u.areaSqm + " square metres", u.status === "OCCUPIED" && u.approvedPublicName ? "occupied by " + u.approvedPublicName : LABEL[u.status] || u.status].filter(Boolean).join(", ");
@@ -15,7 +15,8 @@ export function FloorplanViewer({requestHref = (id: string) => "/account?request
   const [q, setQ] = useState(""), [hall, setHall] = useState(""), [zone, setZone] = useState(""), [onlyAvailable, setOnlyAvailable] = useState(false);
   const [view, setView] = useState<"map" | "list">("map"), [zoom, setZoom] = useState(1), [pan, setPan] = useState({x: 0, y: 0}), [focus, setFocus] = useState<Unit | null>(null);
   const drag = useRef<{x: number; y: number; px: number; py: number} | null>(null);
-  useEffect(() => { fetch("/api/public/floorplan", {cache: "no-store"}).then(r => r.json()).then(setPlan).catch(() => setErr("Floorplan is temporarily unavailable.")); }, []);
+  const [floor, setFloor] = useState("");
+  useEffect(() => { fetch("/api/public/floorplan" + (floor ? "?floor=" + encodeURIComponent(floor) : ""), {cache: "no-store"}).then(r => r.json()).then(p => { setPlan(p); setFocus(null); setHall(""); setZone(""); }).catch(() => setErr("Floorplan is temporarily unavailable.")); }, [floor]);
   const units = useMemo(() => (plan?.units || []).filter(u => (!hall || u.hall === hall) && (!zone || u.zone === zone) && (!onlyAvailable || u.status === "AVAILABLE") &&
     (!q || (u.code + " " + (u.approvedPublicName || "")).toLowerCase().includes(q.toLowerCase()))), [plan, hall, zone, onlyAvailable, q]);
   if (err) return <p role="alert">{err}</p>;
@@ -28,6 +29,7 @@ export function FloorplanViewer({requestHref = (id: string) => "/account?request
   const move = (dx: number, dy: number) => setPan(p => clampPan({x: p.x + dx * vb.w * 0.2, y: p.y + dy * vb.h * 0.2}));
   const noneAvailable = !plan.units.some(u => u.status === "AVAILABLE");
   return <section className="floorplan-viewer" aria-label={"Published floorplan " + (plan.title || "")}>
+    {(plan.floors?.length || 0) > 1 && <div className="seg floor-switch" role="group" aria-label="Floor">{plan.floors!.map(f => <button type="button" key={f.id} aria-pressed={f.id === plan.id} className={f.id === plan.id ? "chosen" : "ghost"} onClick={() => setFloor(f.id)}>{f.title}</button>)}</div>}
     <div className="floorplan-toolbar" role="toolbar" aria-label="Floorplan filters and view">
       <label>Search booth or exhibitor<input type="search" value={q} onChange={e => setQ(e.target.value)} /></label>
       {halls.length > 0 && <label>Hall<select value={hall} onChange={e => setHall(e.target.value)}><option value="">All halls</option>{halls.map(h => <option key={h}>{h}</option>)}</select></label>}

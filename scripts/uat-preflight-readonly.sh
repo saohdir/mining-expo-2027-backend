@@ -71,7 +71,7 @@ SELECT indexname, indexdef FROM pg_indexes WHERE schemaname='public' AND indexna
 SELECT conname, conrelid::regclass FROM pg_constraint WHERE conname IN ('BoothOffer_quotedPriceMinor_check','BoothOffer_revision_check','BoothHold_status_check','BoothHold_expiry_check');
 -- Duplicate checks: each must return ZERO rows before applying migrations.
 SELECT 'dup_active_assignment' AS check, "boothUnitId", COUNT(*) FROM "BoothAssignment" WHERE "active" = TRUE GROUP BY "boothUnitId" HAVING COUNT(*) > 1;
-SELECT 'dup_published_floorplan' AS check, "eventId", COUNT(*) FROM "Floorplan" WHERE "status" = 'PUBLISHED' GROUP BY "eventId" HAVING COUNT(*) > 1;
+-- Several PUBLISHED floors per event are allowed since 20261117010000_floor_activation (index dropped there).
 -- Row counts only (no personal data).
 SELECT 'Event' t, COUNT(*) FROM "Event" UNION ALL SELECT 'CustomerAccount', COUNT(*) FROM "CustomerAccount"
  UNION ALL SELECT 'AdminUser', COUNT(*) FROM "AdminUser" UNION ALL SELECT 'Enrollment', COUNT(*) FROM "Enrollment"

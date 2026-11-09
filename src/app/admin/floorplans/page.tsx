@@ -2,13 +2,16 @@
 import {useCallback,useEffect,useRef,useState} from "react";
 import {useCmsSession} from "../components/CmsShell";
 import {CategoryManager,CsvAndAlign,PatternDefs,RemapReport,StatsPanel,type Category} from "./EditorPanels";
+import {LiveFloor} from "./LiveFloor";
 type Unit={id?:string;code:string;category:string;categoryId?:string|null;hall?:string|null;zone?:string|null;x:number;y:number;w:number;h:number;areaSqm:number;status?:string;lengthM?:number|null;widthM?:number|null;dimensionLabel?:string|null;rotation?:number;internalNotes?:string|null;placed?:boolean};
-type Plan={id:string;title:string;versionNo:number;rowVersion:number;status:string;canvasWidth:number;canvasHeight:number;backgroundUrl?:string|null;backgroundAlt?:string|null;backgroundRights?:string|null;units:Unit[]};
-type PublishCheck={canPublish:boolean;openRequests:number;activeHolds:number;activeAssignments:number;rowVersion:number;hasUnits:boolean};
+type Plan={id:string;title:string;versionNo:number;rowVersion:number;status:string;active?:boolean;replacesId?:string|null;canvasWidth:number;canvasHeight:number;backgroundUrl?:string|null;backgroundAlt?:string|null;backgroundRights?:string|null;units:Unit[]};
+type PublishCheck={replaces?:{id:string;title:string;versionNo:number;status:string}|null;canPublish:boolean;openRequests:number;activeHolds:number;activeAssignments:number;rowVersion:number;hasUnits:boolean};
 const api=async(path:string,method="GET",body?:unknown)=>{const r=await fetch(path,{method,cache:"no-store",headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.message||"Request failed");return data};
 export default function FloorplanEditor(){
  const {actor}=useCmsSession();
  const canEdit=actor?.role==="SUPER_ADMIN"||actor?.role==="OPERATIONS";
+ const canBook=canEdit||actor?.role==="SALES";
+ const [kind,setKind]=useState("new"),[cloneKind,setCloneKind]=useState("");
  const [plans,setPlans]=useState<Plan[]>([]),[plan,setPlan]=useState<Plan|null>(null),[units,setUnits]=useState<Unit[]>([]),[selected,setSelected]=useState(-1),[draftName,setDraftName]=useState("IMDX Hall 2027"),[draw,setDraw]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState("");
  const [drag,setDrag]=useState<{index:number,x:number,y:number,startX:number,startY:number}|null>(null);
  const resizeRef=useRef<{index:number,w:number,h:number,startX:number,startY:number}|null>(null);
@@ -51,7 +54,7 @@ export default function FloorplanEditor(){
      try{
        void loadCategories();
        const list=await refresh();
-       const target=list.find(p=>p.status==="DRAFT")||list[0];
+       const target=list.find(p=>p.status==="PUBLISHED")||list.find(p=>p.status==="DRAFT")||list[0];
        if(target)await load(target.id);
      }catch(e){setMessage(e instanceof Error?e.message:"Unable to open floorplan.")}
    })();
@@ -113,25 +116,29 @@ export default function FloorplanEditor(){
  useEffect(()=>{if(!autosave||!hasUnsaved||conflict||busy||!plan||plan.status!=="DRAFT")return;const t=setTimeout(()=>void run(save),30000);return()=>clearTimeout(t)});
  const current=units[selected];
  return <main className="portal-shell"><nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>CMS / FLOORPLAN</span><a href="/admin">Back to CMS</a></nav>
- <header><p className="eyebrow">OPERATIONS</p><h1>Floorplan <em>management.</em></h1><p>Edit available booths in draft versions. Published maps are customer-facing read-only; requests never automatically hold a booth.</p></header>
+ <header><p className="eyebrow">OPERATIONS</p><h1>Floorplan <em>management.</em></h1><p>Several floors can be live at once; customers see only the active ones. On a live floor you can see and enter who booked each booth and split a booth&apos;s area. Layout changes are made in a draft (new floor, or new version of a live floor).</p></header>
  {message&&<div className="notice" role="status">{message}</div>}
  <section><h2>Choose a floorplan version</h2>
- {!canEdit&&<p className="micro">Read-only access. Only Operations and Super Admin can create or edit floorplan drafts.</p>}<div className="form-grid"><label>New draft title<input value={draftName} onChange={e=>setDraftName(e.target.value)} required/></label><button disabled={busy||!canEdit} onClick={()=>void run(async()=>{const d=await api("/api/admin/floorplans","POST",{title:draftName,canvasWidth:1200,canvasHeight:800});await refresh();await load(d.plan.id)})}>Create draft version</button></div>
- <div className="tabline">{plans.map(p=><button type="button" key={p.id} className={p.id===plan?.id?"chosen":""}
- disabled={loadingEditor||busy} onClick={()=>{if(hasUnsaved&&!window.confirm("Discard unsaved booth layout changes?"))return;void load(p.id).catch(e=>setMessage(e instanceof Error?e.message:"Unable to open version."))}}>{p.title} · v{p.versionNo} · {p.status}</button>)}</div>
+ {!canEdit&&<p className="micro">Read-only access. Only Operations and Super Admin can create or edit floorplan drafts.</p>}<div className="form-grid"><label>New draft title<input value={draftName} onChange={e=>setDraftName(e.target.value)} required/></label><label>What is it?<select value={kind} onChange={e=>setKind(e.target.value)}><option value="new">A new floor (shown next to the other live floors)</option>{plans.filter(p=>p.status==="PUBLISHED").map(p=><option key={p.id} value={p.id}>New version of “{p.title}” (replaces it when published)</option>)}</select></label>
+ <button disabled={busy||!canEdit} onClick={()=>void run(async()=>{const d=await api("/api/admin/floorplans","POST",{title:draftName,canvasWidth:1200,canvasHeight:800,...(kind==="new"?{newFloor:true}:{replacesId:kind})});await refresh();await load(d.plan.id)})}>Create draft version</button></div>
+ {([["PUBLISHED","Live floors"],["DRAFT","Drafts"],["ARCHIVED","Archived versions"]] as const).map(([st,heading])=>{const group=plans.filter(p=>p.status===st);if(!group.length)return null;return <div key={st} className="floor-group"><h3 className="micro">{heading}</h3><div className="tabline">{group.map(p=><button type="button" key={p.id} className={p.id===plan?.id?"chosen":""}
+ disabled={loadingEditor||busy} onClick={()=>{if(hasUnsaved&&!window.confirm("Discard unsaved booth layout changes?"))return;void load(p.id).catch(e=>setMessage(e instanceof Error?e.message:"Unable to open version."))}}>{p.title} · v{p.versionNo}{p.status==="PUBLISHED"?(p.active===false?" · Inactive":" · Active"):p.status==="DRAFT"?(p.replacesId?" · new version of v"+(plans.find(x=>x.id===p.replacesId)?.versionNo??"?"):" · new floor"):""}</button>)}</div></div>})}
  {loadingEditor&&<p role="status" className="micro">Loading floorplan editor…</p>}
  {!plans.length&&<p className="micro">No floorplan editions yet. Create a draft to open the editor.</p>}
  </section>
- {plan&&<section><h2>{plan.title} <span className="status">{plan.status}</span></h2>
+ {plan&&<section><h2>{plan.title} <span className="status">{plan.status==="PUBLISHED"?(plan.active===false?"LIVE · INACTIVE":"LIVE · ACTIVE"):plan.status}</span></h2>
+ {plan.status==="PUBLISHED"&&<LiveFloor plan={{...plan,units:units.filter(u=>u.placed!==false).map(u=>({id:u.id,code:u.code,x:u.x,y:u.y,w:u.w,h:u.h,rotation:u.rotation}))}} canEdit={canEdit} canBook={canBook} onChanged={m=>{void refresh().then(()=>load(plan.id)).then(()=>setMessage(m))}}/>}
  {hasUnsaved&&<p role="status" className="warning">Unsaved layout edits. Use Save units to persist your changes.</p>}
  <div className="floorplan-clone">
   <h3>Clone or restore this version as a new draft</h3>
   <p className="micro">Historical editions are never republished in place. Reserved or occupied units are copied as blocked; customer bookings and assignments stay on their original plan.</p>
   <div className="form-grid"><label>New draft title<input value={cloneTitle} required minLength={3} maxLength={160} onChange={e=>setCloneTitle(e.target.value)}/></label>
-  <label>Reason for version change<input value={cloneReason} minLength={8} maxLength={500} onChange={e=>setCloneReason(e.target.value)}/></label></div>
-  <button className="ghost" disabled={!canEdit||busy||cloneTitle.trim().length<3||cloneReason.trim().length<8} onClick={()=>void run(async()=>{const v=await api("/api/admin/floorplans/"+plan.id+"/clone","POST",{title:cloneTitle,reason:cloneReason});await refresh();await load(v.plan.id)})}>Create restored draft from v{plan.versionNo} ↗</button>
+  <label>Reason for version change<input value={cloneReason} minLength={8} maxLength={500} onChange={e=>setCloneReason(e.target.value)}/></label>
+  <label>The copy is<select value={cloneKind} onChange={e=>setCloneKind(e.target.value)}><option value="">{plan.status==="PUBLISHED"?"A new version of this floor":"Default (replaces the live floor)"}</option><option value="new">A new, additional floor</option>{plans.filter(p=>p.status==="PUBLISHED"&&p.id!==plan.id).map(p=><option key={p.id} value={p.id}>New version of “{p.title}”</option>)}</select></label></div>
+  <button className="ghost" disabled={!canEdit||busy||cloneTitle.trim().length<3||cloneReason.trim().length<8} onClick={()=>void run(async()=>{const v=await api("/api/admin/floorplans/"+plan.id+"/clone","POST",{title:cloneTitle,reason:cloneReason,...(cloneKind==="new"?{newFloor:true}:cloneKind?{replacesId:cloneKind}:{})});await refresh();await load(v.plan.id)})}>Create restored draft from v{plan.versionNo} ↗</button>
  </div>
- {plan.status!=="DRAFT"?<p className="warning">Published and archived maps are immutable. Clone one to make changes. Publication requires a reconciliation preflight.</p>:<>
+ {plan.status!=="DRAFT"?(plan.status==="PUBLISHED"?null:<p className="warning">Archived versions are read-only. Clone one to make changes.</p>):<>
+ <p className="micro" role="status">{preflight?.replaces?<>Publishing replaces the live floor “{preflight.replaces.title}” (v{preflight.replaces.versionNo}).</>:<>Publishing adds this as a new floor next to the other live floors.</>}</p>
  <div className="cms-row-actions">
  <button type="button" className="cms-small" disabled={!canEdit||busy} onClick={()=>{addUnit();setDraw(false)}}>+ Add booth unit</button>
  <button className="cms-small" disabled={!canEdit||busy} type="button" aria-pressed={draw} onClick={()=>setDraw(v=>!v)}>{draw?"Select / move mode":"Draw booths on canvas"}</button>
@@ -166,7 +173,7 @@ export default function FloorplanEditor(){
  <label>Image rights status<select value={bgMeta.rights} onChange={e=>setBgMeta({...bgMeta,rights:e.target.value})}><option value="">Choose…</option><option value="OWNED">Owned</option><option value="LICENSED">Licensed</option><option value="ORGANIZER_PROVIDED">Organizer provided</option><option value="PENDING_APPROVAL">Pending approval</option></select></label>
  <button type="button" className="cms-small" disabled={!canEdit||busy||bgMeta.alt.trim().length<3||!bgMeta.rights||hasUnsaved} onClick={()=>void run(async()=>{await api("/api/admin/floorplans/"+plan.id,"PATCH",{rowVersion:plan.rowVersion,backgroundAlt:bgMeta.alt.trim(),backgroundRights:bgMeta.rights});await load(plan.id)})}>Save image details</button></div>}
  </>}
- <div className="cms-columns" style={{gridTemplateColumns:"minmax(0,2fr) minmax(220px,1fr)"}}>
+ {plan.status!=="PUBLISHED"&&<div className="cms-columns" style={{gridTemplateColumns:"minmax(0,2fr) minmax(220px,1fr)"}}>
  <div className="floorplan-frame"><p className="micro">{draw?"Drawing mode: click a blank area to place a booth.":"Select/move mode: click a booth, then drag or edit its dimensions. Use + Add booth unit as an alternative."}</p><svg ref={svg} viewBox={"0 0 "+plan.canvasWidth+" "+plan.canvasHeight} aria-label="Editable booth floorplan" onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){e.preventDefault();undo()}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="y"){e.preventDefault();redo()}}}><PatternDefs categories={categories}/>
  {plan.backgroundUrl&&<image href={plan.backgroundUrl} x="0" y="0" width={plan.canvasWidth} height={plan.canvasHeight} preserveAspectRatio="xMidYMid meet"/>}
  <rect x="0" y="0" width={plan.canvasWidth} height={plan.canvasHeight} fill={plan.backgroundUrl?"transparent":"#fff0e6"} onPointerDown={e=>{if(!draw||plan.status!=="DRAFT"||!canEdit)return;const v=pt(e);addUnit(v.x,v.y)}}/>
@@ -199,5 +206,5 @@ export default function FloorplanEditor(){
  </div>}
  <button className="ghost" disabled={!canEdit||plan.status!=="DRAFT"||current.status!=="AVAILABLE"}
  onClick={()=>{edit(u=>u.filter((_,i)=>i!==selected));setSelected(-1)}}>Delete available unit</button></>:<p className="micro">Use Add mode to draw rectangles, then edit dimensions and area. Move existing rectangles by dragging; changes persist only after Save.</p>}</aside>
- </div></section>}</main>;
+ </div>}</section>}</main>;
 }

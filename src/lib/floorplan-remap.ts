@@ -6,12 +6,12 @@ type Tx = Prisma.TransactionClient;
 const OPEN = {notIn: ["REJECTED", "CANCELLED"] as ("REJECTED" | "CANCELLED")[]};
 const ids = (v: unknown) => Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
 
-/** Remap preview between the event's PUBLISHED map and a DRAFT (FR-098, AT-081, P0-E).
+/** Remap preview between the live floor a DRAFT replaces and that draft (FR-098, AT-081, P0-E).
  * Matching is by booth code. Nothing is changed here. */
 export async function buildRemap(tx: Tx, draftId: string) {
   const draft = await tx.floorplan.findUnique({where: {id: draftId}, include: {units: true}});
   if (!draft) throw new HttpError(404, "NOT_FOUND", "Floorplan missing.");
-  const published = await tx.floorplan.findFirst({where: {eventId: draft.eventId, status: "PUBLISHED"}, include: {units: true}});
+  const published = draft.replacesId ? await tx.floorplan.findFirst({where: {id: draft.replacesId, status: "PUBLISHED"}, include: {units: true}}) : null;
   if (!published) return {draft, published: null, report: remapReport([], draft.units.map(u => ({code: u.code, areaSqm: Number(u.areaSqm)})), []), assignments: [], holds: [], requests: []};
   const unitById = new Map(published.units.map(u => [u.id, u]));
   const [assignments, holds, requests] = await Promise.all([

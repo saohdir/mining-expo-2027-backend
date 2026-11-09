@@ -14,7 +14,7 @@ type AccountData={phone?:string|null;verifiedPhoneAt?:string|null;id:string;emai
  enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:CustomerBooth[];invoices:{id:string;boothRequestId:string|null;number:string;status:string;totalMinor:string}[]};
 type BoothOfferView={id:string;revision:number;offeredUnits:{id:string;code:string;hall:string|null;zone:string|null;areaSqm:string}[];offeredAreaSqm:string;quotedPriceMinor:string;expiresAt:string|null;acceptedAt:string|null;createdAt:string};
 type CustomerBooth={id:string;createdAt:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];holds:{id:string;expiresAt:string;boothUnit:{code:string;hall:string|null}}[];floorplan:{versionNo:number;units:{id:string;code:string;hall:string|null}[]};offers:BoothOfferView[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]};
-type Floorplan={state:string;id?:string;version?:number;title?:string;canvas?:{width:number;height:number};backgroundUrl?:string;units?:{id:string;code:string;category:string;hall?:string;areaSqm:string;status:string;x:number;y:number;w:number;h:number}[]};
+type Floorplan={state:string;id?:string;version?:number;title?:string;floors?:{id:string;title:string;version:number}[];canvas?:{width:number;height:number};backgroundUrl?:string;units?:{id:string;code:string;category:string;hall?:string;areaSqm:string;status:string;x:number;y:number;w:number;h:number}[]};
 async function request(path:string,options:RequestInit={}){const res=await fetch(path,{...options,headers:{...(options.body?{"Content-Type":"application/json"}:{}),...options.headers},cache:"no-store"});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error((data as ApiError).message||(data as ApiError).issues?.map(i=>i.message).join(", ")||"Request failed");return data;}
 const send=(path:string,data:unknown)=>request(path,{method:"POST",body:JSON.stringify(data)});
 const money=(v:string)=>"Rp "+Number(v).toLocaleString("id-ID",{maximumFractionDigits:0});
@@ -118,6 +118,7 @@ export default function AccountPage(){
        <label>Booth size needed if not shown on the floorplan (optional)<input value={customSize} maxLength={120} placeholder="e.g. 10 × 12 m, or 120 m² outdoor demo area" onChange={e=>setCustomSize(e.target.value)}/></label>
       </fieldset>
       <h3>2. Choose preferred booths ({location==="OUTDOOR"?"outdoor":"indoor"})</h3>
+      {(plan.floors?.length||0)>1&&<div className="seg floor-switch" role="group" aria-label="Floor">{plan.floors!.map(f=><button type="button" key={f.id} aria-pressed={f.id===plan.id} className={f.id===plan.id?"chosen":"ghost"} onClick={()=>{if(f.id===plan.id)return;setChosen([]);void request("/api/public/floorplan?floor="+encodeURIComponent(f.id)).then(setPlan).catch(()=>{})}}>{f.title}</button>)}</div>}
       {/* FR-138: filter the published map by hall, zone, availability and code. */}
       <div className="floorplan-toolbar" role="group" aria-label="Filter booths">
        <label>Search code<input type="search" value={fq} onChange={e=>setFq(e.target.value)}/></label>
