@@ -33,6 +33,7 @@ MIGRATIONS=(
  "20261110030000_p1_p2_extensions|SELECT to_regclass('public.\"Invitation\"') IS NOT NULL"
  "20261111010000_p0_remaining|SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='InvoiceItem' AND column_name='kind')"
  "20261112010000_analytics|SELECT to_regclass('public.\"AnalyticsDaily\"') IS NOT NULL"
+ "20261113010000_lang_zh|SELECT COALESCE((SELECT pg_get_constraintdef(oid) LIKE '%zh%' FROM pg_constraint WHERE conname='PageLayout_locale_check'), false)"
 )
 q(){ "${DC[@]}" exec -T postgres psql -U "$DBU" -d "$DBN" -tAq -c "$1" 2>/dev/null | tr -d '[:space:]'; }
 

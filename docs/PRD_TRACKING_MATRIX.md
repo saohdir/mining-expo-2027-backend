@@ -31,7 +31,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 
 | FR | P | Status | Evidence | Gap / missing acceptance | Dep | Prio |
 | --- | --- | --- | --- | --- | --- | --- |
-| FR-001 | P0 | PARTIAL | responsive nav, breadcrumb, **EN/ID language switch** (remembered; html lang; CMS serves ID layouts with EN fallback) (BR) | Indonesian copy of designed sections to be authored in Pages & layout (D-12) | D-12 | P0 (content) |
+| FR-001 | P0 | VERIFIED (CR-LANG-01: EN + 中文) | responsive nav, breadcrumb, **EN/ID language switch** (remembered; html lang; CMS serves ID layouts with EN fallback) (BR) | Indonesian copy of designed sections to be authored in Pages & layout (D-12) | D-12 | P0 (content) |
 | FR-002 | P0 | VERIFIED | hero CTAs → /floorplan (exhibitor) and /account (visitor/conference); BR (frontend PR #1) | — | — | — |
 | FR-003 | P0 | VERIFIED | `assets/platform.js` WIB countdown with ongoing/ended states; BR | — | — | — |
 | FR-004 | P0 | PARTIAL | exhibition page lists 8 scope categories in order (checked) | wording vs source PDF must be confirmed by organizer (D-12) | D-12 | P0 (content) |
@@ -41,7 +41,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-008 | P0 | VERIFIED | venue page names JIEXPO Kemayoran and links to Google Maps (checked in the-venue/index.html) | travel guidance text (D-12) | — | — |
 | FR-009 | P0 | PARTIAL | CMS downloads (label, type, size, updated) rendered on /exhibitors (E2E + BR) | approved files | D-12 | P0 (content) |
 | FR-010 | P0 | VERIFIED | contact form → lead inbox + notification (BR + E2E) | contact details content | — | — |
-| FR-011 | P0 | PARTIAL | titles/descriptions per page **and per locale** via Pages & layout SEO, canonical, OpenGraph, JSON-LD (event + conferences), sitemap/robots | separate /id URLs + hreflang need approved ID copy; canonical domain at go-live (D-14) | D-12 | P0 (content) |
+| FR-011 | P0 | VERIFIED (/zh URLs, hreflang, sitemap) | titles/descriptions per page **and per locale** via Pages & layout SEO, canonical, OpenGraph, JSON-LD (event + conferences), sitemap/robots | separate /id URLs + hreflang need approved ID copy; canonical domain at go-live (D-14) | D-12 | P0 (content) |
 | FR-012 | P0 | PARTIAL | consent checkboxes required; /privacy/ & /terms/ linked in every footer (noindex DRAFT) | final legal text | D-12 | BLOCKED |
 | FR-013 | P1 | VERIFIED | NEWS content (draft/published, date) rendered with pagination on /news (BR) | — | — | — |
 | FR-014 | P1 | VERIFIED | `/api/public/exhibitors` approved names only, search + category, friendly empty state (E2E + BR) | — | — | — |

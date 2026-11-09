@@ -29,7 +29,7 @@ export const blockSchema = z.discriminatedUnion("type", [
   z.object({...base, type: z.literal("faq"), data: z.object({heading: text(160), items: z.array(z.object({q: text(200), a: text(1500)}).strict()).max(30).default([])}).strict()}).strict(),
   z.object({...base, type: z.literal("list"), data: z.object({heading: text(160), kind: z.enum(["PARTNER", "DOWNLOAD", "NEWS", "GALLERY", "CONTACT"])}).strict()}).strict()
 ]);
-const fieldValue = z.object({mode: z.enum(["plain", "rich", "own"]).optional(), text: z.string().max(2000).optional(), href: link.optional(), src: link.optional(), alt: z.string().max(200).optional()}).strict();
+const fieldValue = z.object({mode: z.enum(["plain", "rich", "own"]).optional(), text: z.string().max(4000).optional(), href: link.optional(), src: link.optional(), alt: z.string().max(200).optional()}).strict();
 export const layoutSchema = z.object({
   seo: z.object({title: text(70), description: text(170)}).strict().default({title: "", description: ""}),
   blocks: z.array(blockSchema).max(60),
