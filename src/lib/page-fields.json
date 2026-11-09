@@ -133,14 +133,6 @@
     "href": "programme/"
    },
    {
-    "key": "site-header.17",
-    "kind": "text",
-    "tag": "a",
-    "mode": "plain",
-    "text": "Networking Reception",
-    "href": "programme/#conference"
-   },
-   {
     "key": "site-header.18",
     "kind": "text",
     "tag": "button",
@@ -1839,14 +1831,14 @@
     "kind": "text",
     "tag": "button",
     "mode": "own",
-    "text": "Exhibition"
+    "text": "Join as Exhibitor"
    },
    {
     "key": "indonesia-mining-downstream.4",
     "kind": "text",
     "tag": "button",
     "mode": "own",
-    "text": "Conference / Visit"
+    "text": "Join as Visitor"
    },
    {
     "key": "indonesia-mining-downstream.5",
@@ -2833,120 +2825,6 @@
     "text": "2027 · SCHEDULE TBA"
    }
   ],
-  "your-access": [
-   {
-    "key": "your-access.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "own",
-    "text": "/ YOUR EVENT EXPERIENCE"
-   },
-   {
-    "key": "your-access.1",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "04"
-   },
-   {
-    "key": "your-access.2",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "own",
-    "text": "Your access."
-   },
-   {
-    "key": "your-access.3",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "All in one place."
-   },
-   {
-    "key": "your-access.4",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Experience a concept of the future participant journey, from registration to your personalized QR event pass—all from the same website."
-   },
-   {
-    "key": "your-access.5",
-    "kind": "text",
-    "tag": "button",
-    "mode": "own",
-    "text": "Register / Sign in"
-   },
-   {
-    "key": "your-access.6",
-    "kind": "text",
-    "tag": "span",
-    "mode": "own",
-    "text": "IMDX"
-   },
-   {
-    "key": "your-access.7",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "27"
-   },
-   {
-    "key": "your-access.8",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "**** ACCOUNT PASS"
-   },
-   {
-    "key": "your-access.9",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Welcome to your event dashboard"
-   },
-   {
-    "key": "your-access.10",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "EVENT ACCESS"
-   },
-   {
-    "key": "your-access.11",
-    "kind": "text",
-    "tag": "strong",
-    "mode": "rich",
-    "text": "Indonesia Mining &\nDownstream 2027"
-   },
-   {
-    "key": "your-access.12",
-    "kind": "text",
-    "tag": "small",
-    "mode": "plain",
-    "text": "26–28 MAY 2027 · JIEXPO JAKARTA"
-   },
-   {
-    "key": "your-access.13",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "PERSONAL QR PASS\nISSUED AFTER REGISTRATION APPROVAL"
-   },
-   {
-    "key": "your-access.14",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "One account. One event journey."
-   },
-   {
-    "key": "your-access.15",
-    "kind": "text",
-    "tag": "button",
-    "mode": "plain",
-    "text": "View Dashboard ↗"
-   }
-  ],
   "from-interest-to": [
    {
     "key": "from-interest-to.0",
@@ -3045,99 +2923,6 @@
     "tag": "p",
     "mode": "plain",
     "text": "Receive your personal pass after registration approval. Admission is checked only in the secured CMS."
-   }
-  ],
-  "the-industry-in": [
-   {
-    "key": "the-industry-in.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "VISUAL SHOWCASE"
-   },
-   {
-    "key": "the-industry-in.1",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "rich",
-    "text": "The industry in *motion.*"
-   },
-   {
-    "key": "the-industry-in.2",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "A photographic concept of the mining and downstream industries. Stock footage and images are illustrative, not photographs of IMDX 2027."
-   },
-   {
-    "key": "the-industry-in.3",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "INDUSTRY SHOWCASE / CONCEPT REEL"
-   },
-   {
-    "key": "the-industry-in.4",
-    "kind": "text",
-    "tag": "strong",
-    "mode": "plain",
-    "text": "Technology. Transformation. Opportunity."
-   },
-   {
-    "key": "the-industry-in.5",
-    "kind": "text",
-    "tag": "small",
-    "mode": "plain",
-    "text": "Animated photo sequence • illustrative media"
-   },
-   {
-    "key": "the-industry-in.6",
-    "kind": "text",
-    "tag": "button",
-    "mode": "plain",
-    "text": "❚❚ Pause motion"
-   },
-   {
-    "key": "the-industry-in.7",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "OPEN-PIT MINING **01**"
-   },
-   {
-    "key": "the-industry-in.8",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "DOWNSTREAM PROCESSING **02**"
-   },
-   {
-    "key": "the-industry-in.9",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "EQUIPMENT & ENGINEERING **03**"
-   },
-   {
-    "key": "the-industry-in.10",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "RESOURCE OPERATIONS **04**"
-   },
-   {
-    "key": "the-industry-in.11",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "IMAGERY FOR DESIGN PRESENTATION ONLY"
-   },
-   {
-    "key": "the-industry-in.12",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "Official exhibition photography & videos can be inserted once the organizer provides usage-approved assets."
    }
   ],
   "the-venue": [
@@ -3374,6 +3159,7 @@
    }
   ]
  },
+ "news/article": {},
  "news": {
   "exhibition": [
    {
@@ -3505,25 +3291,11 @@
  "partners": {
   "built-around": [
    {
-    "key": "built-around.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "ORGANIZERS & INDUSTRY NETWORK"
-   },
-   {
     "key": "built-around.1",
     "kind": "text",
     "tag": "h2",
     "mode": "rich",
-    "text": "Built around *industry collaboration.*"
-   },
-   {
-    "key": "built-around.2",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Selected institutions and organizers mentioned in the preliminary event invitation. Names, logos and involvement are subject to organizer confirmation."
+    "text": "Organizer & *Partners*"
    }
   ],
   "confirmed-organizers-partners": [
@@ -3532,39 +3304,7 @@
     "kind": "text",
     "tag": "h2",
     "mode": "plain",
-    "text": "Confirmed organizers & partners"
-   }
-  ],
-  "partner-or-sponsor-imdx-2027": [
-   {
-    "key": "partner-or-sponsor-imdx-2027.0",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "plain",
-    "text": "Partner or sponsor IMDX 2027"
-   },
-   {
-    "key": "partner-or-sponsor-imdx-2027.1",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Packages are confirmed by the organizer. Tell us about your goals and we will contact you."
-   },
-   {
-    "key": "partner-or-sponsor-imdx-2027.2",
-    "kind": "text",
-    "tag": "a",
-    "mode": "own",
-    "text": "Enquire about partnership",
-    "href": "/contact/?topic=PARTNER#imdx-contact-form"
-   },
-   {
-    "key": "partner-or-sponsor-imdx-2027.3",
-    "kind": "text",
-    "tag": "a",
-    "mode": "own",
-    "text": "Sponsorship enquiry",
-    "href": "/contact/?topic=SPONSOR#imdx-contact-form"
+    "text": "Media Partners"
    }
   ]
  },
@@ -3826,32 +3566,6 @@
     "tag": "span",
     "mode": "plain",
     "text": "2027 · SCHEDULE TBA"
-   }
-  ],
-  "confirmed-schedule": [
-   {
-    "key": "confirmed-schedule.0",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "plain",
-    "text": "Confirmed schedule"
-   },
-   {
-    "key": "confirmed-schedule.1",
-    "kind": "text",
-    "tag": "label",
-    "mode": "own",
-    "text": "Day"
-   }
-  ],
-  "all-programmes": [
-   {
-    "key": "all-programmes.0",
-    "kind": "text",
-    "tag": "a",
-    "mode": "own",
-    "text": "See all published programmes",
-    "href": "/conferences"
    }
   ]
  },

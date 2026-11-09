@@ -38,3 +38,20 @@ When the static HTML changes, re-stamp and refresh the manifest (existing keys a
     node scripts/cms-fields.mjs ../mining-expo-2027-demo           # check only (exit 1 if unstamped/stale)
 
 Commit the frontend HTML and `src/lib/page-fields.json` together. Overrides whose key disappears are rejected on the next save.
+
+## News & updates (home "Exhibition insights & updates", /news/, article pages)
+CMS → Website Content → **News & updates**: each published item is a card (3 per page, with pagination) and opens
+`/news/article/?slug=<slug>` (`/zh/news/article/?slug=…` in Chinese). Fields: title, slug, card label, order, summary, article text
+(blank line = paragraph, `## ` = subheading, `- ` = bullet), cover image + alt text + rights. Add a 中文 item with the same slug for the
+Chinese site (English is shown when there is none). **Edit** opens any item in the form; changes to published items are live after saving.
+The designed cards in the static HTML are only a fallback when no news is published. Starter articles: `scripts/seed-news-articles.ts --confirm`.
+
+## Programme pages (/programme/ cards and /programme/<slug>/)
+CMS → **Programme Pages** (`/admin/programme-pages`): structured programme pages in English and 中文 — card summary, overview,
+highlights, cover image, facts with organizer-confirmation flags, optional link to a bookable conference, source provenance, editorial
+review, publish / unpublish / archive / delete / restore, reorder (regular first, reference/legacy always last), version restore.
+Details: `docs/PROGRAMME_PAGE_CHANGELOG.md`. Bookable seats and prices stay in Events & Programmes (`/admin/programmes`).
+
+## Organizers & media partners (/partners/, home)
+CMS → Website Content → **Organizers** / **Media partners**: logo cards (logo, name, optional role, order). Media Partners is hidden
+on the site while none is published.

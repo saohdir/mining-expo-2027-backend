@@ -33,16 +33,8 @@
       "label": "Ideas that move industries."
     },
     {
-      "id": "your-access",
-      "label": "Your access. All in one place."
-    },
-    {
       "id": "from-interest-to",
       "label": "From interest to entry."
-    },
-    {
-      "id": "the-industry-in",
-      "label": "The industry in motion."
     },
     {
       "id": "the-venue",
@@ -136,15 +128,11 @@
   "partners": [
     {
       "id": "built-around",
-      "label": "Built around industry collaboration."
+      "label": "Organizer & Partners"
     },
     {
       "id": "confirmed-organizers-partners",
-      "label": "Confirmed organizers &amp; partners"
-    },
-    {
-      "id": "partner-or-sponsor-imdx-2027",
-      "label": "Partner or sponsor IMDX 2027"
+      "label": "Media Partners"
     }
   ],
   "privacy": [
@@ -157,14 +145,6 @@
     {
       "id": "ideas-that",
       "label": "Ideas that move industries."
-    },
-    {
-      "id": "confirmed-schedule",
-      "label": "Confirmed schedule"
-    },
-    {
-      "id": "all-programmes",
-      "label": "See all published programmes"
     }
   ],
   "terms": [

@@ -129,6 +129,7 @@ model Conference {
   startsAt DateTime?
   zoneCode String?
   enrollments Enrollment[]
+  programmeItems ProgrammeItem[]
   @@unique([eventId,slug])
 }
 model CustomerAccount {
@@ -758,4 +759,73 @@ model Mailout {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   @@index([status,sendAt])
+}
+
+/// CR-PROGRAMME: editorial programme pages (/programme/<slug>/). Content only — never creates seats, prices or invoices;
+/// a page may link to a bookable Conference (conferenceId) once the organizer has verified it.
+model ProgrammeItem {
+  id String @id @default(uuid())
+  slug String @unique
+  category String @default("CONFERENCE")
+  programmeStatus String @default("TBA")
+  status String @default("DRAFT")
+  isLegacy Boolean @default(false)
+  displayOrder Int @default(0)
+  imageUrl String?
+  imageRightsStatus String?
+  eventDate DateTime? @db.Date
+  startTime String?
+  endTime String?
+  venue String?
+  feeLabel String?
+  currency String?
+  dateConfirmed Boolean @default(false)
+  venueConfirmed Boolean @default(false)
+  feeConfirmed Boolean @default(false)
+  conferenceId String?
+  conference Conference? @relation(fields:[conferenceId],references:[id])
+  sourceSystem String?
+  sourceId String?
+  sourceUrl String?
+  sourceTitle String?
+  sourceFacts Json?
+  editorialStatus String @default("PENDING_REVIEW")
+  editorialNote String?
+  publishedAt DateTime?
+  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updatedBy String
+  translations ProgrammeTranslation[]
+  revisions ProgrammeRevision[]
+  @@unique([sourceSystem,sourceId])
+  @@index([status,isLegacy,displayOrder])
+}
+model ProgrammeTranslation {
+  id String @id @default(uuid())
+  itemId String
+  item ProgrammeItem @relation(fields:[itemId],references:[id])
+  locale String
+  title String
+  categoryLabel String?
+  summary String
+  overview String
+  highlights Json
+  imageAlt String?
+  seoTitle String?
+  seoDescription String?
+  reviewStatus String @default("APPROVED")
+  updatedAt DateTime @updatedAt
+  @@unique([itemId,locale])
+}
+model ProgrammeRevision {
+  id String @id @default(uuid())
+  itemId String
+  item ProgrammeItem @relation(fields:[itemId],references:[id])
+  version Int
+  snapshot Json
+  reason String
+  createdBy String
+  createdAt DateTime @default(now())
+  @@unique([itemId,version])
 }

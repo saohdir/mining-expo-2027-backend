@@ -48,7 +48,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | FR-015 | P0 | VERIFIED | `/floorplan` public viewer (search, legend, list fallback, request CTA) — BR 360px; E2E public API | — | — | — |
 | FR-016 | P1 | VERIFIED | GALLERY content with rights/alt gate rendered on /highlights (BR) | approved photos (D-12) | — | — |
 | FR-017 | P1 | PARTIAL | partner/sponsor lead CTA preselects enquiry topic (BR) | package contents/prices (D-02) | — | — |
-| FR-018 | P1 | VERIFIED | confirmed schedule only (conferences with startsAt), day filter (BR) | — | — | — |
+| FR-018 | P1 | VERIFIED (moved) | dated programmes on `/conferences`; the "Confirmed schedule" section on /programme/ was removed by owner change request CR-PROGRAMME (Nov 2026) | — | — | — |
 | FR-024 | P0 | VERIFIED | leadType CONTACT/PARTNER/SPONSOR/EXHIBITOR (E2E) | — | — | — |
 | FR-027 | P0 | VERIFIED | honeypot + per-IP limits on OTP and leads → 429; duplicate submissions deduped (E2E) | optional CAPTCHA | — | — |
 | FR-030 | P1 | VERIFIED | UTM source/medium/campaign stored on leads (E2E) | — | — | — |
@@ -323,3 +323,5 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - 2026-11-09 PO request: prospect report (next-edition follow-up) with separate future-contact consent; customer portal journeys redesign + CMS visual refresh. Migration `20261116010000_marketing_consent` (additive).
 - 2026-11-09 owner decision: future-contact checkbox removed — the prospect report includes everyone who registered (columns `futureContactOptIn/At` stay unused); FR-059 group delegate registration removed from the customer portal and disabled (`ENABLE_GROUP_ENROLLMENT=false`).
 - 2026-11-09 owner request: several live floors with Active/Inactive (customers see active only), "booked by" per booth (portal bookings + manual entries), split/merge booth area on a live floor, new versions replace only their own floor; dashboard cards link to their lists. Migration `20261117010000_floor_activation` (additive + drops `Floorplan_one_published_per_event`). E2E `floors.e2e.mjs`, UT `booth-split.test.ts`.
+- 2026-11-09 CR-PROGRAMME (owner change request): programme pages `/programme/<slug>/` (EN + 中文) from CMS → Programme Pages (`ProgrammeItem` + translations + revisions, migration `20261118010000_programme_items`), 3-per-page pagination, three ICEE reference programmes (IDs 4, 3, 2; drafts pending owner approval), "Confirmed schedule" and "See all published programmes" removed, nginx route with real 404. Docs: `PROGRAMME_PAGE_CHANGELOG.md`, `PROGRAMME_CONTENT_SOURCES.md`, `PROGRAMME_QA_REPORT.md`. This does not complete the PRD — open items stay as listed above.
+- 2026-11-09 Partners page: "Organizer & Partners" + "Media Partners" logo cards from CMS (Website Content → Organizers / Media partners), sponsorship sections removed.
