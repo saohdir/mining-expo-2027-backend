@@ -220,7 +220,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-028 | P0 | VERIFIED | outbox + worker isolation (UT), save independent of email | — | — | — |
 | FR-031 | P0 | VERIFIED | XLSX/PDF exports: inclusive WIB dates, type/status filters, ExportJob + audit, formula-safe (E2E AT-070/071) | async jobs for >2,000 rows (NFR-26) | — | — |
-| PO-REQ prospects | — | VERIFIED | `/admin/prospects` + `/api/admin/reports/prospects` (JSON/XLSX): person-level visitor/conference/exhibitor list, attendance, summary charts, consent-filtered export, RBAC SA/Sales/Ops, audit (E2E `prospects.e2e.mjs`). Migration `20261116010000_marketing_consent` | — | — | — |
+| PO-REQ prospects | — | VERIFIED | `/admin/prospects` + `/api/admin/reports/prospects` (JSON/XLSX): person-level visitor/conference/exhibitor list, attendance, summary charts, export of everyone registered, RBAC SA/Sales/Ops, audit (E2E `prospects.e2e.mjs`). Migration `20261116010000_marketing_consent` | — | — | — |
 | FR-121 | P0 | VERIFIED | date basis created/confirmed/checkedIn, assigned, issued/paid; WIB inclusive; type/status/hall/zone filters; ExportJob (E2E) | amount filter | — | — |
 | FR-122 | P0 | VERIFIED | role-scoped columns; background jobs ≤100k rows, encrypted private file, requester-only download, 24 h expiry, audited (E2E) | — | — | — |
 | FR-146 | P0 | VERIFIED | outbox emails: OTP, request received, quote, invoice, payment verified/corrected, refund, booking cancelled, pass ready/revoked/reissued, programme change, contact change; retry/backoff (E2E outbox rows + worker) | delivery to real provider (UAT) | — | — |
@@ -256,7 +256,7 @@ Frontend is static HTML (`mining-expo-2027-demo`), English only, no CMS binding.
 | --- | --- | --- | --- | --- |
 | FR-157 | P1 | VERIFIED | session zones, zone pass, WRONG_ZONE at other gates, `bySession` report (E2E) | Operations defines session gates |
 | FR-156 | P1 | VERIFIED (flag) | booth representative invites, limit, own account + pass, revoke (E2E) | PO approves policy + `EXHIBITOR_STAFF_LIMIT` |
-| FR-059 | P1 | VERIFIED (flag) | group delegate invitations, seat check on accept, group review + passes; configurable group-discount tiers as DISCOUNT invoice lines (E2E, UT) | discount rates set in Invoice Taxes & Fees when approved |
+| FR-059 | P1 | REMOVED from portal (owner, 9 Nov 2026; flag off) | group delegate invitations, seat check on accept, group review + passes; configurable group-discount tiers as DISCOUNT invoice lines (E2E, UT) | discount rates set in Invoice Taxes & Fees when approved |
 | FR-154 | P1 | VERIFIED (flag) | CSV pre-registration, badge PDF, scheduled mailouts with maker-checker, attendance reconciliation (E2E, UT) | — |
 | FR-032 | P2 | VERIFIED (config) | signed CRM webhook via outbox, retry, idempotency (E2E, UT) | choose CRM + endpoint |
 | FR-159 | P2 | VERIFIED (flag) | estimator from approved tariffs, read-only (E2E, UT) | D-02 tariffs |
@@ -321,3 +321,4 @@ D-01 bank/tax (FR-046/125/127), D-02 prices/DP (FR-042/044), D-03 refund (FR-056
 - Remaining technical P0 (branch `feat/prd14-p0-remaining`): AT-077 E2E; FR-125 configured taxes/fees; FR-150 retention engine → VERIFIED (values still owner decisions D-01/D-13, engines off until saved). Migration `20261111010000_p0_remaining` (additive).
 - P1/P2 extensions (branch `feat/prd14-p1-p2`): FR-157/156/059/154/113/032/159/158/041 built behind flags (default off). Migration `20261110030000_p1_p2_extensions` (additive). See `docs/P1_P2_EXTENSIONS.md`.
 - 2026-11-09 PO request: prospect report (next-edition follow-up) with separate future-contact consent; customer portal journeys redesign + CMS visual refresh. Migration `20261116010000_marketing_consent` (additive).
+- 2026-11-09 owner decision: future-contact checkbox removed — the prospect report includes everyone who registered (columns `futureContactOptIn/At` stay unused); FR-059 group delegate registration removed from the customer portal and disabled (`ENABLE_GROUP_ENROLLMENT=false`).

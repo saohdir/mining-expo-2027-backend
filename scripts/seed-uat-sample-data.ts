@@ -177,14 +177,7 @@ const PEOPLE: [string, string, string, string][] = [
 async function participants(eventId: string, remove: boolean) {
   const accounts = await db.customerAccount.findMany({where: {email: {endsWith: DOMAIN}}, select: {id: true}});
   if (remove || accounts.length) {
-    if (!remove) {
-      // Backfill the future-contact sample consent (added later) without touching registrations: 3 of 4 agreed.
-      const all = await db.customerAccount.findMany({where: {email: {endsWith: DOMAIN}}, select: {id: true, email: true}});
-      let n = 0;
-      for (const a of all) { const i = Number(a.email?.match(/sample(\d+)@/)?.[1] || 1) - 1;
-        if (i % 4 !== 3) n += (await db.customerProfile.updateMany({where: {accountId: a.id, futureContactAt: null, futureContactOptIn: false}, data: {futureContactOptIn: true, futureContactAt: new Date()}})).count; }
-      console.log(`participants: ${accounts.length} sample participants already exist — registrations unchanged; future-contact consent set on ${n}`); return;
-    }
+    if (!remove) { console.log(`participants: ${accounts.length} sample participants already exist — left unchanged`); return; }
     const ids = accounts.map(a => a.id);
     const passIds = (await db.eventPass.findMany({where: {accountId: {in: ids}}, select: {id: true}})).map(p => p.id);
     const reqs = await db.boothRequest.findMany({where: {accountId: {in: ids}}, select: {id: true, assignments: {select: {boothUnitId: true}}}});

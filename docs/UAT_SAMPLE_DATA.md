@@ -39,6 +39,6 @@ country, programmes, exhibitor products/location, attendance (checked in or not)
 attendance, contact permission, search. Summary tiles and charts (by role, top companies, top job titles). **Export Excel** is audited
 (`PROSPECTS_EXPORTED`).
 
-Contact permission (UU PDP): customers can tick an optional, separate box "Keep me informed about future IMDX events" in their
-participant details or exhibitor form (withdrawable any time). The report and export default to people who agreed; "Everyone"
-is for internal analysis only. Sample participants: 3 out of 4 agreed (re-run the sample seed after the consent migration).
+Everyone who registered appears in the report and export (owner decision, 9 Nov 2026: no separate "future events" checkbox).
+The group delegate registration ("Register a group of delegates") was removed from the customer portal and is switched off
+(`ENABLE_GROUP_ENROLLMENT=false`).
