@@ -68,8 +68,26 @@ test("FR-117/119/029 customer hub: OTP sign-in, three journeys, action banners, 
     for (const t of ["Visit exhibition", "Join conference", "Reserve booth"]) await page.getByRole("heading", {name: t}).waitFor();
     await page.getByRole("region", {name: "Action needed"}).getByText("Add your company to your profile.").waitFor();
     await page.getByRole("button", {name: "Exhibition visitor", exact: true}).click();
+    // Participant details: salutation, job, company (email from sign-up), WhatsApp verified by OTP.
+    const register = page.getByRole("button", {name: "Register as exhibition visitor"});
+    assert.equal(await register.isDisabled(), true, "registration waits for participant details");
+    await page.getByLabel("Salutation").selectOption("IBU");
+    await page.getByLabel("Job title / occupation").fill("Procurement Lead");
+    await page.getByLabel("Company").fill("PT Hub Tester");
+    assert.equal(await page.getByLabel("Email (from your sign-up)").inputValue(), email);
+    await page.getByRole("button", {name: "Save details"}).click();
+    await page.getByRole("button", {name: "Saved ✓"}).waitFor();
+    const phone = "0812" + String(Date.now()).slice(-8);
+    await page.getByLabel("Number").fill(phone);
+    await page.getByRole("radio", {name: "WhatsApp"}).check();
+    await page.getByRole("button", {name: "Send code"}).click();
+    await page.getByLabel("6-digit code").waitFor();
+    await new Promise(r => setTimeout(r, 300));
+    await page.getByLabel("6-digit code").fill(lastOtp("62" + phone.slice(1) + "@whatsapp.uat.invalid"));
+    await page.getByRole("button", {name: "Verify"}).click();
+    await page.getByText("verified ✓").first().waitFor();
     const reg = page.waitForResponse(r => r.url().endsWith("/api/customer/registrations") && r.request().method() === "POST");
-    await page.getByRole("button", {name: /register|Confirm/i}).first().click();
+    await register.click();
     const body = await (await reg).json();
     assert.ok(body.id, "registration reference returned");
     await page.getByAltText(/Personal entry QR pass/).waitFor({timeout: 10000});

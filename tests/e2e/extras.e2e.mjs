@@ -4,7 +4,7 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {PrismaClient} from "@prisma/client";
-import {adminLogin, customerSignup, Client, BASE} from "./lib.mjs";
+import {adminLogin, completeParticipant, customerSignup, Client, BASE} from "./lib.mjs";
 
 const db = new PrismaClient();
 const run = Date.now().toString(36);
@@ -73,10 +73,11 @@ test("FR-014/110 exhibitor directory: only approved names, booth numbers from ac
 });
 
 test("FR-078/079 attendance history and pass-ready email; FR-152 notification preference", async () => {
-  const c = await customerSignup(`att-${run}@test.local`, "Attendance Person");
+  const c = await customerSignup(`att-${run}@test.local`, "Attendance Person", undefined, {participant: false});
+  ok(await c.patch("/api/customer/me", {fullName: "Attendance Person", notifyChannel: "WHATSAPP"}), 409, "WhatsApp needs verified phone");
+  await completeParticipant(c, `att-${run}@test.local`, "Attendance Person");
   const reg = await c.post("/api/customer/registrations", {kind: "VISITOR", consent: true}); ok(reg, 201, "visitor");
   assert.equal(await db.notificationOutbox.count({where: {topic: "PASS_READY", dedupeKey: "pass-ready:" + reg.body.id}}), 1, "pass-ready email queued");
-  ok(await c.patch("/api/customer/me", {fullName: "Attendance Person", notifyChannel: "WHATSAPP"}), 409, "WhatsApp needs verified phone");
   ok(await c.patch("/api/customer/me", {fullName: "Attendance Person", notifyChannel: "EMAIL"}), 200, "email preference");
   assert.deepEqual((await c.get("/api/customer/attendance")).body.attendance, [], "no attendance yet");
   S.ev = await db.event.findUniqueOrThrow({where: {code: "IMDX-2027"}});

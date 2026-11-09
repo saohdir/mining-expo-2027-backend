@@ -31,7 +31,7 @@ test("sample data makes visitor, conference and booth flows usable", async () =>
   ok(await c.post("/api/customer/manual-payment-request", {enrollmentId: reg.body.id}), 201, "invoice request");
   const plan = (await anon.get("/api/public/floorplan")).body;
   const unit = plan.units.find(u => u.status === "AVAILABLE");
-  const booth = await c.post("/api/customer/booth-requests", {floorplanId: plan.id, preferredUnitIds: [unit.id], requestedAreaSqm: Number(unit.areaSqm), company: "Sample Customer Co", consent: true});
+  const booth = await c.post("/api/customer/booth-requests", {floorplanId: plan.id, preferredUnitIds: [unit.id], requestedAreaSqm: Number(unit.areaSqm), company: "Sample Customer Co", picName: "Test PIC", products: "Mining equipment", location: "INDOOR", consent: true});
   ok(booth, 201, "booth request");
   const FIN = await adminLogin("FINANCE");
   const me = (await c.get("/api/customer/me")).body;
@@ -42,6 +42,15 @@ test("sample data makes visitor, conference and booth flows usable", async () =>
   const pdf = await fetch(process.env.E2E_BASE_URL + `/api/customer/invoices/${inv.body.id}/pdf`, {headers: {cookie: [...c.jar].map(([k, v]) => k + "=" + v).join("; ")}});
   assert.equal(pdf.status, 200, "invoice PDF with (dummy) bank details");
 
+  // Sample participants feed the CMS lists and reports.
+  assert.ok(await db.customerAccount.count({where: {email: {endsWith: "@sample.imdx.invalid"}}}) >= 20, "sample participants");
+  const VIEW = await adminLogin("VIEWER");
+  const att = (await VIEW.get("/api/admin/reports/attendance")).body;
+  assert.ok(att.arrivedUnique >= 6 && att.conferenceBookings >= 8 && att.exhibitorBookings >= 5, JSON.stringify({arrived: att.arrivedUnique, conf: att.conferenceBookings, exh: att.exhibitorBookings}));
+  const booths = await db.boothRequest.findMany({where: {account: {email: {endsWith: "@sample.imdx.invalid"}}}});
+  assert.deepEqual([...new Set(booths.map(b => b.companySnapshot.location))].sort(), ["INDOOR", "OUTDOOR"]);
+  assert.ok(booths.some(b => b.companySnapshot.customSize), "custom-size request present");
   seed("--remove");
+  assert.equal(await db.customerAccount.count({where: {email: {endsWith: "@sample.imdx.invalid"}}}), 0, "sample participants removed");
   assert.equal((await anon.get("/api/public/content?kind=PARTNER")).body.items.some(p => p.slug?.startsWith("sample-")), false, "sample content removed");
 });

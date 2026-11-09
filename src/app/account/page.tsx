@@ -6,9 +6,10 @@ import {ActionNeeded} from "./ActionNeeded";
 import {AuthPanel} from "./AuthPanel";
 import {BoothStaffPanel, GroupRegistrationPanel} from "./TeamPanels";
 import {FeeEstimate} from "./FeeEstimate";
+import {ParticipantDetails, participantComplete, WhatsAppVerify} from "./ParticipantDetails";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
-type AccountData={phone?:string|null;id:string;email:string|null;profile:{fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
+type AccountData={phone?:string|null;verifiedPhoneAt?:string|null;id:string;email:string|null;profile:{salutation?:string|null;fullName:string;organization?:string|null;jobTitle?:string|null;country?:string|null}|null;
  enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:CustomerBooth[];invoices:{id:string;boothRequestId:string|null;number:string;status:string;totalMinor:string}[]};
 type BoothOfferView={id:string;revision:number;offeredUnits:{id:string;code:string;hall:string|null;zone:string|null;areaSqm:string}[];offeredAreaSqm:string;quotedPriceMinor:string;expiresAt:string|null;acceptedAt:string|null;createdAt:string};
 type CustomerBooth={id:string;createdAt:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];holds:{id:string;expiresAt:string;boothUnit:{code:string;hall:string|null}}[];floorplan:{versionNo:number;units:{id:string;code:string;hall:string|null}[]};offers:BoothOfferView[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]};
@@ -20,7 +21,7 @@ export default function AccountPage(){
  const [me,setMe]=useState<AccountData|null>(null),[events,setEvents]=useState<EventRecord[]>([]),[plan,setPlan]=useState<Floorplan|null>(null),[invoices,setInvoices]=useState<{invoices:CustomerInvoice[]}|null>(null),[passes,setPasses]=useState<{passes:{passId:string;qrDataUrl:string;entitlement:string;manualCode:string}[]}|null>(null);
  const [loading,setLoading]=useState(true),[message,setMessage]=useState(""),[busy,setBusy]=useState(false),[mode,setMode]=useState<"register"|"login">("register"),[email,setEmail]=useState(""),[channel,setChannel]=useState<"EMAIL"|"SMS">("EMAIL"),[phone,setPhone]=useState(""),[smsAvailable,setSmsAvailable]=useState(false),[name,setName]=useState(""),[challenge,setChallenge]=useState(""),[otp,setOtp]=useState(""),[tab,setTab]=useState("overview");
  const [fHall,setFHall]=useState(""),[fZone,setFZone]=useState(""),[fAvail,setFAvail]=useState(false),[fq,setFq]=useState("");
- const [company,setCompany]=useState(""),[area,setArea]=useState("18"),[notes,setNotes]=useState(""),[chosen,setChosen]=useState<string[]>([]),[conference,setConference]=useState("");
+ const [company,setCompany]=useState(""),[picName,setPicName]=useState(""),[products,setProducts]=useState(""),[location,setLocation]=useState<"INDOOR"|"OUTDOOR">("INDOOR"),[customSize,setCustomSize]=useState(""),[area,setArea]=useState("18"),[notes,setNotes]=useState(""),[chosen,setChosen]=useState<string[]>([]),[conference,setConference]=useState("");
  const reload=useCallback(async()=>{const results=await Promise.allSettled([request("/api/customer/me"),request("/api/public/events"),request("/api/public/floorplan"),request("/api/customer/invoices"),request("/api/customer/passes")]);if(results[0].status==="fulfilled")setMe(results[0].value);else setMe(null);if(results[1].status==="fulfilled")setEvents(results[1].value.events||[]);if(results[2].status==="fulfilled")setPlan(results[2].value);if(results[3].status==="fulfilled")setInvoices(results[3].value);if(results[4].status==="fulfilled")setPasses(results[4].value);setLoading(false)},[]);
  // AT-057 / NFR-31: keep the selected booth/tab across sign-in and OTP; restore once signed in.
  useEffect(()=>{try{const q=new URLSearchParams(window.location.search);const unit=q.get("request"),conf=q.get("conference"),t=q.get("tab")||(window.location.hash==="#booth"?"booth":"");if(unit||t||conf)sessionStorage.setItem("imdx-intent",JSON.stringify({unit,conf,tab:unit?"booth":conf?"conference":t}))}catch{}},[]);
@@ -50,7 +51,8 @@ export default function AccountPage(){
       </div></section>}
     {tab==="visit"&&<section><AttendanceHistory/><h2>Exhibition visitor</h2><p>Each visitor has a unique QR pass. At the event, the organizer checks admission in the secured CMS.</p>
       {me.enrollments.filter(x=>x.type==="VISITOR").map(r=><div className="record" key={r.id}><strong>Visitor registration</strong><span className="status">{r.status}</span></div>)}
-      {me.enrollments.every(x=>x.type!=="VISITOR")&&<button disabled={busy||!event} onClick={()=>void doAction(()=>send("/api/customer/registrations",{eventCode:event?.code,kind:"VISITOR",consent:true}),"Registration submitted.")}>Register as exhibition visitor</button>}
+      {me.enrollments.every(x=>x.type!=="VISITOR")&&<ParticipantDetails p={me} onSaved={()=>void reload()} intro="Complete these details to receive your personal exhibition visitor pass."/>}
+      {me.enrollments.every(x=>x.type!=="VISITOR")&&<button disabled={busy||!event||!participantComplete(me)} onClick={()=>void doAction(()=>send("/api/customer/registrations",{eventCode:event?.code,kind:"VISITOR",consent:true}),"Registration submitted.")}>Register as exhibition visitor</button>}
       {passes?.passes.length?passes.passes.map(p=><figure key={p.passId} className="pass printable-pass"><img width={220} height={220} src={p.qrDataUrl} alt={"Personal entry QR pass, "+p.entitlement}/><figcaption>Private pass · {p.entitlement} · Do not share</figcaption><p className="micro">Manual code for gate staff: <strong style={{letterSpacing:"0.12em"}}>{p.manualCode}</strong></p><div className="cms-row-actions no-print"><a href={p.qrDataUrl} download={"imdx-pass-"+p.passId.slice(0,8)+".png"}>Download QR</a><button type="button" onClick={()=>window.print()}>Print pass</button></div></figure>):<p className="micro">QR will appear after your visitor registration is eligible and confirmed.</p>}
      </section>}
     {tab==="conference"&&<section><h2>My conferences</h2><p>Registration and payment are separate. A submitted request does not confirm payment.</p>
@@ -60,13 +62,14 @@ export default function AccountPage(){
         :x.conference?.feeMinor===null||!x.conference?<span className="micro">Fee not approved</span>
         :["SUBMITTED","PENDING_REVIEW"].includes(x.status)?<button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/manual-payment-request",{enrollmentId:x.id}),"Finance has been notified of your invoice request.")}>Request bank-transfer invoice</button>
         :<span className="micro">No invoice action available for this status</span>}</div>)}
+      {event?.conferences?.length?<ParticipantDetails p={me} onSaved={()=>void reload()} intro="Conference seats are personal: the delegate's details appear on the badge and attendance list."/>:null}
       {event?.conferences?.length?<form onSubmit={e=>{e.preventDefault();void doAction(()=>send("/api/customer/registrations",{eventCode:event.code,kind:"CONFERENCE",conferenceId:conference,consent:true}),"Conference request submitted for review.")}}>
        <label>Select conference<select required value={conference} onChange={e=>setConference(e.target.value)}><option value="">Choose an available conference</option>{event.conferences.map(c=><option key={c.id} value={c.id} disabled={c.registrationState==="NOT_READY"}>{c.title} · {c.registrationState==="FULL"?"Fully booked":c.registrationState==="NOT_READY"?"Registration not yet available":c.remainingSeats+" seats available"}</option>)}</select></label>
        {selectedConference&&<div className="conference-availability" role="status"><strong>{selectedConference.feeMinor===null?"Fee to be confirmed":selectedConference.feeMinor==="0"?"Free programme":money(selectedConference.feeMinor)}</strong>
         <span>{selectedConference.registrationState==="AVAILABLE"?selectedConference.remainingSeats+" seats currently available":selectedConference.registrationState==="FULL"?"Fully booked":"Registration pending fee and capacity approval"}</span>
         <small>{selectedConference.startsAt?new Date(selectedConference.startsAt).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB":"Schedule TBA"}</small>
         <small>Seat counts are indicative and checked again when you submit. Payment is only confirmed by Finance.</small></div>}
-       <button disabled={busy||!selectedConference||selectedConference.registrationState!=="AVAILABLE"}>Submit conference registration</button>
+       <button disabled={busy||!selectedConference||selectedConference.registrationState!=="AVAILABLE"||!participantComplete(me)}>Submit conference registration</button>
        {selectedConference?.registrationState==="FULL"&&<button type="button" className="ghost" disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/waitlist",{conferenceId:selectedConference.id}),"You are on the waitlist. This is not a booking; the organizer will contact you if a seat is released.")}>Join waitlist</button>}</form>:<p>Conference registration has not been published by the organizer yet.</p>}
       {team.groups&&event?.conferences?.length?<GroupRegistrationPanel conferences={event.conferences}/>:null}
     </section>}
@@ -101,6 +104,20 @@ export default function AccountPage(){
        {["ACCEPTED","WAITING_INVOICE","INVOICED","ALLOCATION_PENDING"].includes(x.status)&&offer?.acceptedAt&&<button disabled={busy} onClick={()=>void doAction(()=>send("/api/customer/manual-payment-request",{boothRequestId:x.id}),"Invoice request submitted.")}>Request manual invoice</button>}
        </div></article>})}
      {plan?.state==="PUBLISHED"&&plan.canvas?<>
+      <fieldset className="exhibitor-details" data-testid="exhibitor-details"><legend>1. Exhibitor details</legend>
+       <div className="form-grid">
+        <label>Company name<input value={company} required minLength={2} maxLength={180} autoComplete="organization" onChange={e=>setCompany(e.target.value)}/></label>
+        <label>PIC name (person in charge)<input value={picName||me.profile?.fullName||""} required minLength={2} maxLength={120} onChange={e=>setPicName(e.target.value)}/></label>
+       </div>
+       <WhatsAppVerify p={me} label="PIC WhatsApp number" onVerified={()=>void reload()}/>
+       <label>Products to display at the booth<textarea value={products} required minLength={3} maxLength={1000} placeholder="e.g. haul trucks, crushers, mine-site software" onChange={e=>setProducts(e.target.value)}/></label>
+       <div className="cms-row-actions" role="radiogroup" aria-label="Booth location">
+        <label className="consent"><input type="radio" name="booth-loc" checked={location==="INDOOR"} onChange={()=>{setLocation("INDOOR");setChosen([])}}/> Indoor booth</label>
+        <label className="consent"><input type="radio" name="booth-loc" checked={location==="OUTDOOR"} onChange={()=>{setLocation("OUTDOOR");setChosen([])}}/> Outdoor booth</label>
+       </div>
+       <label>Booth size needed if not shown on the floorplan (optional)<input value={customSize} maxLength={120} placeholder="e.g. 10 × 12 m, or 120 m² outdoor demo area" onChange={e=>setCustomSize(e.target.value)}/></label>
+      </fieldset>
+      <h3>2. Choose preferred booths ({location==="OUTDOOR"?"outdoor":"indoor"})</h3>
       {/* FR-138: filter the published map by hall, zone, availability and code. */}
       <div className="floorplan-toolbar" role="group" aria-label="Filter booths">
        <label>Search code<input type="search" value={fq} onChange={e=>setFq(e.target.value)}/></label>
@@ -110,14 +127,14 @@ export default function AccountPage(){
       </div>
       <div className="floorplan-frame"><svg role="group" aria-label="Available booth preferences" viewBox={"0 0 "+plan.canvas.width+" "+plan.canvas.height}>
         <rect x={0} y={0} width={plan.canvas.width} height={plan.canvas.height} fill="#fff3e9"/>
-        {(plan.units||[]).filter(u=>(!fHall||u.hall===fHall)&&(!fZone||(u as {zone?:string}).zone===fZone)&&(!fAvail||u.status==="AVAILABLE")&&(!fq||u.code.toLowerCase().includes(fq.toLowerCase()))).map(u=><g key={u.id} onClick={()=>u.status==="AVAILABLE"&&setChosen(prev=>prev.includes(u.id)?prev.filter(i=>i!==u.id):[...prev,u.id])} role="button" tabIndex={u.status==="AVAILABLE"?0:-1} onKeyDown={e=>{if(e.key==="Enter"&&u.status==="AVAILABLE")setChosen(prev=>prev.includes(u.id)?prev.filter(i=>i!==u.id):[...prev,u.id])}}>
+        {(plan.units||[]).filter(u=>(/outdoor/i.test(u.hall||"")||/outdoor/i.test((u as {zone?:string}).zone||""))===(location==="OUTDOOR")&&(!fHall||u.hall===fHall)&&(!fZone||(u as {zone?:string}).zone===fZone)&&(!fAvail||u.status==="AVAILABLE")&&(!fq||u.code.toLowerCase().includes(fq.toLowerCase()))).map(u=><g key={u.id} onClick={()=>u.status==="AVAILABLE"&&setChosen(prev=>prev.includes(u.id)?prev.filter(i=>i!==u.id):[...prev,u.id])} role="button" tabIndex={u.status==="AVAILABLE"?0:-1} onKeyDown={e=>{if(e.key==="Enter"&&u.status==="AVAILABLE")setChosen(prev=>prev.includes(u.id)?prev.filter(i=>i!==u.id):[...prev,u.id])}}>
          <rect x={u.x} y={u.y} width={u.w} height={u.h} stroke="#fff" strokeWidth={3} fill={chosen.includes(u.id)?"#c2410c":u.status==="AVAILABLE"?"#96d8c4":"#bbb"} opacity={.96}/>
          <text x={u.x+5} y={u.y+17} fontSize={13} fill="#351109">{u.code}</text></g>)}
        </svg></div>
       <p className="micro">{chosen.length} preferred booth(s) selected. Green = available; gray = unavailable; orange = selected.</p>
       <div className="booth-choices-heading"><div><h3>Choose by booth list</h3><p className="micro">Accessible alternative to the interactive map. These are preferences only; no space is held or reserved.</p></div><span className="status">{chosen.length} SELECTED</span></div>
       <div className="booth-choice-list" role="group" aria-label="Preferred booth units">
-        {plan.units?.length?(plan.units||[]).filter(u=>(!fHall||u.hall===fHall)&&(!fZone||(u as {zone?:string}).zone===fZone)&&(!fAvail||u.status==="AVAILABLE")&&(!fq||u.code.toLowerCase().includes(fq.toLowerCase()))).map(u=><button type="button" key={u.id}
+        {plan.units?.length?(plan.units||[]).filter(u=>(/outdoor/i.test(u.hall||"")||/outdoor/i.test((u as {zone?:string}).zone||""))===(location==="OUTDOOR")&&(!fHall||u.hall===fHall)&&(!fZone||(u as {zone?:string}).zone===fZone)&&(!fAvail||u.status==="AVAILABLE")&&(!fq||u.code.toLowerCase().includes(fq.toLowerCase()))).map(u=><button type="button" key={u.id}
           className={"booth-choice"+(chosen.includes(u.id)?" is-selected":"")}
           disabled={u.status!=="AVAILABLE"} aria-pressed={chosen.includes(u.id)}
           onClick={()=>setChosen(prev=>prev.includes(u.id)?prev.filter(id=>id!==u.id):[...prev,u.id])}>
@@ -126,10 +143,10 @@ export default function AccountPage(){
           <span>{u.status==="AVAILABLE"?(chosen.includes(u.id)?"Selected ✓":"Available"):"Unavailable"}</span>
         </button>):<p className="micro">No booth units have been published yet.</p>}
       </div>
-      <form onSubmit={e=>{e.preventDefault();void doAction(()=>send("/api/customer/booth-requests",{eventCode:event?.code||"IMDX-2027",floorplanId:plan.id,preferredUnitIds:chosen,requestedAreaSqm:Number(area),company,notes,consent:true}),"Booth preference received. Organizer will review availability.")}}>
-       <div className="form-grid"><label>Company name<input value={company} required minLength={2} onChange={e=>setCompany(e.target.value)}/></label><label>Requested area (m²)<input type="number" step="0.1" min="1" max="10000" value={area} required onChange={e=>setArea(e.target.value)}/></label></div>
+      <form onSubmit={e=>{e.preventDefault();void doAction(()=>send("/api/customer/booth-requests",{eventCode:event?.code||"IMDX-2027",floorplanId:plan.id,preferredUnitIds:chosen,requestedAreaSqm:Number(area),company,picName:picName||me.profile?.fullName||"",products,location,...(customSize.trim()?{customSize:customSize.trim()}:{}),notes,consent:true}),"Booth preference received. Organizer will review availability.")}}>
+       <h3>3. Send the request</h3><div className="form-grid"><label>Requested area (m²)<input type="number" step="0.1" min="1" max="10000" value={area} required onChange={e=>setArea(e.target.value)}/></label></div>
        {team.estimator&&<FeeEstimate area={area}/>}
-       <label>Notes / preferred arrangement<textarea value={notes} onChange={e=>setNotes(e.target.value)} maxLength={1000}/></label><div className="record" role="note" aria-label="Request summary"><div><strong>Review before sending</strong><p className="micro">Preferred booths: {chosen.map(id=>plan.units?.find(u=>u.id===id)?.code).filter(Boolean).join(", ")||"none selected"} · Requested area: {area} m². No price or deposit applies yet: the organizer will send a quotation; any deposit (DP) and due date appear only on your official invoice. See the <a href="/terms/" target="_blank" rel="noreferrer">registration &amp; payment terms</a>.</p></div></div><button disabled={busy||chosen.length===0} type="submit">Submit booth request</button></form></>:<p>The organizer has not published a booth floorplan. You can return after publication.</p>}
+       <label>Notes / preferred arrangement<textarea value={notes} onChange={e=>setNotes(e.target.value)} maxLength={1000}/></label><div className="record" role="note" aria-label="Request summary"><div><strong>Review before sending</strong><p className="micro">Preferred booths: {chosen.map(id=>plan.units?.find(u=>u.id===id)?.code).filter(Boolean).join(", ")||"none selected"} · Requested area: {area} m². No price or deposit applies yet: the organizer will send a quotation; any deposit (DP) and due date appear only on your official invoice. See the <a href="/terms/" target="_blank" rel="noreferrer">registration &amp; payment terms</a>.</p></div></div><button disabled={busy||(chosen.length===0&&!customSize.trim())||!company.trim()||products.trim().length<3||!me.verifiedPhoneAt} type="submit">Submit booth request</button></form></>:<p>The organizer has not published a booth floorplan. You can return after publication.</p>}
     </section>}
     {tab==="payments"&&<section><h2>Invoices & bank transfer</h2><p>No Midtrans or automated payment gateway. Only verified organizer bank transfers change your paid status.</p>
       {invoices?.invoices?.length?invoices.invoices.map(x=><InvoicePanel key={x.id} invoice={x} onChanged={()=>void reload()}/>):<p>No issued invoices yet. Request an invoice from your conference or booth card.</p>}

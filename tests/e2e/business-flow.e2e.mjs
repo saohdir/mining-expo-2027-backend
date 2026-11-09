@@ -52,7 +52,7 @@ test("customer: verified account, profile and booth preference (not a reservatio
   S.other = await customerSignup(`other-${run}@test.local`, "E2E Other");
   ok(await S.cust.patch("/api/customer/me", {fullName: "E2E Buyer", organization: "PT Uji Coba"}), 200, "profile");
   const [u1, u2] = S.units;
-  const body = {floorplanId: S.plan.id, preferredUnitIds: [u1.id], requestedAreaSqm: 18, company: "PT Uji Coba", notes: "E2E", consent: true};
+  const body = {floorplanId: S.plan.id, preferredUnitIds: [u1.id], requestedAreaSqm: 18, company: "PT Uji Coba", picName: "Test PIC", products: "Mining equipment", location: "INDOOR", notes: "E2E", consent: true};
   const r = await S.cust.post("/api/customer/booth-requests", body);
   ok(r, 201, "booth request");
   S.requestId = r.body.id ?? r.body.request?.id ?? r.body.boothRequest?.id;
@@ -155,7 +155,7 @@ test("finance verification: only Finance, DP is partial, full payment does not a
 test("AT-068: one bank reference cannot be credited to a second invoice", async () => {
   const u3 = S.units[2];
   ok(await S.other.patch("/api/customer/me", {fullName: "E2E Other", organization: "PT Lain"}), 200, "other profile");
-  const br = await S.other.post("/api/customer/booth-requests", {floorplanId: S.plan.id, preferredUnitIds: [u3.id], requestedAreaSqm: 9, company: "PT Lain", consent: true});
+  const br = await S.other.post("/api/customer/booth-requests", {floorplanId: S.plan.id, preferredUnitIds: [u3.id], requestedAreaSqm: 9, company: "PT Lain", picName: "Test PIC", products: "Mining equipment", location: "INDOOR", consent: true});
   ok(br, 201, "other booth request");
   const rid = br.body.id ?? br.body.request?.id ?? br.body.boothRequest?.id;
   ok(await R.SALES.post(`/api/admin/booth-requests/${rid}/status`, {status: "UNDER_REVIEW", reason: "E2E start review"}), 200, "review");
@@ -184,7 +184,7 @@ test("operations assignment: atomic, Operations only, no double assignment", asy
   const pubView = await new Client("anon").get("/api/public/floorplan");
   for (const u of S.units.slice(0, 2)) assert.equal(pubView.body.units.find(x => x.id === u.id)?.status, "OCCUPIED", "unit occupied");
   // A second customer cannot request an occupied unit.
-  const r = await S.other.post("/api/customer/booth-requests", {floorplanId: S.plan.id, preferredUnitIds: [S.units[0].id], requestedAreaSqm: 9, company: "PT Lain", consent: true});
+  const r = await S.other.post("/api/customer/booth-requests", {floorplanId: S.plan.id, preferredUnitIds: [S.units[0].id], requestedAreaSqm: 9, company: "PT Lain", picName: "Test PIC", products: "Mining equipment", location: "INDOOR", consent: true});
   assert.equal(r.status, 409, "occupied unit preference → 409, got " + r.status);
 });
 
@@ -207,7 +207,7 @@ test("negative: expired quotation cannot be accepted", async () => {
   const c = await customerSignup(`late-${run}@test.local`, "E2E Late");
   ok(await c.patch("/api/customer/me", {fullName: "E2E Late", organization: "PT Telat"}), 200, "profile");
   const u4 = S.units[3];
-  const br = await c.post("/api/customer/booth-requests", {floorplanId: S.plan.id, preferredUnitIds: [u4.id], requestedAreaSqm: 9, company: "PT Telat", consent: true});
+  const br = await c.post("/api/customer/booth-requests", {floorplanId: S.plan.id, preferredUnitIds: [u4.id], requestedAreaSqm: 9, company: "PT Telat", picName: "Test PIC", products: "Mining equipment", location: "INDOOR", consent: true});
   ok(br, 201, "request");
   const rid = br.body.id ?? br.body.request?.id;
   ok(await R.SALES.post(`/api/admin/booth-requests/${rid}/status`, {status: "UNDER_REVIEW", reason: "E2E start review"}), 200, "review");

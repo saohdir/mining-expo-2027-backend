@@ -41,3 +41,22 @@ export async function deliverWhatsApp(db: PrismaClient, payload: {accountId?: st
   if (!r.ok) throw new Error("WhatsApp provider responded " + r.status);
   return "SENT";
 }
+
+/** WhatsApp number verification code. UAT: WHATSAPP_PROVIDER=mailpit; production: Meta authentication template
+ * WHATSAPP_OTP_TEMPLATE (one body parameter = the code). */
+export const whatsappOtpAvailable = () => process.env.WHATSAPP_PROVIDER === "mailpit" ||
+  (process.env.WHATSAPP_PROVIDER === "meta" && Boolean(process.env.WHATSAPP_PHONE_NUMBER_ID && process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_OTP_TEMPLATE));
+export async function sendWhatsAppOtp(phone: string, code: string, fetcher: typeof fetch = fetch) {
+  const to = waNumber(phone); if (!to) throw new Error("Invalid number");
+  if (process.env.WHATSAPP_PROVIDER === "mailpit") {
+    const {sendMail} = await import("./mailer");
+    return sendMail(to + "@whatsapp.uat.invalid", "[WhatsApp UAT] IMDX 2027 verification code", "Your IMDX 2027 verification code is " + code + ". It expires in 5 minutes.");
+  }
+  if (!whatsappOtpAvailable()) throw new Error("WhatsApp verification unavailable");
+  const base = (process.env.WHATSAPP_API_BASE || "https://graph.facebook.com").replace(/\/$/, ""), version = process.env.WHATSAPP_API_VERSION || "v21.0";
+  const r = await fetcher(`${base}/${version}/${encodeURIComponent(process.env.WHATSAPP_PHONE_NUMBER_ID!)}/messages`, {method: "POST", redirect: "error",
+    headers: {"Authorization": "Bearer " + process.env.WHATSAPP_ACCESS_TOKEN, "Content-Type": "application/json"},
+    body: JSON.stringify({messaging_product: "whatsapp", to, type: "template", template: {name: process.env.WHATSAPP_OTP_TEMPLATE, language: {code: process.env.WHATSAPP_TEMPLATE_LANG || "en"},
+      components: [{type: "body", parameters: [{type: "text", text: code}]}, {type: "button", sub_type: "url", index: "0", parameters: [{type: "text", text: code}]}]}})});
+  if (!r.ok) throw new Error("WhatsApp provider responded " + r.status);
+}

@@ -35,7 +35,7 @@ export function lastLink(email){
   throw new Error("no reset link for "+email);
 }
 /** CR-AUTH-01 registration: details → email OTP → create password (signs in). */
-export async function customerSignup(email,name,password=TEST_PASSWORD){
+export async function customerSignup(email,name,password=TEST_PASSWORD,{participant=true}={}){
   const c=new Client(email);
   const r=await c.post("/api/auth/register/start",{fullName:name,email,acceptTerms:true,acceptPrivacy:true});
   if(r.status!==200)throw new Error("register "+r.status+" "+JSON.stringify(r.body));
@@ -44,7 +44,21 @@ export async function customerSignup(email,name,password=TEST_PASSWORD){
   if(v.status!==200)throw new Error("verify "+v.status+" "+JSON.stringify(v.body));
   const p=await c.post("/api/auth/password/set",{token:v.body.setupToken,password,confirmPassword:password});
   if(p.status!==200)throw new Error("password "+p.status+" "+JSON.stringify(p.body));
+  if(participant)await completeParticipant(c,email,name);
   return c;
+}
+/** Participant details required for visitor/conference registration and booth requests: salutation, job, company and a
+ * WhatsApp number verified by OTP (SMS_PROVIDER=mailpit in the harness → code arrives in the SMTP sink). */
+export const testPhone=email=>"+62812"+String([...email].reduce((h,ch)=>(h*31+ch.charCodeAt(0))>>>0,7)%10000000).padStart(7,"0");
+export async function completeParticipant(c,email,name){
+  const r=await c.req("PATCH","/api/customer/me",{salutation:"BAPAK",fullName:name,jobTitle:"Engineer",organization:"Test Co"});
+  if(r.status!==200)throw new Error("profile "+r.status+" "+JSON.stringify(r.body));
+  const phone=testPhone(email),inbox=phone.slice(1)+"@sms.uat.invalid";
+  const ch=await c.post("/api/customer/contact-change",{channel:"SMS",value:phone});
+  if(ch.status!==200)throw new Error("phone otp "+ch.status+" "+JSON.stringify(ch.body));
+  await new Promise(s=>setTimeout(s,200));
+  const v=await c.post("/api/customer/contact-change/verify",{challengeId:ch.body.challengeId,code:lastOtp(inbox)});
+  if(v.status!==200)throw new Error("phone verify "+v.status+" "+JSON.stringify(v.body));
 }
 export async function customerLogin(email,password=TEST_PASSWORD){
   const c=new Client(email);

@@ -1,4 +1,5 @@
 import {enqueueCrm} from "@/lib/crm-sync";
+import {participantProblems, participantSnapshot} from "@/lib/participant";
 import {activeEventCode} from "@/lib/active-event";
 import {shortCodeFor, shortCodeHash} from "@/lib/pass-code";
 import {NextRequest, NextResponse} from "next/server";
@@ -36,14 +37,13 @@ export async function POST(req: NextRequest) {
     }
 
     const profile = await db.customerProfile.findUnique({where: {accountId: account.id}});
-    if (!profile || !profile.fullName.trim()) {
-      throw new HttpError(400, "PROFILE_REQUIRED", "Complete your profile.");
+    // Visitor and conference participants: salutation, name, job, company, sign-up email and a verified WhatsApp number.
+    const participant = {email: account.email, phone: account.phone, verifiedPhoneAt: account.verifiedPhoneAt, profile};
+    const missing = participantProblems(participant);
+    if (missing.length) {
+      throw new HttpError(400, "PROFILE_INCOMPLETE", "Complete your participant details first: " + missing.join(", ") + ".");
     }
-    const snapshot = {
-      fullName: profile.fullName,
-      organization: profile.organization,
-      jobTitle: profile.jobTitle
-    };
+    const snapshot = participantSnapshot(participant);
 
     // The duplicate check, capacity count and insert MUST be in one SERIALIZABLE
     // transaction. PostgreSQL aborts one of two concurrent last-seat bookings.
