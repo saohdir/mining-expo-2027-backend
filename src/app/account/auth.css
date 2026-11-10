@@ -1,0 +1,123 @@
+/* Customer authentication modal content (Nov 2026 polish). Scoped to .imdx-auth; the modal shell (centered white card over the
+   blurred website) is unchanged: website popup = assets/base.css .auth-popup (frontend), /account = .auth-modal below. */
+.imdx-auth{--au-ink:#141C28;--au-ink2:#475467;--au-muted:#667085;--au-line:#D0D5DD;--au-line-soft:#EAECF0;--au-field:#F9FAFB;--au-brand:#C2410C;--au-brand-dk:#9A3412;
+  --au-brand-soft:#FFF4ED;--au-ok:#067647;--au-ok-bg:#ECFDF3;--au-bad:#B42318;--au-bad-bg:#FEF3F2;--au-ring:rgba(194,65,12,.18);
+  display:flex;flex-direction:column;gap:0;color:var(--au-ink);font-family:'Space Grotesk',system-ui,sans-serif;text-align:left}
+.imdx-auth.portal-auth{padding:0!important;margin:0;border:0;box-shadow:none;background:transparent;max-width:none}
+.imdx-auth *{box-sizing:border-box}
+
+/* Brand row: logo on the left, the modal's own close button sits on the same line at the right */
+.imdx-auth-brand{display:flex;align-items:center;min-height:72px;margin:4px 44px 20px 0}
+.imdx-auth-brand img{display:block;height:72px;width:auto;max-width:100%;object-fit:contain;object-position:left center}
+
+/* Heading block */
+.imdx-auth-head{margin:0 0 20px}
+.account-app .imdx-auth.imdx-auth .eyebrow,.imdx-auth-head .eyebrow{margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--au-brand-dk)}
+.imdx-auth h1,.imdx-auth-head h1{margin:0;font-size:clamp(28px,4.2vw,34px);line-height:1.08;letter-spacing:-.035em;font-weight:650;color:var(--au-ink);text-wrap:balance}
+.imdx-auth-lede{margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--au-ink2);max-width:46ch}
+.imdx-auth-lede strong{color:var(--au-ink);font-weight:600;overflow-wrap:anywhere}
+
+/* Step indicator (registration: details → code → password) */
+.imdx-auth-steps{display:flex;gap:6px;list-style:none;margin:0 0 8px;padding:0}
+.imdx-auth-steps li{width:28px;height:4px;border-radius:999px;background:var(--au-line-soft)}
+.imdx-auth-steps li.done{background:var(--au-brand)}.imdx-auth-steps li.now{background:var(--au-brand);opacity:.55}
+
+/* Form */
+.imdx-auth-form{display:flex;flex-direction:column;gap:14px;margin:0}
+.imdx-auth-field{display:flex;flex-direction:column;gap:6px}
+.imdx-auth-field>label{margin:0;font-size:13.5px;font-weight:600;color:var(--au-ink);letter-spacing:0}
+.imdx-auth-input{position:relative;display:flex;align-items:center}
+.imdx-auth-lead{position:absolute;left:13px;top:50%;transform:translateY(-50%);display:flex;color:#98A2B3;pointer-events:none}
+.account-app .imdx-auth.imdx-auth .imdx-auth-input input{width:100%;height:46px;margin:0;padding:0 14px 0 42px;border:1px solid var(--au-line);border-radius:10px;background:#fff;color:var(--au-ink);
+  font:400 15px/1.2 'Space Grotesk',system-ui,sans-serif;box-shadow:0 1px 2px rgba(16,24,40,.04);transition:border-color .15s,box-shadow .15s}
+.account-app .imdx-auth.imdx-auth .imdx-auth-input.has-trailing input{padding-right:46px}
+.account-app .imdx-auth.imdx-auth .imdx-auth-input input::placeholder{color:#98A2B3}
+.account-app .imdx-auth.imdx-auth .imdx-auth-input input:hover{border-color:#B9C0CC}
+.account-app .imdx-auth.imdx-auth .imdx-auth-input input:focus{outline:none;border-color:var(--au-brand);box-shadow:0 0 0 4px var(--au-ring)}
+.account-app .imdx-auth.imdx-auth .imdx-auth-input input:focus+.imdx-auth-eye,.account-app .imdx-auth.imdx-auth .imdx-auth-input:focus-within .imdx-auth-lead{color:var(--au-brand)}
+.account-app .imdx-auth.imdx-auth .imdx-auth-input input:disabled{background:var(--au-field);color:var(--au-muted);cursor:not-allowed}
+.imdx-auth-field.has-error .imdx-auth-input input,.account-app .imdx-auth.imdx-auth .imdx-auth-input input[aria-invalid="true"]{border-color:var(--au-bad)}
+.imdx-auth-field.has-error .imdx-auth-input input:focus{box-shadow:0 0 0 4px rgba(180,35,24,.14)}
+.imdx-auth-field.has-error .imdx-auth-lead{color:var(--au-bad)}
+.account-app .imdx-auth.imdx-auth .imdx-auth-code{letter-spacing:.5em;font-size:20px!important;font-weight:600!important;font-variant-numeric:tabular-nums}
+.account-app .imdx-auth.imdx-auth .imdx-auth-eye{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;margin:0;display:grid;place-items:center;
+  border:0;border-radius:8px;background:transparent;color:#667085;cursor:pointer;box-shadow:none}
+.account-app .imdx-auth.imdx-auth .imdx-auth-eye:hover{background:#F2F4F7;color:var(--au-ink)}
+.account-app .imdx-auth.imdx-auth .imdx-auth-eye:focus-visible{outline:3px solid var(--au-ring);outline-offset:0;color:var(--au-brand)}
+.account-app .imdx-auth.imdx-auth .field-error{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;font-weight:500;color:var(--au-bad)}
+.imdx-auth-hint{font-size:12.5px;color:var(--au-muted)}
+.imdx-auth-hint .is-expired{color:var(--au-bad);font-weight:600}
+.imdx-auth-rules{display:flex;flex-wrap:wrap;gap:4px 14px;list-style:none;margin:2px 0 0;padding:0}
+.imdx-auth-rules li{display:flex;align-items:center;gap:5px;color:var(--au-muted)}
+.imdx-auth-rules li.ok{color:var(--au-ok)}
+
+/* Checkboxes */
+.imdx-auth-checks{display:flex;flex-direction:column;gap:8px;margin-top:2px}
+.account-app .imdx-auth.imdx-auth .imdx-auth-check{display:flex;align-items:flex-start;gap:10px;margin:0;font-size:14px;font-weight:400;line-height:1.45;color:var(--au-ink2);cursor:pointer}
+.account-app .imdx-auth.imdx-auth .imdx-auth-check input{flex:none;width:18px;height:18px;margin:1px 0 0;accent-color:var(--au-brand);cursor:pointer}
+.account-app .imdx-auth.imdx-auth .imdx-auth-check input:focus-visible{outline:3px solid var(--au-ring);outline-offset:2px}
+.account-app .imdx-auth.imdx-auth .imdx-auth-check a{color:var(--au-brand-dk);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(154,52,18,.35)}
+.account-app .imdx-auth.imdx-auth .imdx-auth-check a:hover{text-decoration-color:currentColor}
+
+/* Buttons */
+.account-app .imdx-auth.imdx-auth .imdx-auth-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;margin:4px 0 0;padding:12px 18px;border:1px solid var(--au-brand);border-radius:10px;
+  background:var(--au-brand);color:#fff;font:650 15.5px/1 'Space Grotesk',system-ui,sans-serif;letter-spacing:0;cursor:pointer;box-shadow:0 1px 2px rgba(16,24,40,.08),0 4px 12px rgba(194,65,12,.18);transition:background .15s,box-shadow .15s}
+.account-app .imdx-auth.imdx-auth .imdx-auth-primary:hover:not(:disabled){background:var(--au-brand-dk);border-color:var(--au-brand-dk)}
+.account-app .imdx-auth.imdx-auth .imdx-auth-primary:focus-visible{outline:3px solid #F5A97F;outline-offset:2px}
+.account-app .imdx-auth.imdx-auth .imdx-auth-primary:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+.imdx-auth-arrow{display:inline-flex;transition:transform .15s}
+.account-app .imdx-auth.imdx-auth .imdx-auth-primary:hover:not(:disabled) .imdx-auth-arrow{transform:translateX(2px)}
+.imdx-auth-spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;animation:imdx-auth-spin .8s linear infinite}
+@keyframes imdx-auth-spin{to{transform:rotate(360deg)}}
+.account-app .imdx-auth.imdx-auth .imdx-auth-ghost,.account-app .imdx-auth.imdx-auth .imdx-auth-secondary button{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:0;padding:10px 14px;border:1px solid var(--au-line);border-radius:10px;
+  background:#fff;color:var(--au-ink);font:600 14.5px/1.2 'Space Grotesk',system-ui,sans-serif;cursor:pointer;box-shadow:none}
+.account-app .imdx-auth.imdx-auth .imdx-auth-ghost:hover,.account-app .imdx-auth.imdx-auth .imdx-auth-secondary button:hover:not(:disabled){background:#F9FAFB}
+.account-app .imdx-auth.imdx-auth .imdx-auth-secondary button:disabled{color:var(--au-muted);cursor:not-allowed}
+.imdx-auth-secondary{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.account-app .imdx-auth.imdx-auth .link{display:inline;width:auto;min-height:0;margin:0;padding:0;border:0;background:none;box-shadow:none;color:var(--au-brand-dk);font:600 14px/1.4 'Space Grotesk',system-ui,sans-serif;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(154,52,18,.35);cursor:pointer;border-radius:4px}
+.account-app .imdx-auth.imdx-auth .link:hover{text-decoration-color:currentColor;background:none}
+.account-app .imdx-auth.imdx-auth .link:focus-visible{outline:3px solid var(--au-ring);outline-offset:2px}
+.imdx-auth-row{display:flex;justify-content:flex-end;margin-top:-6px}
+.imdx-auth-note{margin:2px 0 0;font-size:12.5px;line-height:1.5;color:var(--au-muted);text-align:center}
+
+/* Messages */
+.imdx-auth-msg{display:flex;align-items:flex-start;gap:8px;margin:0;padding:10px 12px;border-radius:10px;font-size:14px;line-height:1.45}
+.imdx-auth-msg svg{flex:none;margin-top:2px}
+.imdx-auth-msg.is-error{background:var(--au-bad-bg);color:var(--au-bad);border:1px solid #FECDCA}
+.imdx-auth-msg.is-ok{background:var(--au-ok-bg);color:var(--au-ok);border:1px solid #ABEFC6}
+
+/* Footer path (Sign in ↔ Create account, Back to sign in) */
+.imdx-auth-foot{margin-top:20px;padding-top:16px;border-top:1px solid var(--au-line-soft);text-align:center;font-size:14px;color:var(--au-ink2)}
+
+/* Result states (account ready, check your email) */
+.imdx-auth-result{display:flex;flex-direction:column;gap:0}
+.imdx-auth-badge{width:52px;height:52px;margin:0 0 14px;border-radius:50%;display:grid;place-items:center;background:var(--au-brand-soft);color:var(--au-brand)}
+.imdx-auth-badge.ok{background:var(--au-ok-bg);color:var(--au-ok)}
+
+.account-app .imdx-auth.imdx-auth .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Small screens */
+@media(max-width:480px){
+  .imdx-auth-brand{margin-bottom:18px}
+  .imdx-auth-brand img{height:60px}
+  .imdx-auth h1,.imdx-auth-head h1{font-size:27px}
+  .imdx-auth-secondary{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){.imdx-auth-spinner{animation-duration:2s}.imdx-auth .imdx-auth-input input,.account-app .imdx-auth.imdx-auth .imdx-auth-primary,.imdx-auth-arrow{transition:none}}
+
+/* /account modal shell (signed out) and the website popup content: same proportions, compact padding, logo row aligned with the close button */
+.account-app .auth-modal{width:min(480px,100%);padding:16px 28px 26px;border-radius:20px}
+.account-app .auth-modal-close{top:14px;right:14px;z-index:2}
+.account-app .auth-embed{padding:14px 28px 24px;min-height:0!important}
+.account-app:has(.auth-embed),.account-app:has(.auth-embed) .portal-shell{min-height:0!important}
+body:has(.auth-embed){min-height:0;background:#fff}
+@media(max-width:480px){.account-app .auth-modal{padding:14px 20px 22px}.account-app .auth-embed{padding:12px 20px 20px}}
+
+/* Reset / set-password landing page: same card on its own page */
+.account-app .imdx-auth-card{width:min(480px,calc(100% - 32px));margin:48px auto;padding:22px 28px 28px!important;background:#fff!important;border:1px solid #EAECF0!important;border-radius:20px;box-shadow:0 20px 50px rgba(16,24,40,.10)!important}
+.account-app .imdx-auth-card h1{margin:0 0 8px}
+.account-app .imdx-auth-card>p:not(.eyebrow){margin:0 0 18px;color:#475467;font-size:15px;font-weight:400}
+.account-app .imdx-auth .imdx-auth-linkbtn{display:flex;justify-content:center;width:100%;min-height:48px;align-items:center;border-radius:10px;background:#C2410C;color:#fff;font-weight:650;text-decoration:none}
+.account-app .imdx-auth.imdx-auth label.imdx-auth-check{display:flex!important;flex-direction:row!important;align-items:flex-start;grid-template-columns:none}
+.account-app .imdx-auth.imdx-auth label.imdx-auth-check>span{flex:1;min-width:0}

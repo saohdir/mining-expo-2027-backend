@@ -43,7 +43,8 @@ export default function AccountPage(){
  const [embed,setEmbed]=useState(false);
  useEffect(()=>{setEmbed(new URLSearchParams(window.location.search).get("embed")==="1"&&window.parent!==window)},[]);
  useEffect(()=>{if(!embed)return;const post=(m:object)=>window.parent.postMessage({source:"imdx-account",...m},window.location.origin);
-   const ro=new ResizeObserver(()=>post({type:"size",height:document.documentElement.scrollHeight}));ro.observe(document.body);
+   // Report the content height (not documentElement.scrollHeight, which never drops below the iframe height) so the popup also shrinks.
+   const box=document.querySelector(".auth-embed")||document.body;const ro=new ResizeObserver(()=>post({type:"size",height:Math.ceil(box.getBoundingClientRect().height)}));ro.observe(box);
    if(me){const t=new URLSearchParams(window.location.search).get("tab");post({type:"signed-in",next:"/account"+(t&&/^[a-z]+$/.test(t)?"?tab="+t:"")})}
    const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape")post({type:"close"})};window.addEventListener("keydown",onKey);
    return()=>{ro.disconnect();window.removeEventListener("keydown",onKey)}},[embed,me]);
