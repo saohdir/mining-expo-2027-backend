@@ -63,7 +63,7 @@ export function PasswordFields({value, confirm, onChange, onConfirm, autoFocus}:
 
 /** Brand row (logo); the close button belongs to the surrounding modal and sits on the same line. */
 export function AuthBrand() {
-  return <div className="imdx-auth-brand"><img src="/assets/imd-logo-orange.webp" alt="IMDX — Indonesia Mining & Downstream Industries Exhibition 2027" width="112" height="42" /></div>;
+  return <div className="imdx-auth-brand"><img src="/assets/imd-logo-orange.webp" alt="IMDX — Indonesia Mining & Downstream Industries Exhibition 2027" width="188" height="72" /></div>;
 }
 
 /** CR-AUTH-01 customer authentication UI: Sign in (email + password), Create account (details → email OTP →

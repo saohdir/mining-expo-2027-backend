@@ -7,8 +7,8 @@
 .imdx-auth *{box-sizing:border-box}
 
 /* Brand row: logo on the left, the modal's own close button sits on the same line at the right */
-.imdx-auth-brand{display:flex;align-items:center;min-height:36px;margin:0 44px 22px 0}
-.imdx-auth-brand img{display:block;height:34px;width:auto;max-width:132px;object-fit:contain;object-position:left center}
+.imdx-auth-brand{display:flex;align-items:center;min-height:72px;margin:4px 44px 20px 0}
+.imdx-auth-brand img{display:block;height:72px;width:auto;max-width:100%;object-fit:contain;object-position:left center}
 
 /* Heading block */
 .imdx-auth-head{margin:0 0 20px}
@@ -100,7 +100,7 @@
 /* Small screens */
 @media(max-width:480px){
   .imdx-auth-brand{margin-bottom:18px}
-  .imdx-auth-brand img{height:30px}
+  .imdx-auth-brand img{height:60px}
   .imdx-auth h1,.imdx-auth-head h1{font-size:27px}
   .imdx-auth-secondary{grid-template-columns:1fr}
 }
