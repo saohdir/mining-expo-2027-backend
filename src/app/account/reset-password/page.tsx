@@ -1,6 +1,6 @@
 "use client";
 import {useEffect, useState} from "react";
-import {PasswordFields} from "../AuthPanel";
+import {AuthBrand, PasswordFields} from "../AuthPanel";
 
 /** CR-AUTH-01 §3/§4: reset password (or one-time setup for accounts created before passwords). */
 export default function ResetPasswordPage() {
@@ -22,17 +22,18 @@ export default function ResetPasswordPage() {
       setState("done");
     } finally { setBusy(false); }
   };
-  return <main className="portal-shell"><section className="portal-auth" aria-live="polite">
+  return <main className="portal-shell"><section className="portal-auth imdx-auth imdx-auth-card" aria-live="polite">
+    <AuthBrand />
     <p className="eyebrow">SECURE ACCOUNT</p>
     {state === "checking" && <p role="status">Checking your link…</p>}
-    {state === "invalid" && <><h1>Link expired.</h1><p>This link is invalid, expired or was already used. Request a new one from the sign-in page.</p><a className="button-link" href="/account">Back to sign in</a></>}
+    {state === "invalid" && <><h1>Link expired.</h1><p>This link is invalid, expired or was already used. Request a new one from the sign-in page.</p><a className="button-link imdx-auth-linkbtn" href="/account">Back to sign in</a></>}
     {state === "form" && <><h1>{purpose === "SETUP" ? "Set up your password." : "Choose a new password."}</h1>
       <p>{purpose === "SETUP" ? "Your account was created with email codes. Set a password to sign in from now on — your bookings and invoices stay the same." : "After saving, all devices are signed out. Sign in again with your new password."}</p>
-      <form onSubmit={e => { e.preventDefault(); void submit(); }}>
+      <form className="imdx-auth-form" onSubmit={e => { e.preventDefault(); void submit(); }}>
         <PasswordFields value={password} confirm={confirm} onChange={setPassword} onConfirm={setConfirm} autoFocus />
-        <button disabled={busy || password !== confirm || password.length < 10} type="submit">{busy ? "Saving…" : "Save password"}</button>
+        <button className="portal-plain imdx-auth-primary" disabled={busy || password !== confirm || password.length < 10} type="submit">{busy ? "Saving…" : "Save password"}</button>
       </form></>}
-    {state === "done" && <><h1>Password updated.</h1><p>You can now sign in with your email and new password.</p><a className="button-link" href="/account?signin=1">Sign in</a></>}
-    {msg && <p role="alert" className="micro">{msg}</p>}
+    {state === "done" && <><h1>Password updated.</h1><p>You can now sign in with your email and new password.</p><a className="button-link imdx-auth-linkbtn" href="/account?signin=1">Sign in</a></>}
+    {msg && <p role="alert" className="form-message imdx-auth-msg is-error">{msg}</p>}
   </section></main>;
 }
