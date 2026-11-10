@@ -3,6 +3,7 @@ import Link from "next/link";
 import {Suspense, useEffect, useState} from "react";
 import {useCmsSession, CmsIcon} from "../components/CmsShell";
 import CmsStatus from "../components/CmsStatus";
+import {OVERRIDES, useConfirm} from "../components/Confirm";
 import {BulkBar, EmptyRow, FilterChips, Pager, SavedFilters, SkeletonRows, SortHeader, downloadCsv, parseSort, useColumns, useSelection, useUrlFilters} from "../components/DataList";
 
 type RecordRow = {id: string; accountId: string; type: string; status: string; customerName: string; email: string | null; createdAt: string; conference: string | null; organization?: string | null};
@@ -18,6 +19,7 @@ const FINAL = ["CONFIRMED", "REJECTED", "CANCELLED"];
 
 function Registrations() {
   const {actor} = useCmsSession();
+  const ask = useConfirm();
   const {values: f, set, query} = useUrlFilters(KEYS);
   const type = types.includes(f.type) ? f.type : "", status = statuses.includes(f.status) ? f.status : "";
   const sort = parseSort(f.sort, {key: "created", dir: "desc"}), page = Math.max(1, Number(f.page) || 1);
@@ -50,23 +52,35 @@ function Registrations() {
   }, [f.q, type, status, f.from, f.to, page, sort.key, sort.dir, reloadTick]);
 
   const conferenceOnly = (rows: RecordRow[]) => rows.every(r => r.type === "CONFERENCE");
-  const openReview = (rows: RecordRow[]) => { setReviewing(rows); setDecision(conferenceOnly(rows) ? "CONFIRMED" : "REJECTED"); setReviewReason(""); setFeedback(""); setConfirmStep(false); };
+  const openReview = (rows: RecordRow[]) => { setReviewing(rows); setDecision(conferenceOnly(rows) || actor?.role === "SUPER_ADMIN" ? "CONFIRMED" : "REJECTED"); setReviewReason(""); setFeedback(""); setConfirmStep(false); };
   // Each record goes through the same per-record review endpoint (same policy checks and audit entry); results are reported per record.
   const review = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewing?.length) return;
     if (reviewing.length > 1 && !confirmStep) { setConfirmStep(true); return; }
-    if (decision === "CONFIRMED" && !conferenceOnly(reviewing)) { setFeedback("Visitor confirmation follows the visitor policy; exhibitors require booth allocation."); return; }
+    if (decision === "CONFIRMED" && !conferenceOnly(reviewing) && actor?.role !== "SUPER_ADMIN") { setFeedback("Visitor confirmation follows the visitor policy; exhibitors require booth allocation."); return; }
     setWorking(true); setFeedback("");
-    const failed: string[] = []; let ok = 0;
+    const failed: string[] = []; let ok = 0; let reason = reviewReason.trim();
+    const send = (row: RecordRow, override: boolean) => fetch("/api/admin/registrations/" + row.id + "/review", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({decision, reason, override})});
+    // Super Admin: records refused by an overridable policy are listed in one warning and re-sent with override if confirmed.
+    const blocked: {row: RecordRow; code: string; message: string}[] = [];
     for (const row of reviewing) {
       if (!canAct(row)) continue;
       try {
-        const response = await fetch("/api/admin/registrations/" + row.id + "/review", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({decision, reason: reviewReason.trim()})});
+        const response = await send(row, false);
         const d = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(d.message || "Review was not accepted.");
+        if (!response.ok) { if (actor?.role === "SUPER_ADMIN" && OVERRIDES[d.error]) { blocked.push({row, code: d.error, message: d.message}); continue; } throw new Error(d.message || "Review was not accepted."); }
         ok++;
       } catch (err) { failed.push(row.id.slice(0, 8) + ": " + (err instanceof Error ? err.message : "failed")); }
+    }
+    if (blocked.length) {
+      const codes = [...new Set(blocked.map(b => b.code))];
+      const go = await ask({title: blocked.length === 1 ? OVERRIDES[codes[0]].title : `Override the rules for ${blocked.length} registrations?`, tone: "danger", override: true, confirmLabel: "Yes, override and continue",
+        intro: blocked.length > 1 ? blocked.map(b => `${b.row.customerName || b.row.id.slice(0, 8)}: ${b.message}`).join(" · ") : blocked[0].message,
+        changes: [...new Set(codes.flatMap(c => OVERRIDES[c].changes || []))], impact: [...new Set(codes.flatMap(c => OVERRIDES[c].impact || []))], reason: {min: 8, initial: reason}});
+      if (go) { reason = go.reason;
+        for (const b of blocked) { const r = await send(b.row, true); const d = await r.json().catch(() => ({})); if (r.ok) ok++; else failed.push(b.row.id.slice(0, 8) + ": " + (d.message || "failed")); } }
+      else blocked.forEach(b => failed.push(b.row.id.slice(0, 8) + ": " + b.message));
     }
     setWorking(false);
     setFeedback(reviewing.length === 1 && !failed.length ? "Registration " + decision.toLowerCase() + ". The action was added to the audit log."
@@ -102,7 +116,7 @@ function Registrations() {
       <p className="micro">Conference confirmations require an approved free session or a fully Finance-verified paid invoice. Visitor and exhibitor confirmations follow their separate PRD workflows.</p>
       <form className="cms-review-form" onSubmit={e => void review(e)}>
         <label>Decision<select value={decision} onChange={e => { setDecision(e.target.value as "CONFIRMED" | "REJECTED"); setConfirmStep(false); }}>
-          {conferenceOnly(reviewing) && <option value="CONFIRMED">Confirm (policy-checked)</option>}
+          {(conferenceOnly(reviewing) || actor?.role === "SUPER_ADMIN") && <option value="CONFIRMED">{conferenceOnly(reviewing) ? "Confirm (policy-checked)" : "Confirm (Super Admin override)"}</option>}
           <option value="REJECTED">Reject</option>
         </select></label>
         <label>Audit reason<textarea required minLength={8} maxLength={500} value={reviewReason}

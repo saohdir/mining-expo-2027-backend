@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm} from "../components/Confirm";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {useCmsSession} from "../components/CmsShell";
 
@@ -17,6 +18,7 @@ const media = (k: string | null) => k ? "/api/public/gallery-media/" + k : "";
 const ACCEPT = "image/jpeg,image/png,image/webp,image/heic,image/heif,video/mp4,video/quicktime,video/webm,video/x-matroska,video/x-msvideo";
 
 export default function GalleryCms() {
+  const ask = useConfirm();
   const {actor} = useCmsSession();
   const canWrite = actor?.role === "SUPER_ADMIN" || actor?.role === "CONTENT_EDITOR";
   const [years, setYears] = useState<Year[]>([]), [year, setYear] = useState<number | null>(null), [items, setItems] = useState<Item[]>([]);
@@ -83,7 +85,7 @@ export default function GalleryCms() {
       {curYear && canWrite && <div className="cms-row-actions gallery-year-tools">
         <label>Button label<input defaultValue={curYear.label ?? ""} key={curYear.year} placeholder={String(curYear.year)} maxLength={60} onBlur={e => { const v = e.target.value.trim(); if (v !== (curYear.label ?? "")) void run(async () => { await call("/api/admin/gallery/years/" + curYear.year, "PATCH", {label: v || null}); return "Label saved."; }); }} /></label>
         <label className="consent"><input type="checkbox" checked={curYear.published} onChange={e => void run(async () => { await call("/api/admin/gallery/years/" + curYear.year, "PATCH", {published: e.target.checked}); return e.target.checked ? "Year visible on the website." : "Year hidden from the website."; })} /> Show this year on the website</label>
-        <button type="button" className="ghost cms-small" disabled={busy || curYear.total > 0} title={curYear.total ? "Move or delete its items first" : ""} onClick={() => window.confirm(`Delete year ${curYear.year}?`) && void run(async () => { await call("/api/admin/gallery/years/" + curYear.year, "DELETE"); setYear(null); return "Year deleted."; })}>Delete year</button>
+        <button type="button" className="ghost cms-small" disabled={busy || curYear.total > 0} title={curYear.total ? "Move or delete its items first" : ""} onClick={async () => (await ask({title: `Delete year ${curYear.year}?`, tone: "danger", confirmLabel: "Yes, delete year", changes: ["The empty year and its button on /highlights/ are removed."]})) && void run(async () => { await call("/api/admin/gallery/years/" + curYear.year, "DELETE"); setYear(null); return "Year deleted."; })}>Delete year</button>
       </div>}
     </section>
 
@@ -119,7 +121,7 @@ export default function GalleryCms() {
             {i.status === "PUBLISHED" ? <button type="button" className="ghost cms-small" disabled={busy} onClick={() => void run(async () => { await call("/api/admin/gallery/" + i.id, "PATCH", {status: "DRAFT"}); return "Unpublished."; })}>Unpublish</button>
               : <button type="button" className="cms-small" disabled={busy || i.problems.length > 0} title={i.problems.join("; ")} onClick={() => void run(async () => { await call("/api/admin/gallery/" + i.id, "PATCH", {status: "PUBLISHED"}); return "Published."; })}>Publish</button>}
             {i.processing === "FAILED" && <button type="button" className="ghost cms-small" onClick={() => void run(async () => { await call("/api/admin/gallery/" + i.id, "PATCH", {retry: true}); return "Queued again."; })}>Retry</button>}
-            <button type="button" className="ghost cms-small" disabled={busy} onClick={() => window.confirm("Delete this item and its files?") && void run(async () => { await call("/api/admin/gallery/" + i.id, "DELETE"); return "Deleted."; })}>Delete</button></div>}
+            <button type="button" className="ghost cms-small" disabled={busy} onClick={async () => (await ask({title: "Delete this photo/video?", tone: "danger", confirmLabel: "Yes, delete", changes: ["The item and its compressed files are deleted from the server."], impact: ["It disappears from /highlights/ immediately.", "This cannot be undone; upload it again if needed."]})) && void run(async () => { await call("/api/admin/gallery/" + i.id, "DELETE"); return "Deleted."; })}>Delete</button></div>}
           {open === i.id && <form className="gallery-edit" onSubmit={e => { e.preventDefault(); void saveEdit(i); }}>
             <label>Description / alt text (English, required)<input required maxLength={300} value={edit.altEn ?? ""} onChange={e => setEdit({...edit, altEn: e.target.value})} /></label>
             <label>描述（中文）<input maxLength={300} value={edit.altZh ?? ""} onChange={e => setEdit({...edit, altZh: e.target.value})} /></label>

@@ -1,6 +1,7 @@
 "use client";
 import {useEffect, useMemo, useState} from "react";
 import CmsStatus from "../components/CmsStatus";
+import {useConfirm} from "../components/Confirm";
 
 type OfferedUnit = {id:string;code:string;hall:string|null;zone:string|null;areaSqm:string};
 type Offer = {id:string;revision:number;offeredUnits:OfferedUnit[];offeredUnitIds:string[];offeredAreaSqm:string;quotedPriceMinor:string;acceptedAt:string|null;expiresAt:string|null;createdAt:string};
@@ -37,6 +38,8 @@ const wib=(date:string)=>new Date(date).toLocaleString("en-GB",{timeZone:"Asia/J
 
 export default function BoothManagement(){
   const [actor,setActor]=useState<Actor|null>(null);
+  const ask=useConfirm();
+  const [force,setForce]=useState("");
   const [records,setRecords]=useState<Booth[]>([]);
   const [id,setId]=useState("");
   const [search,setSearch]=useState(""),[query,setQuery]=useState<ListQuery>({page:1,q:"",status:"",sort:"created:desc"}),[total,setTotal]=useState(0);
@@ -229,6 +232,14 @@ export default function BoothManagement(){
                 <button disabled={saving} onClick={()=>void run(async()=>{if(reason.trim().length<8)throw Error("Provide an 8-character audit reason.");return api("/api/admin/booth-requests/"+selected.id+"/assign","POST",{reason:reason.trim(),approvedForPublic:publicName})},"Booth units assigned after finance and inventory validation.")}>Confirm assignment (Finance-gated) ↗</button>
               </div>}
           </div>}
+          {actor?.role==="SUPER_ADMIN"&&<div className="booth-admin-actions"><h3>Super Admin: set status</h3>
+            <p className="micro">Moves the request to any of these statuses, also outside the normal order. You will see what changes before it is saved.</p>
+            <div className="cms-row-actions"><label>New status<select value={force} onChange={e=>setForce(e.target.value)}><option value="">Choose…</option>{["UNDER_REVIEW","WAITING_INVOICE","REJECTED","CANCELLED"].filter(x=>x!==selected.status).map(x=><option key={x} value={x}>{x.toLowerCase().replaceAll("_"," ")}</option>)}</select></label>
+              <button type="button" className="ghost" disabled={saving||!force} onClick={async()=>{const ok=await ask({title:`Set this request to ${force.toLowerCase().replaceAll("_"," ")}?`,tone:["REJECTED","CANCELLED"].includes(force)?"danger":"warning",confirmLabel:"Yes, set status",
+                changes:[`Status: ${selected.status.toLowerCase().replaceAll("_"," ")} → ${force.toLowerCase().replaceAll("_"," ")}.`],
+                impact:["The customer is notified of the new status.",...(["REJECTED","CANCELLED"].includes(force)?["The customer can no longer accept quotations for this request."]:[]),"Quotations, invoices and booth assignments are not changed automatically; check them afterwards.","Saved in the audit log (as an override when outside the normal order)."],
+                reason:{min:8,initial:reason.trim()}});
+                if(ok)void run(()=>api("/api/admin/booth-requests/"+selected.id+"/status","POST",{status:force,reason:ok.reason,override:true}),"Status set to "+force.toLowerCase().replaceAll("_"," ")+".").then(()=>setForce(""))}}>Set status</button></div></div>}
           <p className="micro">All quotations are manually priced. Bank transfers remain offline and verified exclusively by Finance.</p>
         </>}
        </section>

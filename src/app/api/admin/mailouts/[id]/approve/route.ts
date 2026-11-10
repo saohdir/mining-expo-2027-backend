@@ -10,13 +10,14 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
   try {
     if (!mailoutsEnabled()) throw new HttpError(503, "NOT_ENABLED", "Scheduled mailouts are not enabled.");
     const actor = await admin(["SUPER_ADMIN", "OPERATIONS"]);
-    const {id} = await params; const {reason} = z.object({reason: z.string().min(8).max(500)}).strict().parse(await req.json());
+    const {id} = await params; const {reason, override} = z.object({reason: z.string().min(8).max(500), override: z.boolean().optional()}).strict().parse(await req.json());
     const m = await db.mailout.findUnique({where: {id}});
     if (!m) throw new HttpError(404, "NOT_FOUND", "Mailout not found.");
-    if (m.createdBy === actor.id) throw new HttpError(409, "SECOND_APPROVER_REQUIRED", "Another staff member must approve this mailout.");
+    const self = m.createdBy === actor.id;
+    if (self && !(override && actor.role === "SUPER_ADMIN")) throw new HttpError(409, "SECOND_APPROVER_REQUIRED", "Another staff member must approve this mailout.");
     const ok = await db.mailout.updateMany({where: {id, status: "DRAFT"}, data: {status: "SCHEDULED", approvedBy: actor.id}});
     if (!ok.count) throw new HttpError(409, "NOT_DRAFT", "Only drafts can be approved.");
-    await db.auditLog.create({data: {adminId: actor.id, action: "MAILOUT_APPROVED", resourceType: "Mailout", resourceId: id, afterState: {reason, sendAt: m.sendAt}}});
+    await db.auditLog.create({data: {adminId: actor.id, action: self ? "MAILOUT_SELF_APPROVED_OVERRIDE" : "MAILOUT_APPROVED", resourceType: "Mailout", resourceId: id, afterState: {reason, sendAt: m.sendAt}}});
     return NextResponse.json({id, status: "SCHEDULED"}, {headers: {"Cache-Control": "no-store"}});
   } catch (e) { return failure(e); }
 }

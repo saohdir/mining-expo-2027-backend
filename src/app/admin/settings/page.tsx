@@ -1,9 +1,11 @@
 "use client";
+import {useConfirm} from "../components/Confirm";
 import {useEffect, useState} from "react";
 
 /** Read-only configuration status (no secret values). Changes go through the server environment with owner approval. */
 import {OpsStatus} from "./OpsStatus";
 export default function SettingsPage() {
+  const ask = useConfirm();
   const [s, setS] = useState<Record<string, unknown> | null>(null), [err, setErr] = useState("");
   useEffect(() => { fetch("/api/admin/settings", {cache: "no-store"}).then(async r => { const j = await r.json(); if (!r.ok) throw new Error(j.message); setS(j); }).catch(e => setErr(e.message)); }, []);
   return <main className="cms-page"><header><p className="eyebrow">SYSTEM</p><h1>Settings status</h1>
@@ -14,7 +16,8 @@ export default function SettingsPage() {
     </section>)}
     {s && <section className="cms-card"><h2>OTP channel switches (FR-115)</h2><p className="micro">Turn a channel off immediately (e.g. provider outage or SMS cost incident). A channel can only be used when the server provider is also configured.</p>
       {(["email", "sms"] as const).map(ch => { const on = (s.otpSwitches as Record<string, boolean>)[ch + "OtpSwitch"]; return <div key={ch} className="cms-row-actions"><strong>{ch.toUpperCase()} OTP</strong> <span>{on ? "switch ON" : "switch OFF"}</span>
-        <button type="button" className="ghost" onClick={async () => { const reason = window.prompt("Reason for switching " + ch + " OTP " + (on ? "off" : "on")); if (!reason) return;
+        <button type="button" className="ghost" onClick={async () => { const ok = await ask(on ? {title: `Switch ${ch} OTP off?`, tone: "danger", confirmLabel: "Yes, switch off", changes: [`One-time codes are no longer sent by ${ch}.`], impact: ["Customers who rely on this channel cannot sign up, verify or change contact details until it is switched on again (immediate)."], reason: {min: 8}}
+          : {title: `Switch ${ch} OTP on?`, tone: "info", confirmLabel: "Yes, switch on", changes: [`One-time codes are sent by ${ch} again.`], reason: {min: 8}}); if (!ok) return; const reason = ok.reason;
           const r = await fetch("/api/admin/settings", {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({channel: ch, enabled: !on, reason})});
           if (r.ok) setS({...s, otpSwitches: {...(s.otpSwitches as object), [ch + "OtpSwitch"]: !on}}); else setErr((await r.json()).message); }}>{on ? "Switch off" : "Switch on"}</button></div>; })}</section>}
     <p className="micro">Gates and re-entry policy: <a href="/admin/check-in/settings">Gates &amp; Passes</a>. Staff and roles: <a href="/admin/staff">Staff</a>.</p>

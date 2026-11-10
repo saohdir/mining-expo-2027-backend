@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import {ConfirmProvider, OVERRIDES, useConfirm} from "./Confirm";
 import {usePathname, useRouter} from "next/navigation";
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
@@ -119,7 +120,36 @@ type Note={id:string;type:string;readAt:string|null;createdAt:string;recordId:st
 type Result={type:string;label:string;hint:string;href:string};
 const labelize=(v:string)=>v.replace(/_/g," ").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
 
+/** Super Admin overrides: when the server refuses a change because of an overridable business rule, explain the rule and
+ * its impact in a modal and, if confirmed, resend the same request with `override: true` (the server re-checks the role). */
+function OverrideInterceptor({role}:{role?:string}){
+  const ask=useConfirm();
+  useEffect(()=>{
+    if(role!=="SUPER_ADMIN")return;
+    const original=window.fetch;
+    const wrapped:typeof fetch=async(input,init)=>{
+      const res=await original(input,init);
+      const url=typeof input==="string"?input:input instanceof URL?input.href:input.url;
+      const method=(init?.method||(input instanceof Request?input.method:"GET")).toUpperCase();
+      if(method==="GET"||!url.includes("/api/admin/")||![403,409].includes(res.status)||typeof init?.body!=="string")return res;
+      let code="";try{code=String((await res.clone().json()).error||"")}catch{return res}
+      const info=OVERRIDES[code];if(!info)return res;
+      let body:Record<string,unknown>;try{body=JSON.parse(init.body)}catch{return res}
+      if(!body||typeof body!=="object"||"override" in body)return res; // pages that handle overrides themselves send override:false
+      const ok=await ask({...info,override:true,confirmLabel:"Yes, override and continue",reason:{min:8,initial:typeof body.reason==="string"?body.reason:""}});
+      if(!ok)return res;
+      return original(input,{...init,body:JSON.stringify({...body,override:true,...("reason" in body?{reason:ok.reason}:{})})});
+    };
+    window.fetch=wrapped;
+    return()=>{if(window.fetch===wrapped)window.fetch=original};
+  },[role,ask]);
+  return null;
+}
+
 export default function CmsShell({children}:{children:ReactNode}){
+  return <ConfirmProvider><CmsShellInner>{children}</CmsShellInner></ConfirmProvider>;
+}
+function CmsShellInner({children}:{children:ReactNode}){
   const pathname=usePathname();const router=useRouter();
   const [actor,setActor]=useState<Actor|null>(null);
   const [loading,setLoading]=useState(true);
@@ -197,6 +227,7 @@ export default function CmsShell({children}:{children:ReactNode}){
   };
 
   return <SessionContext.Provider value={{actor,loading,refresh,signOut}}>
+    <OverrideInterceptor role={actor?.role}/>
     <div className="imdx-cms">
       {actor&&<><aside className={"imdx-cms-sidebar"+(drawer?" is-open":"")} aria-label="CMS navigation" id="imdx-cms-navigation">
         <div className="imdx-cms-logo">
