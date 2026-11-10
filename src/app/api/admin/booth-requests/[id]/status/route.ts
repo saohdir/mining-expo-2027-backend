@@ -9,7 +9,8 @@ import {failure, HttpError} from "@/lib/errors";
 // ACCEPTED may only be set by the customer-specific latest-offer acceptance.
 const schema = z.object({
   status: z.enum(["UNDER_REVIEW", "WAITING_INVOICE", "REJECTED", "CANCELLED"]),
-  reason: z.string().min(8).max(500)
+  reason: z.string().min(8).max(500),
+  override: z.boolean().optional()
 }).strict();
 const transitions: Record<string, string[]> = {
   NEW: ["UNDER_REVIEW", "REJECTED", "CANCELLED"],
@@ -29,9 +30,12 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         where: {id}, include: {invoices: {select: {id: true}}}
       });
       if (!request) throw new HttpError(404, "NOT_FOUND", "Booth request missing.");
-      if (!(transitions[request.status] || []).includes(input.status)) {
+      // A Super Admin may force a status outside the normal order after confirming the warning (override:true).
+      const forced = !(transitions[request.status] || []).includes(input.status);
+      if (forced && !(input.override && actor.role === "SUPER_ADMIN")) {
         throw new HttpError(409, "INVALID_TRANSITION", "Invalid booth status transition.");
       }
+      if (request.status === input.status) throw new HttpError(409, "INVALID_TRANSITION", "The request already has this status.");
       if (input.status === "CANCELLED" && request.invoices.length > 0) {
         throw new HttpError(409, "INVOICE_EXISTS",
           "A financial record exists. Use the authorized cancellation/refund workflow.");
@@ -43,7 +47,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
       if (saved.count !== 1) throw new HttpError(409, "STATUS_CHANGED", "Booking state changed.");
       await tx.auditLog.create({
         data: {
-          adminId: actor.id, action: "BOOTH_STATUS_CHANGED",
+          adminId: actor.id, action: forced ? "BOOTH_STATUS_FORCED_OVERRIDE" : "BOOTH_STATUS_CHANGED",
           resourceType: "BoothRequest", resourceId: id,
           beforeState: {status: request.status},
           afterState: {status: input.status, reason: input.reason}

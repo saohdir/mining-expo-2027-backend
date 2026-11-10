@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm} from "../components/Confirm";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {useCmsSession} from "../components/CmsShell";
 import {CategoryManager,CsvAndAlign,PatternDefs,RemapReport,StatsPanel,type Category} from "./EditorPanels";
@@ -10,6 +11,7 @@ const api=async(path:string,method="GET",body?:unknown)=>{const r=await fetch(pa
 export default function FloorplanEditor(){
  const {actor}=useCmsSession();
  const canEdit=actor?.role==="SUPER_ADMIN"||actor?.role==="OPERATIONS";
+ const ask=useConfirm();
  const canBook=canEdit||actor?.role==="SALES";
  const [kind,setKind]=useState("new"),[cloneKind,setCloneKind]=useState("");
  const [plans,setPlans]=useState<Plan[]>([]),[plan,setPlan]=useState<Plan|null>(null),[units,setUnits]=useState<Unit[]>([]),[selected,setSelected]=useState(-1),[draftName,setDraftName]=useState("IMDX Hall 2027"),[draw,setDraw]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState("");
@@ -122,7 +124,7 @@ export default function FloorplanEditor(){
  {!canEdit&&<p className="micro">Read-only access. Only Operations and Super Admin can create or edit floorplan drafts.</p>}<div className="form-grid"><label>New draft title<input value={draftName} onChange={e=>setDraftName(e.target.value)} required/></label><label>What is it?<select value={kind} onChange={e=>setKind(e.target.value)}><option value="new">A new floor (shown next to the other live floors)</option>{plans.filter(p=>p.status==="PUBLISHED").map(p=><option key={p.id} value={p.id}>New version of “{p.title}” (replaces it when published)</option>)}</select></label>
  <button disabled={busy||!canEdit} onClick={()=>void run(async()=>{const d=await api("/api/admin/floorplans","POST",{title:draftName,canvasWidth:1200,canvasHeight:800,...(kind==="new"?{newFloor:true}:{replacesId:kind})});await refresh();await load(d.plan.id)})}>Create draft version</button></div>
  {([["PUBLISHED","Live floors"],["DRAFT","Drafts"],["ARCHIVED","Archived versions"]] as const).map(([st,heading])=>{const group=plans.filter(p=>p.status===st);if(!group.length)return null;return <div key={st} className="floor-group"><h3 className="micro">{heading}</h3><div className="tabline">{group.map(p=><button type="button" key={p.id} className={p.id===plan?.id?"chosen":""}
- disabled={loadingEditor||busy} onClick={()=>{if(hasUnsaved&&!window.confirm("Discard unsaved booth layout changes?"))return;void load(p.id).catch(e=>setMessage(e instanceof Error?e.message:"Unable to open version."))}}>{p.title} · v{p.versionNo}{p.status==="PUBLISHED"?(p.active===false?" · Inactive":" · Active"):p.status==="DRAFT"?(p.replacesId?" · new version of v"+(plans.find(x=>x.id===p.replacesId)?.versionNo??"?"):" · new floor"):""}</button>)}</div></div>})}
+ disabled={loadingEditor||busy} onClick={async()=>{if(hasUnsaved&&!(await ask({title:"Discard unsaved booth layout changes?",tone:"warning",confirmLabel:"Yes, discard",changes:["Your unsaved changes to this draft are lost."]})))return;void load(p.id).catch(e=>setMessage(e instanceof Error?e.message:"Unable to open version."))}}>{p.title} · v{p.versionNo}{p.status==="PUBLISHED"?(p.active===false?" · Inactive":" · Active"):p.status==="DRAFT"?(p.replacesId?" · new version of v"+(plans.find(x=>x.id===p.replacesId)?.versionNo??"?"):" · new floor"):""}</button>)}</div></div>})}
  {loadingEditor&&<p role="status" className="micro">Loading floorplan editor…</p>}
  {!plans.length&&<p className="micro">No floorplan editions yet. Create a draft to open the editor.</p>}
  </section>
@@ -152,7 +154,7 @@ export default function FloorplanEditor(){
  <label className="consent micro"><input type="checkbox" checked={gridSnap} onChange={e=>setGridSnap(e.target.checked)}/> Snap to 10 px grid</label>
  <label className="consent micro"><input type="checkbox" checked={autosave} onChange={e=>setAutosave(e.target.checked)}/> Autosave every 30 s</label>
  <button className="cms-small" disabled={!canEdit||busy||hasUnsaved||!preflight?.hasUnits||publishReason.trim().length<8||!publishApproved||(!preflight?.canPublish&&!(remapApproved&&remap?.canApply))} onClick={()=>void run(async()=>{await api("/api/admin/floorplans/"+plan.id+"/publish","POST",{rowVersion:plan.rowVersion,reason:publishReason.trim(),confirmReconciliation:true,...(!preflight?.canPublish?{approveRemap:true,remapHash:remap?.hash}:{})});await refresh();await load(plan.id)})}>Publish approved version</button></div>
- {conflict&&<p className="warning" role="alert">Another admin saved this draft. Your edits are still here. <button type="button" className="link" onClick={()=>{if(window.confirm("Discard your local edits and load the latest version?"))void load(plan.id)}}>Load latest version</button></p>}
+ {conflict&&<p className="warning" role="alert">Another admin saved this draft. Your edits are still here. <button type="button" className="link" onClick={async()=>{if(await ask({title:"Load the latest version?",tone:"warning",confirmLabel:"Yes, load latest",changes:["Your local edits are discarded and replaced by the version another admin saved."]}))void load(plan.id)}}>Load latest version</button></p>}
  {warnings.length>0&&<p className="warning micro" role="status">Overlap warnings (saved, not blocking): {warnings.slice(0,10).join("; ")}</p>}
  {units.some(u=>u.placed===false)&&<div className="floorplan-panel" aria-label="Unplaced units"><strong>Unplaced tray</strong> <span className="micro">Imported units without a position. Place them before publishing.</span>
    <div className="cms-row-actions">{units.map((u,i)=>u.placed===false&&<button type="button" key={u.code} className="cms-small ghost" onClick={()=>placeUnit(i)}>Place {u.code} ({u.areaSqm} m²)</button>)}</div></div>}

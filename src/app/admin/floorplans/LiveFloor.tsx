@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm, type ConfirmOptions} from "../components/Confirm";
 import {useCallback, useEffect, useMemo, useState} from "react";
 
 type Occupant = {source: "BOOKING" | "HOLD" | "MANUAL"; company: string; contact: string; requestId: string | null; requestStatus: string | null};
@@ -26,8 +27,11 @@ export function LiveFloor({plan, canEdit, canBook, onChanged}: {plan: Plan; canE
   const byId = useMemo(() => new Map(rows.map(r => [r.unitId, r])), [rows]);
   const cur = byId.get(sel);
   useEffect(() => { setCompany(cur?.occupant?.source === "MANUAL" ? cur.occupant.company : ""); setContact(cur?.occupant?.source === "MANUAL" ? cur.occupant.contact : ""); setKeep(""); setMsg(""); }, [sel]); // eslint-disable-line react-hooks/exhaustive-deps
-  const run = async (fn: () => Promise<string>) => { setBusy(true); setMsg(""); try { const m = await fn(); setReason(""); await load(); onChanged(m); setMsg(m); } catch (e) { setMsg((e as Error).message); } finally { setBusy(false); } };
-  const reasonOk = reason.trim().length >= 8;
+  const ask = useConfirm();
+  // Every change: confirmation modal (what changes, impact) with the audit reason pre-filled from the reason field.
+  const run = async (o: ConfirmOptions, fn: (why: string) => Promise<string>) => {
+    const ok = await ask({...o, reason: {min: 8, initial: reason.trim()}}); if (!ok) return;
+    setBusy(true); setMsg(""); try { const m = await fn(ok.reason); setReason(""); await load(); onChanged(m); setMsg(m); } catch (e) { setMsg((e as Error).message); } finally { setBusy(false); } };
   const list = rows.filter(r => (!q || (r.code + " " + (r.occupant?.company || "") + " " + r.interested.map(i => i.company).join(" ")).toLowerCase().includes(q.toLowerCase()))
     && (!only || (only === "booked" ? !!r.occupant : r.status === "AVAILABLE" && !r.occupant)));
   // Without a background image, zoom to the booths so small layouts stay readable.
@@ -44,7 +48,11 @@ export function LiveFloor({plan, canEdit, canBook, onChanged}: {plan: Plan; canE
       <div><span className={"floor-badge " + (plan.active ? "on" : "off")}>{plan.active ? "Active — visible to customers" : "Inactive — hidden from customers"}</span>
         <p className="micro">Inactive floors are hidden on the website and in the customer portal; existing bookings, quotations and invoices on them stay valid.</p></div>
       {canEdit && <div className="live-floor-toggle">
-        <button type="button" className={plan.active ? "ghost" : ""} disabled={busy || !reasonOk} onClick={() => void run(async () => { await api("/api/admin/floorplans/" + plan.id + "/activation", "POST", {active: !plan.active, reason: reason.trim()}); return plan.active ? "Floor deactivated." : "Floor activated."; })}>
+        <button type="button" className={plan.active ? "ghost" : ""} disabled={busy} onClick={() => void run(plan.active
+          ? {title: `Set ${plan.title} inactive?`, tone: "danger", confirmLabel: "Yes, set inactive", changes: ["The floor is hidden on the website floorplan and in the customer portal."],
+              impact: ["Customers can no longer choose booths on this floor.", `${summary ? summary.booked + " booked/reserved booth(s)" : "Existing bookings"}, quotations and invoices on it stay valid and manageable in the CMS.`, "You can set it active again at any time."]}
+          : {title: `Set ${plan.title} active?`, tone: "info", confirmLabel: "Yes, set active", changes: ["The floor appears on the website floorplan and in the customer portal."], impact: ["Customers can request available booths on this floor."]},
+          async why => { await api("/api/admin/floorplans/" + plan.id + "/activation", "POST", {active: !plan.active, reason: why}); return plan.active ? "Floor deactivated." : "Floor activated."; })}>
           {plan.active ? "Set inactive" : "Set active"}</button></div>}
     </div>
     {summary && <dl className="prospects-kpis">
@@ -52,7 +60,7 @@ export function LiveFloor({plan, canEdit, canBook, onChanged}: {plan: Plan; canE
       <div><dt>Booked / reserved</dt><dd>{summary.booked}<small>{summary.bookedArea} m²</small></dd></div>
       <div><dt>Available</dt><dd>{summary.available}<small>{summary.availableArea} m²</small></dd></div>
     </dl>}
-    {(canEdit || canBook) && <label className="live-floor-reason">Reason for changes (audit log, min. 8 characters)<input value={reason} maxLength={500} placeholder="e.g. Deal signed with PT Contoh by phone, 12 Nov" onChange={e => setReason(e.target.value)} /></label>}
+    {(canEdit || canBook) && <label className="live-floor-reason">Reason for changes (optional here; asked again in the confirmation)<input value={reason} maxLength={500} placeholder="e.g. Deal signed with PT Contoh by phone, 12 Nov" onChange={e => setReason(e.target.value)} /></label>}
     {msg && <p className="notice" role="status">{msg}</p>}
     <div className="live-floor-grid">
       <div className="floorplan-frame">
@@ -82,18 +90,26 @@ export function LiveFloor({plan, canEdit, canBook, onChanged}: {plan: Plan; canE
             <label>Contact (name / phone / e-mail, optional)<input value={contact} maxLength={200} onChange={e => setContact(e.target.value)} /></label>
             <div className="seg" role="radiogroup" aria-label="Booking state">{(["OCCUPIED", "RESERVED"] as const).map(s => <label key={s} className="consent"><input type="radio" checked={st === s} onChange={() => setSt(s)} /> {s === "OCCUPIED" ? "Booked (final)" : "Reserved (tentative)"}</label>)}</div>
             <div className="cms-row-actions">
-              <button type="button" disabled={busy || !reasonOk || company.trim().length < 2} onClick={() => void run(async () => { await api(`/api/admin/floorplans/${plan.id}/units/${cur.unitId}/occupant`, "PUT", {company: company.trim(), contact: contact.trim() || null, status: st, reason: reason.trim()}); return cur.code + " booked by " + company.trim() + "."; })}>Save booked by</button>
-              {cur.occupant?.source === "MANUAL" && <button type="button" className="ghost" disabled={busy || !reasonOk} onClick={() => void run(async () => { await api(`/api/admin/floorplans/${plan.id}/units/${cur.unitId}/occupant`, "PUT", {company: null, reason: reason.trim()}); return cur.code + " is available again."; })}>Clear (make available)</button>}
+              <button type="button" disabled={busy || company.trim().length < 2} onClick={() => void run({title: `Mark ${cur.code} as ${st === "OCCUPIED" ? "booked" : "reserved"} by ${company.trim()}?`, tone: "warning", confirmLabel: "Yes, save",
+                changes: [`${cur.code} shows ${company.trim()} on the live floor (${st === "OCCUPIED" ? "booked, final" : "reserved, tentative"}).`], impact: ["The booth is no longer available to customers in the portal.", "No invoice or quotation is created; this records a deal made outside the portal."]},
+                async why => { await api(`/api/admin/floorplans/${plan.id}/units/${cur.unitId}/occupant`, "PUT", {company: company.trim(), contact: contact.trim() || null, status: st, reason: why}); return cur.code + " booked by " + company.trim() + "."; })}>Save booked by</button>
+              {cur.occupant?.source === "MANUAL" && <button type="button" className="ghost" disabled={busy} onClick={() => void run({title: `Clear the manual booking on ${cur.code}?`, tone: "warning", confirmLabel: "Yes, make available",
+                changes: [`${cur.occupant?.company || "The company"} is removed from ${cur.code}.`], impact: ["The booth becomes available to customers in the portal again."]},
+                async why => { await api(`/api/admin/floorplans/${plan.id}/units/${cur.unitId}/occupant`, "PUT", {company: null, reason: why}); return cur.code + " is available again."; })}>Clear (make available)</button>}
             </div></fieldset>}
           {canEdit && <fieldset><legend>Change booth size</legend>
             <p className="micro">Split: {cur.code} keeps its bookings and the area you enter; the rest becomes a new available booth next to it (e.g. 10 m² → 5 m² + 5 m²).</p>
             <label>Area to keep for {cur.code} (m²)<input type="number" min={1} step={0.1} max={cur.areaSqm - 1} value={keep} onChange={e => setKeep(e.target.value)} /></label>
             {keep && Number(keep) > 0 && Number(keep) < cur.areaSqm && <p className="micro">→ {cur.code}: {Number(keep)} m² · new booth: {Math.round((cur.areaSqm - Number(keep)) * 10) / 10} m² (available)</p>}
             <div className="cms-row-actions">
-              <button type="button" disabled={busy || !reasonOk || !(Number(keep) >= 1 && Number(keep) <= cur.areaSqm - 1)} onClick={() => void run(async () => {
-                const r = await api(`/api/admin/floorplans/${plan.id}/units/${cur.unitId}/split`, "POST", {keepAreaSqm: Number(keep), reason: reason.trim()});
+              <button type="button" disabled={busy || !(Number(keep) >= 1 && Number(keep) <= cur.areaSqm - 1)} onClick={() => void run({title: `Split ${cur.code}?`, tone: "warning", confirmLabel: "Yes, split booth",
+                changes: [`${cur.code}: ${cur.areaSqm} m² → ${Number(keep)} m² (keeps its bookings).`, `New available booth: ${Math.round((cur.areaSqm - Number(keep)) * 10) / 10} m².`],
+                impact: ["Quotations sent for the old size may need a new quotation.", "You can merge the two booths back later."]}, async why => {
+                const r = await api(`/api/admin/floorplans/${plan.id}/units/${cur.unitId}/split`, "POST", {keepAreaSqm: Number(keep), reason: why});
                 return `${r.keep.code} is now ${r.keep.areaSqm} m²; ${r.rest.code} (${r.rest.areaSqm} m²) is available.` + (r.quotationsToReview.length ? " Review " + r.quotationsToReview.length + " quotation(s) sent for the old size." : ""); })}>Split booth</button>
-              {pair && <button type="button" className="ghost" disabled={busy || !reasonOk} onClick={() => void run(async () => { const r = await api(`/api/admin/floorplans/${plan.id}/units/${cur.unitId}/merge`, "POST", {withUnitId: pair.unitId, reason: reason.trim()}); return `${r.unit.code} merged back to ${r.unit.areaSqm} m².`; })}>Merge with {pair.code}</button>}
+              {pair && <button type="button" className="ghost" disabled={busy} onClick={() => void run({title: `Merge ${cur.code} with ${pair.code}?`, tone: "warning", confirmLabel: "Yes, merge",
+                changes: [`${cur.code} and ${pair.code} become one booth again.`], impact: ["Only possible when the split-off part has no booking; otherwise the server refuses it."]},
+                async why => { const r = await api(`/api/admin/floorplans/${plan.id}/units/${cur.unitId}/merge`, "POST", {withUnitId: pair.unitId, reason: why}); return `${r.unit.code} merged back to ${r.unit.areaSqm} m².`; })}>Merge with {pair.code}</button>}
             </div></fieldset>}
         </>}
       </aside>

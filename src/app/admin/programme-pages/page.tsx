@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm} from "../components/Confirm";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {useCmsSession} from "../components/CmsShell";
 
@@ -25,6 +26,7 @@ const tone = (s: string) => s === "PUBLISHED" ? "positive" : s === "ARCHIVED" ||
 const Chip = ({v, label}: {v: string; label?: string}) => <span className="imdx-cms-status-chip" data-tone={tone(v)}>{label || v.toLowerCase().replace(/_/g, " ")}</span>;
 
 export default function ProgrammePages() {
+  const ask = useConfirm();
   const {actor} = useCmsSession();
   const role = actor?.role || "";
   const canWrite = ["SUPER_ADMIN", "CONTENT_EDITOR", "OPERATIONS"].includes(role), canConfirm = ["SUPER_ADMIN", "OPERATIONS"].includes(role), isOwner = role === "SUPER_ADMIN";
@@ -72,7 +74,7 @@ export default function ProgrammePages() {
     const r = await call(`/api/admin/programme-items/${id}/action`, "POST", {action: a, reason: why, ...extra}); if (editing === id) await open(id);
     return a === "publish" ? {text: "Published.", link: r.previewUrl} : a === "unpublish" ? "Unpublished — the page now returns 404 and the card is hidden." : a === "delete" ? "Moved to Deleted (soft delete; bookings are never touched)." : a === "approve" ? "Editorial review approved." : a === "rollback" ? "Content restored from the published version." : "Done.";
   });
-  const confirmAct = (r: Row | {id: string; title: string}, a: string, text: string) => { if (window.confirm(text)) void action(r.id, a, `${a} via CMS`); };
+  const confirmAct = async (r: Row | {id: string; title: string}, a: string, text: string) => { const ok = await ask({title: text.split("?")[0] + "?", intro: text.split("?").slice(1).join("?").trim() || undefined, tone: a === "delete" || a === "unpublish" ? "danger" : "warning", confirmLabel: "Yes, " + a, reason: {min: 8, initial: `${a} via CMS`}}); if (ok) void action(r.id, a, ok.reason); };
 
   const regular = useMemo(() => rows.filter(r => !r.isLegacy && !r.deleted), [rows]), legacy = useMemo(() => rows.filter(r => r.isLegacy && !r.deleted), [rows]);
   const trSet = (k: keyof Tr, v: string | string[]) => setF(x => ({...x, [loc]: {...x[loc], [k]: v}}));
@@ -201,19 +203,19 @@ export default function ProgrammePages() {
             {detail?.item.sourceFacts && <div className="span-2 programme-facts-box"><strong className="micro">Source-reported facts (not official, not shown publicly)</strong><pre>{JSON.stringify(detail.item.sourceFacts, null, 2)}</pre></div>}
             <label className="span-2">Editorial note<textarea rows={3} maxLength={2000} value={f.editorialNote} onChange={e => setF({...f, editorialNote: e.target.value})} /></label>
             <p className="micro span-2">Editorial review: <Chip v={f.editorialStatus} label={f.editorialStatus === "APPROVED" ? "approved" : "needs review"} />
-              {editing !== "new" && f.sourceSystem && f.editorialStatus !== "APPROVED" && (isOwner ? <> <button type="button" className="cms-small" onClick={() => window.confirm("Approve this imported content for publication?") && void action(editing!, "approve", "Editorial review approved")}>Approve content</button></> : <> — approval by Super Admin (Product Owner).</>)}</p>
+              {editing !== "new" && f.sourceSystem && f.editorialStatus !== "APPROVED" && (isOwner ? <> <button type="button" className="cms-small" onClick={async () => { const ok = await ask({title: "Approve this imported content?", tone: "warning", confirmLabel: "Yes, approve", changes: ["The content is marked editorially approved and can be published."], reason: {min: 8, initial: "Editorial review approved"}}); if (ok) void action(editing!, "approve", ok.reason); }}>Approve content</button></> : <> — approval by Super Admin (Product Owner).</>)}</p>
           </div>
         </fieldset>
         {canWrite && <div className="programme-save">
           {editing !== "new" && <label>Change note (audit)<input maxLength={300} placeholder="What changed?" value={reason} onChange={e => setReason(e.target.value)} /></label>}
           <div className="cms-row-actions"><button disabled={busy}>{editing === "new" ? "Create draft" : "Save changes"}</button>
             {editing !== "new" && <a className="cms-small" href={preview(f.slug)} target="_blank" rel="noreferrer">Preview ↗</a>}
-            {editing !== "new" && detail && detail.item.status !== "PUBLISHED" && !detail.item.deletedAt && <button type="button" disabled={busy || detail.problems.length > 0} onClick={() => window.confirm("Publish this page?") && void action(editing!, "publish", reason.trim() || "Published from editor")}>Publish</button>}
+            {editing !== "new" && detail && detail.item.status !== "PUBLISHED" && !detail.item.deletedAt && <button type="button" disabled={busy || detail.problems.length > 0} onClick={async () => { const ok = await ask({title: "Publish this programme page?", tone: "warning", confirmLabel: "Yes, publish", changes: ["The page and its card become visible on the website."], reason: {min: 8, initial: reason.trim() || "Published from editor"}}); if (ok) void action(editing!, "publish", ok.reason); }}>Publish</button>}
             <button type="button" className="ghost" onClick={() => { setEditing(null); setDetail(null); }}>Cancel</button></div></div>}
       </form>
       {detail && <div className="programme-history"><h3>History</h3>
         {detail.revisions.length > 0 && <><p className="micro">Published versions — restore the content of a version (status stays as it is):</p>
-          <ul>{detail.revisions.map(r => <li key={r.version}>v{r.version} · {new Date(r.createdAt).toLocaleString("en-GB", {timeZone: "Asia/Jakarta"})} · {r.reason} {canWrite && <button type="button" className="ghost cms-small" onClick={() => window.confirm(`Restore content from v${r.version}?`) && void action(editing!, "rollback", "Restore v" + r.version, {version: r.version})}>Restore</button>}</li>)}</ul></>}
+          <ul>{detail.revisions.map(r => <li key={r.version}>v{r.version} · {new Date(r.createdAt).toLocaleString("en-GB", {timeZone: "Asia/Jakarta"})} · {r.reason} {canWrite && <button type="button" className="ghost cms-small" onClick={async () => { const ok = await ask({title: `Restore content from v${r.version}?`, tone: "warning", confirmLabel: "Yes, restore", changes: ["The editor content is replaced by version " + r.version + " (saved as a new revision)."], reason: {min: 8, initial: "Restore v" + r.version}}); if (ok) void action(editing!, "rollback", ok.reason, {version: r.version}); }}>Restore</button>}</li>)}</ul></>}
         <ul className="micro">{detail.audit.map((a, i) => <li key={i}>{new Date(a.createdAt).toLocaleString("en-GB", {timeZone: "Asia/Jakarta"})} — {a.action.replace("PROGRAMME_", "").toLowerCase().replace(/_/g, " ")}{a.afterState?.reason ? ": " + a.afterState.reason : ""}</li>)}</ul></div>}
     </section>}
   </main>;

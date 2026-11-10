@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm} from "../components/Confirm";
 import {useCallback, useEffect, useState} from "react";
 type Delegate = {invitationId: string; fullName: string; email: string; invitation: string; registration: string | null};
 type Group = {groupId: string; programme: string; feeMinor: string | null; createdAt: string; counts: Record<string, number>; coordinator: {email?: string; name?: string; organization?: string}; delegates: Delegate[]};
@@ -7,6 +8,7 @@ const call = async (u: string, m = "GET", b?: unknown) => { const r = await fetc
 
 /** FR-059 group delegate review and FR-156 booth representative overview. */
 export default function GroupsAdmin() {
+  const ask = useConfirm();
   const [groups, setGroups] = useState<Group[]>([]), [staff, setStaff] = useState<{limit: number; staff: Staff[]} | null>(null), [msg, setMsg] = useState("");
   const load = useCallback(async () => {
     try { setGroups((await call("/api/admin/groups")).groups); } catch (e) { setMsg((e as Error).message); }
@@ -14,8 +16,9 @@ export default function GroupsAdmin() {
   }, []);
   useEffect(() => { void load(); }, [load]);
   const review = async (g: Group, decision: "CONFIRMED" | "REJECTED") => {
-    const reason = window.prompt((decision === "CONFIRMED" ? "Confirm" : "Reject") + " all accepted delegates waiting for review. Reason (e.g. invoice number paid):");
-    if (!reason) return;
+    const ok = await ask(decision === "CONFIRMED" ? {title: "Confirm all delegates waiting for review?", tone: "warning", confirmLabel: "Yes, confirm all", changes: ["Every accepted delegate of this group waiting for review becomes CONFIRMED."], impact: ["Conference passes are issued to each delegate.", "Make sure the group invoice is paid."], reason: {min: 8, placeholder: "e.g. invoice INV-2027-0042 paid"}}
+      : {title: "Reject all delegates waiting for review?", tone: "danger", confirmLabel: "Yes, reject all", changes: ["Every delegate of this group waiting for review is rejected."], impact: ["They cannot attend with this group registration."], reason: {min: 8}});
+    if (!ok) return; const reason = ok.reason;
     try { const r = await call("/api/admin/groups/" + g.groupId + "/review", "POST", {decision, reason}); setMsg(r.reviewed + " delegate registration(s) " + decision.toLowerCase() + "; " + r.passes + " pass(es) issued."); await load(); }
     catch (e) { setMsg((e as Error).message); }
   };

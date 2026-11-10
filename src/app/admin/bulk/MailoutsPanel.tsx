@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm} from "../components/Confirm";
 import {useCallback, useEffect, useState} from "react";
 type Mailout = {id: string; subject: string; segment: string; sendAt: string; status: string; recipients: number; createdBy: string; approvedBy: string | null};
 const call = async (u: string, m = "GET", b?: unknown) => { const r = await fetch(u, {method: m, cache: "no-store", headers: b ? {"Content-Type": "application/json"} : undefined, body: b ? JSON.stringify(b) : undefined}); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.message || j.issues?.map((i: {message: string}) => i.message).join("; ") || "Request failed"); return j; };
@@ -13,7 +14,7 @@ export function MailoutsPanel() {
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { if (list === null) return; const q = new URLSearchParams({segment: f.segment, ...(f.conferenceId ? {conferenceId: f.conferenceId} : {})}); call("/api/admin/mailouts?" + q).then(j => setCount(j.recipients)).catch(() => setCount(null)); }, [f.segment, f.conferenceId, list]);
   const act = async (fn: () => Promise<unknown>, ok: string) => { setMsg(""); try { await fn(); setMsg(ok); await load(); } catch (e) { setMsg((e as Error).message); } };
-  const reason = (what: string) => window.prompt("Reason to " + what + " (min 8 chars)") || "";
+  const ask = useConfirm();
   return <>
     <section className="cms-card"><h2>Scheduled e-mails to participants</h2>
       <p className="micro">Service information only (schedules, venue, passes). A second staff member must approve each e-mail; recipients are taken from confirmed registrations at send time.</p>
@@ -28,8 +29,8 @@ export function MailoutsPanel() {
         <button>Save draft</button></form>}
       {list && list.length > 0 && <table className="cms-table"><thead><tr><th>Subject</th><th>Recipients</th><th>Send at</th><th>Status</th><th /></tr></thead><tbody>
         {list.map(m => <tr key={m.id}><td>{m.subject}<br /><span className="micro">{SEG[m.segment]}</span></td><td>{m.recipients}</td><td>{wib(m.sendAt)}</td><td>{m.status}</td>
-          <td className="cms-row-actions">{m.status === "DRAFT" && <button className="cms-small" onClick={() => { const r = reason("approve"); if (r) void act(() => call(`/api/admin/mailouts/${m.id}/approve`, "POST", {reason: r}), "Approved and scheduled."); }}>Approve</button>}
-            {["DRAFT", "SCHEDULED"].includes(m.status) && <button className="ghost cms-small" onClick={() => { const r = reason("cancel"); if (r) void act(() => call(`/api/admin/mailouts/${m.id}/cancel`, "POST", {reason: r}), "Cancelled."); }}>Cancel</button>}</td></tr>)}</tbody></table>}
+          <td className="cms-row-actions">{m.status === "DRAFT" && <button className="cms-small" onClick={async () => { const r = await ask({title: "Approve and schedule this mailout?", tone: "warning", confirmLabel: "Yes, approve", changes: ["The mailout becomes SCHEDULED."], impact: ["E-mails go out automatically at the send time to every recipient in the segment.", "Sent e-mails cannot be recalled."], reason: {min: 8}}); if (r) void act(() => call(`/api/admin/mailouts/${m.id}/approve`, "POST", {reason: r.reason}), "Approved and scheduled."); }}>Approve</button>}
+            {["DRAFT", "SCHEDULED"].includes(m.status) && <button className="ghost cms-small" onClick={async () => { const r = await ask({title: "Cancel this mailout?", tone: "warning", confirmLabel: "Yes, cancel mailout", changes: ["The mailout is cancelled and will not be sent."], impact: ["Create a new mailout if it is needed later."], reason: {min: 8}}); if (r) void act(() => call(`/api/admin/mailouts/${m.id}/cancel`, "POST", {reason: r.reason}), "Cancelled."); }}>Cancel</button>}</td></tr>)}</tbody></table>}
     </section>
     <section className="cms-card"><h2>Attendance reconciliation</h2>
       <p className="micro">Compares admissions with the pre-registration list (default) or an uploaded CSV with an <code>email</code> column.</p>

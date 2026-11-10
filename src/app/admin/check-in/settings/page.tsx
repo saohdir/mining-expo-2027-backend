@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm, type ConfirmOptions} from "../../components/Confirm";
 import {useCallback, useEffect, useState} from "react";
 
 type Gate = {id: string; code: string; name: string; zones: string[]; active: boolean; staff?: {adminId: string}[]};
@@ -21,24 +22,24 @@ export default function AdmissionSettings() {
     catch (e) { setMsg(e instanceof Error ? e.message : "Unable to load"); }
   }, []);
   useEffect(() => { void load(); }, [load]);
-  const act = async (fn: () => Promise<unknown>, ok: string) => { setBusy(true); setMsg(""); try { await fn(); setMsg(ok); await load(); } catch (e) { setMsg(e instanceof Error ? e.message : "Failed"); } finally { setBusy(false); } };
-  const reasonOk = reason.trim().length >= 8;
+  const ask = useConfirm();
+  const act = async (fn: (why: string) => Promise<unknown>, ok: string, o: ConfirmOptions) => { const r = await ask({...o, reason: {min: 8, initial: reason.trim()}}); if (!r) return; setBusy(true); setMsg(""); try { await fn(r.reason); setMsg(ok); await load(); } catch (e) { setMsg(e instanceof Error ? e.message : "Failed"); } finally { setBusy(false); } };
   const scanners = staff.filter(s => ["CHECKIN_STAFF", "OPERATIONS", "SUPER_ADMIN"].includes(s.role));
   const zones = [...new Set(["EXPO_ENTRY", "CONFERENCE", ...gates.flatMap(g => g.zones)])];
   return <main className="cms-page">
     <header><p className="eyebrow">OPERATIONS / ADMISSION</p><h1>Gates, staff &amp; passes</h1>
       <p>Scanner staff can only validate passes at gates assigned here. Every change requires a reason and is audited.</p></header>
-    <label>Reason / audit note (min 8 chars)<input value={reason} onChange={e => setReason(e.target.value)} maxLength={300} /></label>
+    <label>Reason / audit note (optional here; asked again when you confirm)<input value={reason} onChange={e => setReason(e.target.value)} maxLength={300} /></label>
     {msg && <p role="status" className="micro">{msg}</p>}
     <section className="cms-card"><h2>Gates</h2>
       <table className="cms-table"><thead><tr><th>Gate</th><th>Zones</th><th>Assigned staff</th><th>Status</th></tr></thead><tbody>
         {gates.map(g => <tr key={g.id}><td>{g.name} ({g.code})</td><td>{g.zones.join(", ")}</td>
-          <td><select multiple aria-label={"Staff for " + g.code} value={(g.staff || []).map(s => s.adminId)} disabled={busy || !reasonOk}
-            onChange={e => { const ids = [...e.target.selectedOptions].map(o => o.value); void act(() => call("/api/admin/gates/" + g.id, "PATCH", {staffAdminIds: ids, reason}), "Gate staff updated."); }}>
+          <td><select multiple aria-label={"Staff for " + g.code} value={(g.staff || []).map(s => s.adminId)} disabled={busy}
+            onChange={e => { const ids = [...e.target.selectedOptions].map(o => o.value); void act(why => call("/api/admin/gates/" + g.id, "PATCH", {staffAdminIds: ids, reason: why}), "Gate staff updated.", {title: `Change scanner staff for gate ${g.code}?`, tone: "warning", confirmLabel: "Yes, update staff", changes: ["Only the selected staff can scan passes at this gate."], impact: ["Staff removed from the gate cannot validate passes there from now on."]}); }}>
             {scanners.map(s => <option key={s.id} value={s.id}>{s.email} · {s.role}</option>)}</select></td>
-          <td><button className="ghost" disabled={busy || !reasonOk} onClick={() => void act(() => call("/api/admin/gates/" + g.id, "PATCH", {active: !g.active, reason}), "Gate updated.")}>{g.active ? "Deactivate" : "Activate"}</button></td></tr>)}
+          <td><button className="ghost" disabled={busy} onClick={() => void act(why => call("/api/admin/gates/" + g.id, "PATCH", {active: !g.active, reason: why}), "Gate updated.", g.active ? {title: `Deactivate gate ${g.code}?`, tone: "danger", confirmLabel: "Yes, deactivate", changes: ["The gate stops accepting scans."], impact: ["Scanner staff assigned to it cannot admit anyone until it is active again."]} : {title: `Activate gate ${g.code}?`, tone: "info", confirmLabel: "Yes, activate", changes: ["Assigned staff can scan passes at this gate again."]})}>{g.active ? "Deactivate" : "Activate"}</button></td></tr>)}
       </tbody></table>
-      <form className="form-grid" onSubmit={e => { e.preventDefault(); void act(() => call("/api/admin/gates", "POST", {code: form.code, name: form.name, zones: form.zones.split(",").map(z => z.trim().toUpperCase()).filter(Boolean)}), "Gate created."); }}>
+      <form className="form-grid" onSubmit={e => { e.preventDefault(); void act(() => call("/api/admin/gates", "POST", {code: form.code, name: form.name, zones: form.zones.split(",").map(z => z.trim().toUpperCase()).filter(Boolean)}), "Gate created.", {title: `Create gate ${form.code}?`, tone: "info", confirmLabel: "Yes, create gate", changes: ["A new gate for zones " + form.zones + " is added."], impact: ["Assign scanner staff to it before the event."]}); }}>
         <label>Gate code<input required value={form.code} onChange={e => setForm({...form, code: e.target.value})} pattern="[A-Za-z0-9_-]{1,30}" /></label>
         <label>Gate name<input required value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></label>
         <label>Zones (comma separated)<input required value={form.zones} onChange={e => setForm({...form, zones: e.target.value})} /></label>
@@ -48,7 +49,7 @@ export default function AdmissionSettings() {
     <section className="cms-card"><h2>Re-entry policy per zone</h2>
       <p className="micro">Default when not set: ONCE_PER_DAY (one admission per person, zone and WIB day).</p>
       {zones.map(z => { const cur = policies.find(p => p.zone === z)?.reentry || "ONCE_PER_DAY"; return <div key={z} className="cms-row-actions"><strong>{z}</strong> <span className="micro">{cur}</span>
-        <button className="ghost" disabled={busy || !reasonOk} onClick={() => void act(() => call("/api/admin/admission-policy", "PUT", {zone: z, reentry: cur === "ONCE_PER_DAY" ? "ALLOW_REENTRY" : "ONCE_PER_DAY", reason}), "Policy updated.")}>Switch to {cur === "ONCE_PER_DAY" ? "ALLOW_REENTRY" : "ONCE_PER_DAY"}</button></div>; })}
+        <button className="ghost" disabled={busy} onClick={() => void act(why => call("/api/admin/admission-policy", "PUT", {zone: z, reentry: cur === "ONCE_PER_DAY" ? "ALLOW_REENTRY" : "ONCE_PER_DAY", reason: why}), "Policy updated.", {title: `Change re-entry for ${z}?`, tone: "warning", confirmLabel: "Yes, change policy", changes: [cur === "ONCE_PER_DAY" ? "Visitors may leave and re-enter the same day." : "Each pass admits once per day; a second scan the same day is refused."], impact: ["Applies to every scan in this zone from now on."]})}>Switch to {cur === "ONCE_PER_DAY" ? "ALLOW_REENTRY" : "ONCE_PER_DAY"}</button></div>; })}
     </section>
     <section className="cms-card"><h2>Pass administration</h2>
       <form className="cms-row-actions" onSubmit={e => { e.preventDefault(); void call("/api/admin/passes?q=" + encodeURIComponent(q)).then(b => setPasses(b.passes)).catch(err => setMsg(err.message)); }}>
@@ -56,8 +57,8 @@ export default function AdmissionSettings() {
       <table className="cms-table"><thead><tr><th>Holder</th><th>Registration</th><th>Pass</th><th>Admissions</th><th /></tr></thead><tbody>
         {passes.map(p => <tr key={p.id}><td>{p.account.profile?.fullName || p.account.email}</td><td>{p.enrollment.type} · {p.enrollment.status}</td>
           <td>{p.status}{p.revokeReason ? " — " + p.revokeReason : ""}{p.replacedById ? " (replaced)" : ""}</td><td>{p._count.admissions}</td>
-          <td>{p.status === "ACTIVE" && <button className="ghost" disabled={busy || !reasonOk} onClick={() => void act(() => call("/api/admin/passes/" + p.id + "/revoke", "POST", {reason}), "Pass revoked.")}>Revoke</button>}
-            {!p.replacedById && <button disabled={busy || !reasonOk} onClick={() => void act(() => call("/api/admin/passes/" + p.id + "/reissue", "POST", {reason}), "New pass issued; old QR invalid.")}>Reissue</button>}</td></tr>)}
+          <td>{p.status === "ACTIVE" && <button className="ghost" disabled={busy} onClick={() => void act(why => call("/api/admin/passes/" + p.id + "/revoke", "POST", {reason: why}), "Pass revoked.", {title: "Revoke this pass?", tone: "danger", confirmLabel: "Yes, revoke", changes: ["The QR code stops working at every gate."], impact: ["The holder is refused at entry until a new pass is issued.", "The customer sees the pass as revoked."]})}>Revoke</button>}
+            {!p.replacedById && <button disabled={busy} onClick={() => void act(why => call("/api/admin/passes/" + p.id + "/reissue", "POST", {reason: why}), "New pass issued; old QR invalid.", {title: "Issue a new pass?", tone: "warning", confirmLabel: "Yes, reissue", changes: ["A new QR code is created; the old one stops working."], impact: ["The holder must use the new QR from their account."]})}>Reissue</button>}</td></tr>)}
       </tbody></table>
     </section>
   </main>;

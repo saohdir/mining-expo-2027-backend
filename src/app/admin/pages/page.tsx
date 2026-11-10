@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm} from "../components/Confirm";
 import {useCallback, useEffect, useState} from "react";
 import {useCmsSession} from "../components/CmsShell";
 
@@ -25,6 +26,7 @@ const emptyData = (t: string) => Object.fromEntries([...TYPES[t].fields.map(([k]
 /** CMS page builder: manage content blocks and the layout (order/visibility) of every public page,
  * with draft → preview → publish, revision history and rollback. */
 export default function PagesCms() {
+  const ask = useConfirm();
   const {actor} = useCmsSession();
   const canEdit = actor?.role === "SUPER_ADMIN" || actor?.role === "CONTENT_EDITOR";
   const [pages, setPages] = useState<PageInfo[]>([]), [key, setKey] = useState("home"), [locale, setLocale] = useState("en"), [d, setD] = useState<Detail | null>(null);
@@ -42,7 +44,7 @@ export default function PagesCms() {
   return <main className="cms-page"><header><p className="eyebrow">CONTENT</p><h1>Pages &amp; layout</h1>
     <p>Change the content and layout of the public website: reorder or hide designed sections and add your own blocks. Changes stay in draft until published; every publish is a version you can roll back.</p></header>
     <div className="cms-row-actions">
-      <label>Page<select value={key} onChange={e => { if (!dirty || window.confirm("Discard unsaved changes?")) setKey(e.target.value); }}>{pages.map(p => <option key={p.key} value={p.key}>{p.path} {p.locales.some(l => l.unpublishedChanges) ? "• draft" : ""}</option>)}</select></label>
+      <label>Page<select value={key} onChange={async e => { const v = e.target.value; if (!dirty || await ask({title: "Discard unsaved changes?", tone: "warning", confirmLabel: "Yes, discard", changes: ["Your edits on this page that are not saved as a draft are lost."]})) setKey(v); }}>{pages.map(p => <option key={p.key} value={p.key}>{p.path} {p.locales.some(l => l.unpublishedChanges) ? "• draft" : ""}</option>)}</select></label>
       <label>Language<select value={locale} onChange={e => setLocale(e.target.value)}><option value="en">English</option><option value="zh">中文 (Simplified Chinese)</option></select></label>
       <a className="button-link ghost" href={d.path + "?cmsPreview=1"} target="_blank" rel="noreferrer">Preview draft ↗</a>
       <span className="micro">Published v{d.version}{d.publishedAt ? " · " + new Date(d.publishedAt).toLocaleString("en-GB", {timeZone: "Asia/Jakarta"}) : " · showing original design"}</span>
@@ -61,7 +63,7 @@ export default function PagesCms() {
             <button type="button" className="ghost cms-small" onClick={() => edit(l => { l.blocks[i].hidden = !l.blocks[i].hidden; return l; })}>{b.hidden ? "Show" : "Hide"}</button>
             {b.type === "static" && (d.fields[b.ref!] || []).length > 0 && <button type="button" className="ghost cms-small" aria-expanded={open === b.id} onClick={() => setOpen(open === b.id ? "" : b.id)}>{open === b.id ? "Close" : "Edit content (" + d.fields[b.ref!].length + ")"}</button>}
             {b.type !== "static" && <><button type="button" className="ghost cms-small" aria-expanded={open === b.id} onClick={() => setOpen(open === b.id ? "" : b.id)}>{open === b.id ? "Close" : "Edit"}</button>
-              <button type="button" className="ghost cms-small" onClick={() => { if (window.confirm("Remove this block?")) edit(l => { l.blocks.splice(i, 1); return l; }); }}>Remove</button></>}</>}
+              <button type="button" className="ghost cms-small" onClick={async () => { if (await ask({title: "Remove this block?", tone: "warning", confirmLabel: "Yes, remove", changes: ["The block is removed from the draft."], impact: ["The live page changes only after you publish."]})) edit(l => { l.blocks.splice(i, 1); return l; }); }}>Remove</button></>}</>}
         </div>
         {open === b.id && b.data && <BlockForm block={b} onChange={data => edit(l => { l.blocks[i].data = data; return l; })} />}
         {open === b.id && b.type === "static" && <FieldEditor defs={d.fields[b.ref!] || []} values={layout.fields || {}} disabled={!canEdit} onChange={fn => edit(l => { l.fields = fn({...(l.fields || {})}); return l; })} />}
@@ -72,14 +74,14 @@ export default function PagesCms() {
     </section>}
     {canEdit && <section className="cms-card cms-row-actions">
       <button disabled={busy || !dirty} onClick={() => void act(() => call(`/api/admin/pages/${key}?locale=${locale}`, "PUT", layout), "Draft saved. Use Preview, then Publish.")}>Save draft</button>
-      <button disabled={busy || dirty} onClick={() => { const reason = window.prompt("Publish reason (min 8 chars)"); if (reason) void act(() => call(`/api/admin/pages/${key}/publish?locale=${locale}`, "POST", {reason}), "Published to the public website (cache up to 60 s)."); }}>Publish</button>
-      <button className="ghost" disabled={busy} onClick={() => { if (window.confirm("Reset the draft to the original designed page?")) { setLayout({seo: {title: "", description: ""}, fields: {}, blocks: d.sections.map(s => ({id: "s-" + s.id, type: "static", ref: s.id, hidden: false}))}); setDirty(true); } }}>Reset draft to original design</button>
+      <button disabled={busy || dirty} onClick={async () => { const ok = await ask({title: `Publish ${key} (${locale}) to the website?`, tone: "warning", confirmLabel: "Yes, publish", changes: ["The saved draft becomes the live page."], impact: ["Visitors see it within about 60 seconds.", "The previous version stays in the history and can be restored."], reason: {min: 8}}); if (ok) void act(() => call(`/api/admin/pages/${key}/publish?locale=${locale}`, "POST", {reason: ok.reason}), "Published to the public website (cache up to 60 s)."); }}>Publish</button>
+      <button className="ghost" disabled={busy} onClick={async () => { if (await ask({title: "Reset the draft to the original design?", tone: "warning", confirmLabel: "Yes, reset draft", changes: ["All blocks and text overrides in the draft are replaced by the original designed page."], impact: ["The live page changes only after you publish."]})) { setLayout({seo: {title: "", description: ""}, fields: {}, blocks: d.sections.map(s => ({id: "s-" + s.id, type: "static", ref: s.id, hidden: false}))}); setDirty(true); } }}>Reset draft to original design</button>
       {dirty && <span className="warning micro" role="status">Unsaved changes</span>}
     </section>}
     <section className="cms-card"><h2>Published versions</h2>
       {d.revisions.length ? <ul className="micro">{d.revisions.map(r => <li key={r.version}>v{r.version} · {new Date(r.publishedAt).toLocaleString("en-GB", {timeZone: "Asia/Jakarta"})} · {r.reason}
-        {canEdit && r.version !== d.version && <> <button className="link" onClick={() => { const reason = window.prompt("Reason for rollback"); if (reason) void act(() => call(`/api/admin/pages/${key}/rollback?locale=${locale}`, "POST", {version: r.version, reason}), "Rolled back as a new version."); }}>Restore</button></>}</li>)}
-        {canEdit && <li><button className="link" onClick={() => { const reason = window.prompt("Reason for restoring the original design"); if (reason) void act(() => call(`/api/admin/pages/${key}/rollback?locale=${locale}`, "POST", {version: 0, reason}), "Original design restored."); }}>Restore original design</button></li>}</ul>
+        {canEdit && r.version !== d.version && <> <button className="link" onClick={async () => { const ok = await ask({title: `Restore version ${r.version}?`, tone: "warning", confirmLabel: "Yes, restore", changes: ["Version " + r.version + " is published again as a new version."], impact: ["The live page changes within about 60 seconds."], reason: {min: 8}}); if (ok) void act(() => call(`/api/admin/pages/${key}/rollback?locale=${locale}`, "POST", {version: r.version, reason: ok.reason}), "Rolled back as a new version."); }}>Restore</button></>}</li>)}
+        {canEdit && <li><button className="link" onClick={async () => { const ok = await ask({title: "Restore the original design?", tone: "danger", confirmLabel: "Yes, restore original", changes: ["The live page returns to the original designed page."], impact: ["CMS text and block changes stop showing (they stay in the history)."], reason: {min: 8}}); if (ok) void act(() => call(`/api/admin/pages/${key}/rollback?locale=${locale}`, "POST", {version: 0, reason: ok.reason}), "Original design restored."); }}>Restore original design</button></li>}</ul>
         : <p className="micro">Not published yet — the website shows the original design.</p>}
     </section>
   </main>;
