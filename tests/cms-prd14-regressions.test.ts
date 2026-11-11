@@ -20,10 +20,11 @@ test("Floorplan supports standalone booth creation, pointer draw, editing and sa
   assert.match(code,/canEdit=actor\?\.role==="SUPER_ADMIN"\|\|actor\?\.role==="OPERATIONS"/);
   assert.match(code,/Discard unsaved booth layout changes/);
 });
-test("Floorplan save remains server-authorized and immutable for published layouts",()=>{
+test("Floorplan save remains server-authorized; live floors are editable, archived versions are not",()=>{
   const api=source("src/app/api/admin/floorplans/[id]/units/route.ts");
   assert.match(api,/admin\(\["SUPER_ADMIN",\s*"OPERATIONS"\]\)/);
-  assert.match(api,/if\s*\(plan\.status\s*!==\s*"DRAFT"\)/);
+  assert.match(api,/if\s*\(plan\.status\s*===\s*"ARCHIVED"\)/);
+  assert.match(api,/UNIT_IN_QUOTATION/);
   assert.match(api,/rowVersion\s*!==\s*x\.rowVersion/);
   assert.match(api,/UNIT_IN_USE/);
   assert.match(api,/FLOORPLAN_UNITS_SAVED/);

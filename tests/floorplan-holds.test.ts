@@ -48,10 +48,11 @@ test("version clone never re-publishes historical plan or transfers old IDs",()=
   assert.doesNotMatch(code,/boothAssignment\.create/);
   assert.doesNotMatch(code,/boothHold\.create/);
 });
-test("publish requires prior blockers and row version and is serialized",()=>{
+test("publish checks blockers, remaps bookings automatically, keeps row version and is serialized",()=>{
   const code=read("src/app/api/admin/floorplans/[id]/publish/route.ts");
-  assert.match(code,/floorplanBlockers\(tx, plan\.replacesId\)/);
-  assert.match(code,/REMAP_REQUIRED/);
+  assert.match(code,/floorplanBlockers\(tx, replaced\?\.id \?\? null\)/);
+  assert.match(code,/applyRemap\(tx, preview, actor\.id\)/);
+  assert.match(code,/restoredUnits\.push/);
   assert.match(code,/rowVersion: input\.rowVersion/);
   assert.match(code,/Prisma\.TransactionIsolationLevel\.Serializable/);
   const sql=read("prisma/migrations/20261108090000_floorplan_holds/migration.sql");

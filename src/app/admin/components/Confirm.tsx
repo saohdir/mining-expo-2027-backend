@@ -66,7 +66,7 @@ function ConfirmDialog({o, done}: {o: ConfirmOptions; done: (r: ConfirmResult | 
             {o.field.minLength ? <small>{Math.max(0, o.field.minLength - value.trim().length) ? `${o.field.minLength - value.trim().length} more character(s) needed` : "OK"}</small> : null}</label>}
           {o.reason && <label>{o.reason.label || "Reason (saved in the audit log)"}<textarea rows={2} value={reason} maxLength={500} placeholder={o.reason.placeholder || "e.g. requested by the organizer on 12 Nov"} onChange={e => setReason(e.target.value)}/>
             <small>{reasonOk ? "OK" : `${o.reason.min - reason.trim().length} more character(s) needed`}</small></label>}
-          {o.typed && <label>Type <strong>{o.typed}</strong> to confirm<input value={typed} autoComplete="off" onChange={e => setTyped(e.target.value)}/></label>}
+          {o.typed && <label><span>Type <strong>{o.typed}</strong> to confirm</span><input value={typed} autoComplete="off" onChange={e => setTyped(e.target.value)}/></label>}
         </div>
         <div className="cms-modal-actions">
           <button type="button" className="ghost" onClick={() => done(null)}>{o.cancelLabel || "No, cancel"}</button>
