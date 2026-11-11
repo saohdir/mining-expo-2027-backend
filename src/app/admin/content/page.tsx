@@ -2,6 +2,7 @@
 import {useCallback, useEffect, useState} from "react";
 import CmsStatus from "../components/CmsStatus";
 import {useCmsSession} from "../components/CmsShell";
+import {useConfirm} from "../components/Confirm";
 import {BlockEditor, stripIds, withIds} from "./BlockEditor";
 import {legacyToBlocks, parseBlocks, serializeBlocks} from "@/lib/content-blocks";
 
@@ -53,11 +54,22 @@ export default function ContentPage() {
   const {actor} = useCmsSession();
   const canWrite = actor?.role === "SUPER_ADMIN" || actor?.role === "CONTENT_EDITOR";
   const [items, setItems] = useState<Item[]>([]), [kind, setKind] = useState("PARTNER"), [msg, setMsg] = useState<{text: string; err?: boolean} | null>(null);
-  const [f, setF] = useState(EMPTY), [blocks, setBlocks] = useState(starter), [editing, setEditing] = useState<Item | null>(null), [arming, setArming] = useState(""), [busy, setBusy] = useState("");
+  const [f, setF] = useState(EMPTY), [blocks, setBlocks] = useState(starter), [editing, setEditing] = useState<Item | null>(null), [busy, setBusy] = useState("");
   const say = (text: string, err = false) => { setMsg({text, err}); if (err) setTimeout(() => document.getElementById("content-msg")?.scrollIntoView({block: "nearest", behavior: "smooth"}), 0); };
   const load = useCallback(async () => { try { setItems((await call("/api/admin/content?kind=" + kind)).items); } catch (e) { say((e as Error).message, true); } }, [kind]);
   useEffect(() => { void load(); setEditing(null); setF(EMPTY); setBlocks(starter()); }, [load]);
   const act = async (key: string, fn: () => Promise<unknown>, ok: string) => { setMsg(null); setBusy(key); try { await fn(); say(ok); await load(); } catch (e) { say((e as Error).message, true); } finally { setBusy(""); } };
+  const ask = useConfirm();
+  /** Delete (replaces archive): a warning modal says what disappears; the item is removed permanently. */
+  const remove = async (i: Item) => {
+    const where = news ? "the home page and /news/ (card and article page)" : downloads ? "the exhibitor page downloads and the customer portal’s Documents tab" : "the website";
+    const r = await ask({title: `Delete “${i.title}”?`, tone: "danger", confirmLabel: "Yes, delete", reason: {min: 0, label: "Reason (optional, saved in the audit log)"},
+      changes: [`“${i.title}” (${LABEL[i.kind] || i.kind}, ${i.locale === "zh" ? "中文" : "English"}) is deleted permanently.`],
+      impact: [i.status === "PUBLISHED" ? `It disappears from ${where} immediately.` : "It was not public, so the website does not change.",
+        ...(news ? ["The other language version with the same slug (if any) is not deleted."] : []), "This cannot be undone; the audit log keeps a record of what was deleted."]});
+    if (!r) return;
+    await act(i.id, async () => { await call("/api/admin/content/" + i.id, "DELETE", {reason: r.reason || undefined}); if (editing?.id === i.id) reset(); }, `Deleted “${i.title}”.`);
+  };
   const opt = (v: string) => v.trim() ? v.trim() : null;
   const news = kind === "NEWS", logos = LOGO_KINDS.includes(kind), ordered = news || logos, downloads = kind === "DOWNLOAD";
   const reset = () => { setEditing(null); setF(EMPTY); setBlocks(starter()); };
@@ -122,8 +134,7 @@ export default function ContentPage() {
             onClick={() => p.length ? (edit(i), say(`“${i.title}” needs ${p.join(", ")} before it can be published. Complete the form below, save, then publish.`, true)) : void act(i.id, () => call("/api/admin/content/" + i.id, "PATCH", {status: "PUBLISHED", reason: "Publish approved content"}), `Published “${i.title}”. It is live on the website now.`)}>{busy === i.id ? "Publishing…" : "Publish"}</button>}
           {canWrite && i.status === "PUBLISHED" && <button className="ghost cms-small" disabled={busy === i.id} onClick={() => void act(i.id, () => call("/api/admin/content/" + i.id, "PATCH", {status: "DRAFT", reason: "Unpublish for review"}), "Moved to draft; it is no longer on the website.")}>Unpublish</button>}
           {news && i.status === "PUBLISHED" && <a className="cms-small" href={preview(i)} target="_blank" rel="noreferrer">View page ↗</a>}
-          {canWrite && i.status !== "ARCHIVED" && (arming === i.id ? <><button className="cms-small cms-danger" onClick={() => { setArming(""); void act(i.id, () => call("/api/admin/content/" + i.id, "PATCH", {status: "ARCHIVED", reason: "Archive outdated content"}), "Archived. It is no longer shown on the website; publish it again to restore."); }}>Confirm archive</button>
-            <button className="ghost cms-small" onClick={() => setArming("")}>Keep</button></> : <button className="ghost cms-small" onClick={() => setArming(i.id)}>Archive</button>)}</div></td></tr>; })}
+          {canWrite && <button className="ghost cms-small cms-danger-outline" disabled={busy === i.id} onClick={() => void remove(i)}>Delete</button>}</div></td></tr>; })}
     </tbody></table></div>
 
     <section className="cms-panel content-editor" aria-labelledby="content-form">

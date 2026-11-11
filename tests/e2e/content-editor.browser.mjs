@@ -71,6 +71,17 @@ test("News block editor → publish guidance → public article; Downloads PDF u
     await page.getByRole("row", {name: new RegExp("Brochure " + run)}).getByRole("button", {name: "Publish"}).click();
     await page.locator("#content-msg").getByText(/Published/).waitFor();
     await shot("content-downloads");
+    // Delete (replaces archive): a warning modal, Esc keeps the item, "Yes, delete" removes it.
+    const dlRow = page.getByRole("row", {name: new RegExp("Brochure " + run)});
+    assert.equal(await page.getByRole("button", {name: "Archive"}).count(), 0, "no archive button");
+    await dlRow.getByRole("button", {name: "Delete"}).click();
+    const modal = page.getByRole("alertdialog"); await modal.waitFor();
+    assert.match(await modal.textContent(), /deleted permanently/); assert.match(await modal.textContent(), /disappears from the exhibitor page downloads/);
+    await page.keyboard.press("Escape"); await modal.waitFor({state: "detached"}); assert.equal(await dlRow.count(), 1);
+    await dlRow.getByRole("button", {name: "Delete"}).click(); await shot("content-delete-modal");
+    await modal.getByRole("button", {name: "Yes, delete"}).click();
+    await page.locator("#content-msg").getByText(/Deleted “Brochure/).waitFor(); assert.equal(await dlRow.count(), 0);
+    assert.equal(await db.contentItem.count({where: {slug: "ed-" + run + "-pdf"}}), 0);
     if (SITE) {
       await page.goto(SITE + `/news/article/?slug=ed-${run}-news`); await page.locator(".news-article-body blockquote").waitFor();
       assert.equal(await page.locator(".news-article-body h2").textContent(), "Highlights");

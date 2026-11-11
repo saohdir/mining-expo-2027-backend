@@ -43,3 +43,19 @@ test("article body: block documents are validated; public content is not cached"
   const item = (await r.json()).items?.find(i => i.slug === slug);
   if (item) assert.ok(item.body.startsWith('{"format":"blocks"'));
 });
+
+test("delete replaces archive: removed from the website, audited, archive status no longer accepted", async () => {
+  const slug = "e2e-cf-" + run + "-del";
+  const c = await R.ED.post("/api/admin/content", {kind: "DOWNLOAD", title: "Delete me " + run, slug, url: "/downloads/x.pdf", fileType: "PDF"}); ok(c, 201, "create");
+  const id = c.body.item.id;
+  ok(await R.ED.patch("/api/admin/content/" + id, {status: "PUBLISHED", reason: "Publish e2e"}), 200, "publish");
+  ok(await R.ED.patch("/api/admin/content/" + id, {status: "ARCHIVED", reason: "Archive e2e"}), 400, "archive removed");
+  ok(await R.SALES.del("/api/admin/content/" + id, {}), 403, "sales cannot delete");
+  ok(await R.ED.del("/api/admin/content/" + id, {reason: "E2E no longer needed"}), 200, "delete");
+  assert.equal(await db.contentItem.count({where: {id}}), 0);
+  const pub = await (await fetch(BASE + "/api/public/content?kind=DOWNLOAD")).json();
+  assert.ok(!JSON.stringify(pub).includes(slug), "gone from the public API");
+  const log = await db.auditLog.findFirst({where: {action: "CONTENT_DELETED", resourceId: id}});
+  assert.equal(log.beforeState.slug, slug); assert.equal(log.afterState.reason, "E2E no longer needed");
+  ok(await R.ED.del("/api/admin/content/" + id, {}), 404, "already deleted");
+});
