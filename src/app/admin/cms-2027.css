@@ -235,3 +235,11 @@
 @media(max-width:560px){.cms-modal-body{padding-left:22px}.cms-modal-actions button{flex:1}}
 @media(prefers-reduced-motion:no-preference){.cms-modal{animation:cms-modal-in .16s ease-out}}
 @keyframes cms-modal-in{from{transform:translateY(8px);opacity:.6}}
+/* Floorplan: view switch for live floors + delete */
+.imdx-cms .floor-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:8px 0 14px}
+.imdx-cms .floor-actions .seg{display:inline-flex;gap:4px;padding:4px;background:var(--cms-soft);border:1px solid var(--cms-line);border-radius:10px}
+.imdx-cms .floor-actions .seg button{border-radius:7px!important;padding:7px 12px!important;font-size:13.5px}
+.imdx-cms .floor-actions .seg button.ghost{background:transparent!important;border-color:transparent!important}
+.imdx-cms .floor-actions .seg button.chosen{background:#fff!important;color:var(--cms-ink)!important;border:1px solid var(--cms-line)!important;box-shadow:0 1px 2px rgba(16,24,40,.08)!important}
+.imdx-cms button.cms-danger-outline{color:var(--cms-bad,#B42318)!important;border-color:#FECDCA!important;background:#fff!important}
+.imdx-cms button.cms-danger-outline:hover{background:#FEF3F2!important}

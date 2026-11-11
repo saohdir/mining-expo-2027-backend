@@ -4,7 +4,7 @@ import {mkdir,writeFile} from "node:fs/promises";import path from "node:path";im
 export const runtime="nodejs";const MAX_BYTES=15*1024*1024;
 export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>}){try{
 const actor=await admin(["SUPER_ADMIN","OPERATIONS"]);const {id}=await params;
-const plan=await db.floorplan.findUnique({where:{id}});if(!plan||plan.status!=="DRAFT")throw new HttpError(409,"NOT_DRAFT","Upload only permitted for draft plans.");
+const plan=await db.floorplan.findUnique({where:{id}});if(!plan||plan.status==="ARCHIVED")throw new HttpError(409,"NOT_EDITABLE","Upload is not possible for an archived version.");
 const fd=await req.formData(),file=fd.get("file");
 if(!(file instanceof File)||file.size===0||file.size>MAX_BYTES)throw new HttpError(400,"BAD_FILE","Please upload an image not exceeding 15 MB.");
 if(file.type==="application/pdf"||/\.pdf$/i.test(file.name))throw new HttpError(415,"PDF_NOT_SUPPORTED","PDF is not accepted. Convert the floorplan page to PNG, JPG, WebP or SVG first.");

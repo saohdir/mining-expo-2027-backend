@@ -219,16 +219,17 @@ test("negative: expired quotation cannot be accepted", async () => {
   S.lateRequest = rid;
 });
 
-test("negative: replacing the published floorplan with open bookings is refused (no silent remap)", async () => {
+test("replacing the published floorplan with open bookings is allowed and announced (remap is automatic)", async () => {
   const d = await R.OPERATIONS.post("/api/admin/floorplans", {title: "Replacement " + run});
   ok(d, 201, "replacement draft");
   const plan = d.body.plan;
   ok(await R.OPERATIONS.put(`/api/admin/floorplans/${plan.id}/units`, {rowVersion: plan.rowVersion, units: [{code: "Z1", category: "Standard", x: 0, y: 0, w: 50, h: 50, areaSqm: 9}]}), 200, "units");
   const fresh = (await R.OPERATIONS.get(`/api/admin/floorplans/${plan.id}`)).body;
   const rv = (fresh.plan ?? fresh).rowVersion;
-  const pub = await R.OPERATIONS.post(`/api/admin/floorplans/${plan.id}/publish`, {rowVersion: rv, reason: "E2E replacement attempt", confirmReconciliation: true});
-  assert.equal(pub.status, 409, "publish with open bookings → 409, got " + pub.status);
-  assert.equal(pub.body.error, "REMAP_REQUIRED");
+  // Publishing has no prerequisites: the preflight says it can publish and that bookings will be moved (not published here,
+  // so the live plan stays as the other tests expect).
+  const pre = await R.OPERATIONS.get(`/api/admin/floorplans/${plan.id}/publish`);
+  assert.equal(pre.body.canPublish, true); assert.equal(pre.body.needsRemap, true); assert.equal(pre.body.rowVersion, rv);
   const live = await new Client("anon").get("/api/public/floorplan");
   assert.equal(live.body.units.length, 4, "original published plan untouched");
 });

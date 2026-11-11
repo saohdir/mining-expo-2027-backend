@@ -54,8 +54,8 @@ test("FR-097 CSV export is formula-safe; import puts new codes in the unplaced t
   assert.equal(n1.placed, false); assert.equal(Number(plan.units.find(u => u.code === "E1").areaSqm), 100, "existing unit resized");
   const exp = await fetch(`${BASE}/api/admin/floorplans/${S.plan.id}/csv`, {headers: {cookie: [...R.SALES.jar].map(([k, v]) => k + "=" + v).join("; ")}});
   const text = await exp.text(); assert.equal(exp.status, 200); assert.match(text, /'=cmd\(\)/, "formula escaped on export");
-  const blocked = await R.OPERATIONS.post(`/api/admin/floorplans/${S.plan.id}/publish`, {rowVersion: plan.rowVersion, reason: "E2E publish attempt", confirmReconciliation: true});
-  ok(blocked, 409, "unplaced blocks publish"); assert.equal(blocked.body.error, "UNPLACED_UNITS");
+  const pre = await R.OPERATIONS.get(`/api/admin/floorplans/${S.plan.id}/publish`);
+  assert.equal(pre.body.canPublish, true, "unplaced units no longer block publishing (they stay hidden until placed)");
   S.rv = plan.rowVersion;
 });
 
@@ -74,7 +74,7 @@ test("FR-098 align moves placed units and refuses moving them off-canvas", async
   assert.equal((await reload(S.plan.id)).units.find(u => u.code === "E1").x, 30);
 });
 
-test("AT-081 / FR-098 remap: blocked when committed codes are missing; preview hash required; approved remap moves commitments", async () => {
+test("AT-081 / FR-098 remap: preview flags missing committed codes; publishing moves commitments automatically", async () => {
   const pub = await new Client("anon").get("/api/public/floorplan");
   if (pub.body.state !== "PUBLISHED") return; // requires business-flow data
   S.oldPlanId = pub.body.id;
@@ -86,8 +86,9 @@ test("AT-081 / FR-098 remap: blocked when committed codes are missing; preview h
   const zr = await R.OPERATIONS.get(`/api/admin/floorplans/${z.body.plan.id}/remap-report`);
   ok(zr, 200, "report"); assert.equal(zr.body.canApply, false); assert.ok(zr.body.blocking.length >= 2);
   const zp = await reload(z.body.plan.id);
-  const zb = await R.OPERATIONS.post(`/api/admin/floorplans/${zp.id}/publish`, {rowVersion: zp.rowVersion, reason: "E2E bare publish", confirmReconciliation: true, approveRemap: true, remapHash: zr.body.hash});
-  ok(zb, 409, "blocked"); assert.equal(zb.body.error, "REMAP_BLOCKED");
+  const zpre = await R.OPERATIONS.get(`/api/admin/floorplans/${zp.id}/publish`);
+  assert.equal(zpre.body.canPublish, true); assert.equal(zpre.body.needsRemap, true);
+  ok(await R.OPERATIONS.del(`/api/admin/floorplans/${zp.id}`, {reason: "E2E bare draft not needed"}), 200, "delete draft");
   // Clone the published map, enlarge one committed unit, then publish with approval.
   const cl = await R.OPERATIONS.post(`/api/admin/floorplans/${S.oldPlanId}/clone`, {title: "Remap " + run, reason: "E2E remap new version"});
   ok(cl, 201, "clone");
@@ -99,10 +100,10 @@ test("AT-081 / FR-098 remap: blocked when committed codes are missing; preview h
   draft = await reload(S.newPlanId);
   const rep = await R.SALES.get(`/api/admin/floorplans/${S.newPlanId}/remap-report`);
   ok(rep, 200, "report"); assert.equal(rep.body.canApply, true); assert.ok(rep.body.areaWarnings.includes(third.code), "area change on committed unit flagged");
-  ok(await R.OPERATIONS.post(`/api/admin/floorplans/${S.newPlanId}/publish`, {rowVersion: draft.rowVersion, reason: "E2E remap publish", confirmReconciliation: true}), 409, "no approval");
-  ok(await R.OPERATIONS.post(`/api/admin/floorplans/${S.newPlanId}/publish`, {rowVersion: draft.rowVersion, reason: "E2E remap publish", confirmReconciliation: true, approveRemap: true, remapHash: "stale"}), 409, "stale preview hash");
-  ok(await R.SALES.post(`/api/admin/floorplans/${S.newPlanId}/publish`, {rowVersion: draft.rowVersion, reason: "E2E remap publish", confirmReconciliation: true, approveRemap: true, remapHash: rep.body.hash}), 403, "sales cannot publish");
-  const done = await R.OPERATIONS.post(`/api/admin/floorplans/${S.newPlanId}/publish`, {rowVersion: draft.rowVersion, reason: "E2E remap publish", confirmReconciliation: true, approveRemap: true, remapHash: rep.body.hash});
+  ok(await R.SALES.post(`/api/admin/floorplans/${S.newPlanId}/publish`, {rowVersion: draft.rowVersion}), 403, "sales cannot publish");
+  ok(await R.OPERATIONS.post(`/api/admin/floorplans/${S.newPlanId}/publish`, {rowVersion: draft.rowVersion - 1}), 409, "stale row version");
+  // No reason, confirmation or approval is needed any more; bookings move automatically.
+  const done = await R.OPERATIONS.post(`/api/admin/floorplans/${S.newPlanId}/publish`, {rowVersion: draft.rowVersion});
   ok(done, 200, "remap publish"); assert.ok(done.body.remap.moved >= 2);
   const old = await db.boothAssignment.findMany({where: {id: {in: before.map(a => a.id)}}});
   assert.ok(old.every(a => !a.active && a.endedAt), "old assignments ended, not deleted");
@@ -132,7 +133,7 @@ test("FR-101 area mismatch requires an override reason at assignment", async () 
   assert.equal(await db.auditLog.count({where: {action: "BOOTH_AREA_OVERRIDE", resourceId: offer.boothRequestId}}), 1);
 });
 
-test("FR-091 background requires alt text and rights before publish; public API hides internal notes", async () => {
+test("FR-091 background details are optional; public API hides internal notes", async () => {
   const p = await R.OPERATIONS.post("/api/admin/floorplans", {title: "Background " + run});
   const sharp = (await import("sharp")).default;
   const png = await sharp({create: {width: 60, height: 40, channels: 3, background: "#eee"}}).png().toBuffer();
@@ -144,8 +145,7 @@ test("FR-091 background requires alt text and rights before publish; public API 
   plan = await reload(plan.id);
   ok(await R.OPERATIONS.put(`/api/admin/floorplans/${plan.id}/units`, {rowVersion: plan.rowVersion, units: [{code: "Q1", category: "S", x: 0, y: 0, w: 10, h: 10, areaSqm: 9, internalNotes: "secret note"}]}), 200, "units");
   plan = await reload(plan.id);
-  const pb = await R.OPERATIONS.post(`/api/admin/floorplans/${plan.id}/publish`, {rowVersion: plan.rowVersion, reason: "E2E bg publish", confirmReconciliation: true, approveRemap: true, remapHash: "x"});
-  ok(pb, 409, "metadata required"); assert.equal(pb.body.error, "BACKGROUND_METADATA");
+  assert.equal((await R.OPERATIONS.get(`/api/admin/floorplans/${plan.id}/publish`)).body.canPublish, true, "background details are optional for publishing");
   ok(await R.OPERATIONS.patch(`/api/admin/floorplans/${plan.id}`, {rowVersion: plan.rowVersion, backgroundAlt: "Hall A layout", backgroundRights: "ORGANIZER_PROVIDED"}), 200, "meta");
   const pubJson = JSON.stringify((await new Client("anon").get("/api/public/floorplan")).body);
   assert.ok(!/internalNotes|secret note|email|price/i.test(pubJson), "public map has no internal/PII fields");
