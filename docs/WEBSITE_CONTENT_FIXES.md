@@ -41,3 +41,9 @@
   - Rendering: the website (`assets/news.js`, frontend repo) renders the blocks. The CMS preview uses `renderBlocksHtml` (`src/lib/content-blocks.ts`) with the same markup.
 
 No database migration. Deploy backend and frontend together (the frontend renders the new article format); `deploy/nginx.conf` changed, and `scripts/deploy-uat.sh` already restarts `web`.
+
+## Delete instead of archive (follow-up)
+- Every item has **Delete** in place of Archive. A warning modal says what disappears from the website; the reason is optional and Esc cancels.
+- `DELETE /api/admin/content/[id]` (Super Admin and Content Editor) removes the item permanently. The audit log `CONTENT_DELETED` keeps a snapshot (kind, locale, slug, title, status, URLs) and the reason.
+- `PATCH status: "ARCHIVED"` is no longer accepted. Items archived earlier still show in the list and can be published again or deleted.
+- Uploaded files stay in the media store, because an English and a 中文 version can share the same image.
