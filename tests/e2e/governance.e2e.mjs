@@ -69,12 +69,14 @@ test("FR-150 data request intake and Super Admin resolution", async () => {
   assert.equal((await S.cust.get("/api/customer/data-request")).body.requests[0].status, "COMPLETED");
 });
 
-test("FR-037 asset upload: alt + rights required, re-encoded to WebP, served publicly", async () => {
+test("FR-037 asset upload: alt + rights can follow later, re-encoded to WebP, served publicly", async () => {
   const sharp = (await import("sharp")).default;
   const png = await sharp({create: {width: 30, height: 20, channels: 3, background: "#c33"}}).png().toBuffer();
   const up = async (fields, c = R.CONTENT_EDITOR) => { const fd = new FormData(); fd.append("file", new Blob([png], {type: "image/png"}), "logo.png"); for (const [k, v] of Object.entries(fields)) fd.append(k, v);
     const r = await fetch(`${BASE}/api/admin/assets`, {method: "POST", body: fd, headers: {origin: BASE, cookie: cookie(c)}}); return {status: r.status, body: await r.json()}; };
-  ok(await up({altText: "PT X logo"}), 400, "rights missing");
+  // Alt text and rights are checked when the item is published, not at upload (uploads used to fail silently).
+  ok(await up({}), 201, "upload without alt/rights");
+  ok(await up({altText: "x"}), 201, "short alt is ignored at upload");
   ok(await up({altText: "PT X logo", rightsStatus: "LICENSED"}, R.SALES), 403, "sales");
   const good = await up({altText: "PT X logo", rightsStatus: "LICENSED"}); ok(good, 201, "upload");
   const m = await fetch(BASE + good.body.url); assert.equal(m.status, 200); assert.equal(m.headers.get("content-type"), "image/webp");

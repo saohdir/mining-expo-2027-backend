@@ -13,6 +13,15 @@ const db = new PrismaClient();
 const run = Date.now().toString(36);
 const ok = (r, code, label) => assert.equal(r.status, code, label + " → " + r.status + " " + JSON.stringify(r.body).slice(0, 300));
 let hidden = [];
+// Article written with the CMS block editor (stored as a block document).
+const BLOCKS = JSON.stringify({format: "blocks", v: 1, blocks: [
+  {t: "p", text: "Lead with **bold** and *italic* and a [link](/exhibit/). <script>alert(1)</script>"},
+  {t: "h", level: 3, text: "Sub heading"},
+  {t: "list", ordered: true, items: ["One", "Two"]},
+  {t: "quote", text: "Mining moves forward.", cite: "Organizer"},
+  {t: "image", url: "/assets/imd-logo-orange.webp", alt: "IMDX logo", caption: "Caption text"},
+  {t: "divider"},
+  {t: "button", text: "Register now", url: "/exhibit/"}]});
 test.after(async () => {
   await db.contentItem.deleteMany({where: {kind: "NEWS", slug: {startsWith: "e2e-news-" + run}}});
   if (hidden.length) await db.contentItem.updateMany({where: {id: {in: hidden}}, data: {status: "PUBLISHED"}});
@@ -27,7 +36,7 @@ test("news: CMS articles → 3 cards per page with pagination → article page; 
   const ids = [];
   for (let n = 1; n <= 4; n++) {
     const c = await ED.post("/api/admin/content", {kind: "NEWS", locale: "en", slug: `e2e-news-${run}-${n}`, title: `E2E article ${n} ${run}`, summary: `Summary ${n}`, role: "INDUSTRY FOCUS", sortOrder: n,
-      body: n === 1 ? "Intro paragraph.\n\n## Highlights\n- First point\n- Second point\n\nClosing paragraph." : "Body " + n});
+      body: n === 1 ? "Intro paragraph.\n\n## Highlights\n- First point\n- Second point\n\nClosing paragraph." : n === 2 ? BLOCKS : "Body " + n});
     ok(c, 201, "create " + n); ids.push(c.body.item.id);
     ok(await ED.patch("/api/admin/content/" + c.body.item.id, {status: "PUBLISHED", reason: "Publish e2e"}), 200, "publish " + n);
   }
@@ -63,6 +72,20 @@ test("news: CMS articles → 3 cards per page with pagination → article page; 
     assert.equal(await page.locator(".news-article-body h2").textContent(), "Highlights");
     assert.deepEqual(await page.locator(".news-article-body li").allTextContents(), ["First point", "Second point"]);
     assert.equal(await page.locator(".news-more-grid .news-card").count(), 3, "more updates");
+    // Block article: every block type renders, text stays escaped.
+    await page.goto(SITE + `/news/article/?slug=e2e-news-${run}-2`);
+    const body = page.locator(".news-article-body"); await body.locator("h3").waitFor();
+    assert.equal(await body.locator("p strong").first().textContent(), "bold");
+    assert.equal(await body.locator("p em").first().textContent(), "italic");
+    assert.equal(await body.locator('p a[href="/exhibit/"]').first().textContent(), "link");
+    assert.equal(await body.locator("script").count(), 0); assert.match(await body.locator("p").first().textContent(), /<script>alert\(1\)<\/script>/);
+    assert.equal(await body.locator("h3").textContent(), "Sub heading");
+    assert.deepEqual(await body.locator("ol li").allTextContents(), ["One", "Two"]);
+    assert.equal(await body.locator("blockquote cite").textContent(), "Organizer");
+    assert.equal(await body.locator("figure img").getAttribute("alt"), "IMDX logo");
+    assert.equal(await body.locator("figcaption").textContent(), "Caption text");
+    assert.equal(await body.locator("hr").count(), 1);
+    assert.match(await body.locator(".news-article-cta a").textContent(), /Register now/);
     await page.goto(SITE + `/zh/news/article/?slug=e2e-news-${run}-1`);
     await page.locator(".news-article h1").waitFor();
     assert.equal(await page.locator(".news-article h1").textContent(), `中文文章 ${run}`);
