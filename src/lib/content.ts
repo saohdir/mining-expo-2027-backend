@@ -1,11 +1,15 @@
 import {LOCALES} from "./locales";
 import {z} from "zod";
+import {blocksDoc, isBlocksBody} from "./content-blocks";
 export const KINDS = ["PARTNER", "ORGANIZER", "DOWNLOAD", "NEWS", "SCOPE", "CONTACT", "PAGE_BLOCK", "GALLERY"] as const;
 const safeUrl = z.string().max(500).refine(v => /^\/[A-Za-z0-9/_\-.%]+$/.test(v) || /^https:\/\/[^\s"'<>]+$/.test(v), "Use a site path or https URL");
 /** FR-034/035/037/038 content item; rights metadata required before publishing media (NFR-12). */
 export const contentInput = z.object({
   kind: z.enum(KINDS), locale: z.enum(LOCALES).default("en"), title: z.string().trim().min(2).max(200), slug: z.string().regex(/^[a-z0-9-]{2,80}$/),
-  summary: z.string().max(500).nullable().optional(), body: z.string().max(20000).nullable().optional(), url: safeUrl.nullable().optional(),
+  summary: z.string().max(500).nullable().optional(),
+  // Plain text (legacy) or a block document (Gutenberg-style editor); block documents are validated block by block.
+  body: z.string().max(200000).nullable().optional().refine(v => !isBlocksBody(v) || blocksDoc.safeParse((() => { try { return JSON.parse(v!); } catch { return null; } })()).success, "The article blocks are invalid."),
+  url: safeUrl.nullable().optional(),
   fileType: z.string().max(20).nullable().optional(), fileSizeBytes: z.number().int().min(0).max(500_000_000).nullable().optional(),
   imageUrl: safeUrl.nullable().optional(), altText: z.string().max(300).nullable().optional(),
   rightsStatus: z.enum(["OWNED", "LICENSED", "ORGANIZER_PROVIDED", "PENDING_APPROVAL"]).nullable().optional(), role: z.string().max(80).nullable().optional(),
