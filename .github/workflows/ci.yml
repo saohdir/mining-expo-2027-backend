@@ -57,6 +57,21 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Install ffmpeg (gallery video compression, as in the Dockerfile)
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg
+        # The Ubuntu mirror sometimes hangs for 20+ minutes. Try apt with short timeouts, then fall back to the static
+        # ffmpeg/ffprobe builds from npm, so a slow mirror can never cancel the whole E2E job.
+        timeout-minutes: 8
+        run: |
+          APT="-o Acquire::Retries=2 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20"
+          if timeout 120 sudo apt-get install -y -qq --no-install-recommends $APT ffmpeg \
+            || { timeout 120 sudo apt-get update -qq $APT && timeout 150 sudo apt-get install -y -qq --no-install-recommends $APT ffmpeg; }; then
+            echo "ffmpeg from apt"
+          else
+            echo "::warning::apt mirror unavailable; using static ffmpeg from npm"
+            mkdir -p "$RUNNER_TEMP/ff/bin" && cd "$RUNNER_TEMP/ff" && npm init -y >/dev/null
+            timeout 240 npm install --no-audit --no-fund ffmpeg-static@5.2.0 ffprobe-static@3.1.0
+            ln -sf "$(node -p "require('ffmpeg-static')")" bin/ffmpeg && ln -sf "$(node -p "require('ffprobe-static').path")" bin/ffprobe
+            echo "$RUNNER_TEMP/ff/bin" >> "$GITHUB_PATH"; export PATH="$RUNNER_TEMP/ff/bin:$PATH"
+          fi
+          ffmpeg -version | head -1 && ffprobe -version | head -1
       - name: API E2E (business flow + CMS regression)
         run: bash scripts/e2e-local.sh
