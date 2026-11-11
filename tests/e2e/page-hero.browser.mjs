@@ -1,5 +1,5 @@
 // Design CR (Nov 2026): one compact hero on the public inner pages (single breadcrumb, h1, subtitle, 中文), light variant on the legal pages,
-// and the compact Why Exhibit block on /exhibitors/ (CMS keys make-your-next-connection.9–.17 unchanged, cards not interactive).
+// and the Why Exhibit block on /exhibitors/ (photo cards with icons; CMS keys .10–.17 text, .18–.20 photos; cards not interactive).
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {createRequire} from "node:module";
@@ -36,14 +36,18 @@ test("compact page hero on inner pages + Why Exhibit block", {skip}, async () =>
     // Exhibitors: breadcrumb link reachable by keyboard; Why Exhibit keeps its CMS keys and has no hover/click affordance.
     await page.goto(SITE + "/exhibitors/");
     await page.locator(".page-hero .breadcrumb a").focus(); assert.equal(await page.evaluate(() => document.activeElement.textContent), "Home");
-    for (let n = 9; n <= 17; n++) assert.equal(await page.locator(`.why-exhibit [data-cms-f="make-your-next-connection.${n}"]`).count(), 1, "field ." + n);
+    for (let n = 10; n <= 20; n++) assert.equal(await page.locator(`.why-exhibit [data-cms-f="make-your-next-connection.${n}"]`).count(), 1, "field ." + n);
+    assert.equal(await page.locator(".why-exhibit-list li .why-media img").count(), 3, "a photo per card");
+    assert.equal(await page.locator(".why-exhibit-list li .why-icon svg").count(), 3, "an icon per card");
+    assert.deepEqual(await page.locator(".why-exhibit-list .why-num").allTextContents(), ["01", "02", "03"]);
+    assert.match(await page.locator("#why-exhibit-h").textContent(), /More than a booth\./);
     assert.equal(await page.locator(".why-exhibit-list li").count(), 3); assert.equal(await page.locator(".why-exhibit-list a, .why-exhibit-list button").count(), 0);
     const li = page.locator(".why-exhibit-list li").first(), before = await li.boundingBox(); await li.hover();
     assert.equal((await li.boundingBox()).y, before.y, "cards do not lift on hover");
     // 中文
     await page.goto(SITE + "/zh/exhibitors/");
     assert.equal(await page.locator("h1").textContent(), "参展商"); assert.equal(await page.locator(".page-hero .breadcrumb a").textContent(), "首页");
-    assert.equal(await page.locator(".why-kicker").textContent(), "为何参展");
+    assert.equal(await page.locator(".why-kicker").textContent(), "为何参展？");
     assert.equal(await page.locator(".page-hero .breadcrumb a").getAttribute("href"), "/zh/");
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }

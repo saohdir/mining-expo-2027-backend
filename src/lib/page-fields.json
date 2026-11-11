@@ -1165,67 +1165,81 @@
  "exhibitors": {
   "make-your-next-connection": [
    {
-    "key": "make-your-next-connection.9",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "THREE REASONS TO EXHIBIT"
-   },
-   {
     "key": "make-your-next-connection.10",
     "kind": "text",
     "tag": "h2",
     "mode": "rich",
-    "text": "Where China and Indonesia\n*do business.*"
+    "text": "More than a booth.\nA gateway to\n*new opportunities.*"
    },
    {
     "key": "make-your-next-connection.11",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Three reasons to put your company in front of the people shaping coal, energy and mining cooperation between the two countries."
+    "text": "Your next client, strategic partner, or big opportunity could start right here. Showcase your innovations, connect with key decision-makers, and unlock new business potential across Indonesia and China's mining, energy, and downstream industries."
+   },
+   {
+    "key": "make-your-next-connection.18",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/networking-reception.webp",
+    "alt": "Exhibitors and buyers networking at an industry exhibition"
    },
    {
     "key": "make-your-next-connection.12",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
-    "text": "Meet the decision-makers"
+    "text": "Meet the Decision-Makers"
    },
    {
     "key": "make-your-next-connection.13",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Government agencies, industry associations, leading energy companies, trade and investment bodies, and specialists in coal technology, equipment trade, geological exploration and engineering contracting from China and Indonesia — gathered on one high-level platform."
+    "text": "Connect directly with government agencies, industry leaders, investors, and key buyers."
+   },
+   {
+    "key": "make-your-next-connection.19",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-01.webp",
+    "alt": "Haul truck and excavator at an open-pit mine"
    },
    {
     "key": "make-your-next-connection.14",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
-    "text": "Turn policy into projects"
+    "text": "Turn Policy into Projects"
    },
    {
     "key": "make-your-next-connection.15",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Bilateral coal and energy policy meets real business: coal trade, clean and low-carbon solutions such as coal preparation and coal chemicals, technology and equipment, coal and new-energy integration, and targeted project matchmaking across the whole value chain."
+    "text": "Capture real business opportunities from Indonesia–China cooperation, including coal trade, clean energy, and mining development projects."
+   },
+   {
+    "key": "make-your-next-connection.20",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-02.webp",
+    "alt": "Mineral processing plant at dusk"
    },
    {
     "key": "make-your-next-connection.16",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
-    "text": "Build on proven partnerships"
+    "text": "Build on Proven Partnerships"
    },
    {
     "key": "make-your-next-connection.17",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Learn from China–Indonesia coal and energy cooperation that already delivers results, and use it to open new collaboration across more sectors."
+    "text": "Leverage existing cooperation between Indonesia and China to expand your network and create long-term, high-value collaborations."
    },
    {
     "key": "make-your-next-connection.0",
