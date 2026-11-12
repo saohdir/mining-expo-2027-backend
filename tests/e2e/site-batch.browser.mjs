@@ -51,11 +51,13 @@ test("navbar, sign-in popup, home cards, removed sections, Event Highlight galle
     assert.equal(await conf.locator(".programme-pager-status").textContent(), "Page 1 of 2");
     await conf.getByRole("button", {name: "Page 2"}).click(); await page.waitForURL(/\?conf=2$/);
     await conf.locator(".programme-card-title").first().click(); await page.waitForURL(/\/programme\/[a-z0-9-]+\/$/);
-    // Home news: "Read article" cards.
-    await page.goto(SITE + "/"); await page.locator("#news .news-card").first().waitFor();
-    assert.ok(await page.locator("#news").getByText("Read article").count() >= 1); assert.equal(await page.getByText("Explore the exhibit scope").count(), 0);
-    // Visitor Registration while signed out → floorplan.
-    await page.locator('[data-cms-f="site-header.12"]').evaluate(a => a.click()); await page.waitForURL(/\/floorplan$/);
+    // Home news: carousel cards link to the article (title link on the centre card).
+    await page.goto(SITE + "/"); await page.locator("#news .nc-slide.is-active").waitFor();
+    assert.equal(await page.locator('#news .nc-slide.is-active h3 a[href*="/news/article/?slug="]').count(), 1); assert.equal(await page.getByText("Explore the exhibit scope").count(), 0);
+    // "Visitor Registration" removed from the navbar (owner request), on the static site and the app pages.
+    assert.equal(await page.locator('[data-cms-site="header"]').getByText("Visitor Registration").count(), 0);
+    await page.goto(SITE + "/floorplan"); await page.locator(".imdx-site-header").first().waitFor();
+    assert.equal(await page.locator(".imdx-site-header").getByText("Visitor Registration", {exact: true}).count(), 0);
     // Sign-in popup: open, Esc from inside the form closes it, sign in → account.
     await page.goto(SITE + "/");
     await page.locator('[data-cms-f="site-header.22"]').click(); await page.locator(".auth-popup.is-ready").waitFor();
@@ -68,8 +70,6 @@ test("navbar, sign-in popup, home cards, removed sections, Event Highlight galle
     await form.getByRole("button", {name: "Sign in"}).click();
     await page.waitForURL(/\/account$/); await page.getByRole("tab", {name: "Home"}).waitFor();
     assert.equal(await page.getByText("Admin CMS").count(), 0, "no Admin CMS link");
-    // Signed in: Visitor Registration → account visitor tab; Register button → account directly.
-    await page.goto(SITE + "/"); await page.locator('[data-cms-f="site-header.12"]').evaluate(a => a.click()); await page.waitForURL(/\/account\?tab=visit$/);
     // /account signed out shows the form as a popup dialog.
     const anon = await (await browser.newContext({viewport: {width: 1280, height: 900}})).newPage();
     await anon.goto(SITE + "/account"); await anon.locator('.auth-modal[role="dialog"]').waitFor(); assert.equal(await anon.getByText("Admin CMS").count(), 0);

@@ -15,7 +15,6 @@ const navigation = [
   ]},
   {label: "Visit", items: [
     {label: "Visitor Information", href: "/visitors/"},
-    {label: "Visitor Registration", href: "/floorplan"},
     {label: "The Venue", href: "/the-venue/"}
   ]},
   {label: "Conferences", items: [
@@ -55,13 +54,6 @@ export default function MarketingNav() {
     setExpanded(null);
   };
 
-  // Navbar "Visitor Registration" (owner request): signed in → account visitor tab, otherwise → floorplan.
-  const visitorRegistration = async (e: React.MouseEvent) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey) return;
-    e.preventDefault(); close();
-    const signedIn = await fetch("/api/customer/me", {cache: "no-store"}).then(r => r.ok).catch(() => false);
-    window.location.assign(signedIn ? "/account?tab=visit" : "/floorplan");
-  };
   if (embed) return null;
 
   return <>
@@ -93,7 +85,7 @@ export default function MarketingNav() {
                 {group.label}<span className="imdx-caret" aria-hidden="true">⌄</span>
               </button>
               <div className="imdx-dropdown" id={id}>
-                {group.items.map(item => <a key={item.href+item.label} href={item.href} onClick={item.label === "Visitor Registration" ? visitorRegistration : close}>{item.label}</a>)}
+                {group.items.map(item => <a key={item.href+item.label} href={item.href} onClick={close}>{item.label}</a>)}
               </div>
             </div>;
           })}
