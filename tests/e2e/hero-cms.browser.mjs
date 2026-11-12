@@ -16,12 +16,12 @@ test("page banners editable in the CMS (static pages and /floorplan); About Orga
   try {
     const page = await browser.newPage({viewport: {width: 1280, height: 900}}); const errors = []; page.on("pageerror", e => errors.push(e.message));
     // Every inner page has a banner with a CMS photo, title and subtitle.
-    for (const p of ["about", "contact", "exhibition", "exhibitors", "highlights", "news", "partners", "programme", "the-venue", "visitors"]) {
+    for (const p of ["about", "about-organizer", "contact", "exhibition", "exhibitors", "highlights", "news", "partners", "programme", "the-venue", "visitors"]) {
       await page.goto(SITE + "/" + p + "/");
       const hero = page.locator('[data-cms-block="page-hero"]');
       assert.equal(await hero.locator('img[data-cms-f="page-hero.0"]').count(), 1, p + ": banner photo field");
       assert.equal(await hero.locator('h1[data-cms-f="page-hero.1"]').count(), 1, p + ": banner title field");
-      const fields = (await ED.get(`/api/admin/pages/${p}`)).body.fields["page-hero"]; assert.equal(fields.length, 3, p + ": CMS knows the banner");
+      const fields = (await ED.get(`/api/admin/pages/${p}`)).body.fields["page-hero"]; assert.ok(fields.length >= 3, p + ": CMS knows the banner");
     }
     // Publish a banner change on Visitors (with a layout that reorders sections): the banner changes and stays first.
     const d = (await ED.get("/api/admin/pages/visitors")).body;
@@ -43,11 +43,11 @@ test("page banners editable in the CMS (static pages and /floorplan); About Orga
     ok(await ED.post("/api/admin/pages/floorplan/publish", {reason: "E2E floorplan banner"}), 200, "floorplan publish");
     await page.goto(BASE + "/floorplan?v=" + Date.now()); await page.waitForFunction(() => document.querySelector(".app-page-hero h1")?.textContent === "Booth map 2028", null, {timeout: 10000});
     ok(await ED.post("/api/admin/pages/floorplan/rollback", {version: 0, reason: "Restore floorplan banner"}), 200, "rollback floorplan");
-    // About Organizer (owner brief): light intro band (no photo hero), logo panel, one group-metrics strip, three cards,
+    // About Organizer (owner brief, + photo banner on request): banner, logo panel, one group-metrics strip, three cards,
     // commitment banner, Why Indonesia; ICEE 2025 figures phrased as plans, metrics labelled as group-level.
     await page.goto(SITE + "/about-organizer/");
     assert.equal(await page.locator("h1").count(), 1); assert.equal(await page.locator("h1").textContent(), "About the Organizer");
-    assert.equal(await page.locator(".page-hero--light").count(), 1); assert.equal(await page.locator(".page-hero-bg").count(), 0, "no photo hero");
+    assert.equal(await page.locator('.page-hero img.page-hero-bg[data-cms-f="page-hero.0"]').count(), 1, "photo banner like the other pages (CMS-editable)");
     assert.deepEqual(await page.locator(".page-hero .breadcrumb li").allTextContents(), ["Home", "About", "About the Organizer"]);
     assert.deepEqual(await page.locator(".og2-logos img").evaluateAll(i => i.map(x => x.getAttribute("alt"))), ["PT Seesion Exhibition Indonesia logo", "Shixin International Exhibition Group logo"]);
     assert.equal(await page.locator(".og2-stats li").count(), 5); assert.match(await page.locator(".og2-stats-label").textContent(), /Shixin Group track record/);

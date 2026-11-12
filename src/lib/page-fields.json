@@ -254,6 +254,13 @@
  "about-organizer": {
   "page-hero": [
    {
+    "key": "page-hero.0",
+    "kind": "image",
+    "tag": "img",
+    "src": "/assets/china-indonesia-forum.webp",
+    "alt": "About the Organizer — banner photo"
+   },
+   {
     "key": "page-hero.1",
     "kind": "text",
     "tag": "h1",
