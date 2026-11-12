@@ -9,7 +9,7 @@ let chromium = null;
 try { ({chromium} = createRequire(import.meta.url)("playwright")); } catch { /* skipped */ }
 const SITE = process.env.E2E_SITE_URL;
 const skip = !chromium ? "playwright not installed" : !SITE ? "E2E_FRONTEND_DIR not set" : false;
-const PAGES = ["home", "about", "contact", "exhibition", "exhibitors", "highlights", "news", "partners", "privacy", "programme", "terms", "the-venue", "visitors", "site"];
+const PAGES = ["home", "about", "about-organizer", "contact", "exhibition", "exhibitors", "highlights", "news", "partners", "privacy", "programme", "terms", "the-venue", "visitors", "site"];
 
 test("Chinese site under /zh/, switch, SEO tags, legal drafts", {skip}, async () => {
   execFileSync("npx", ["tsx", "scripts/apply-site-content.ts", "--confirm", "--publish"], {stdio: "pipe", env: process.env});

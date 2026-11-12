@@ -22,9 +22,9 @@ const TYPES: Record<string, {label: string; fields: [string, string, number?][];
   list: {label: "CMS list (partners, downloads, news, gallery, contacts)", fields: [["heading", "Heading"], ["kind", "Kind: PARTNER | DOWNLOAD | NEWS | GALLERY | CONTACT"]]}
 };
 /** Readable page names for the picker (the URL alone looked like a single page). */
-const PAGE_NAMES: Record<string, string> = {home: "Home", about: "About the Exhibition", exhibition: "Exhibition scope", exhibitors: "Exhibitors", visitors: "Visitor Information",
+const PAGE_NAMES: Record<string, string> = {home: "Home", about: "About the Exhibition", "about-organizer": "About the Organizer", exhibition: "Exhibition scope", exhibitors: "Exhibitors", visitors: "Visitor Information",
   programme: "Conferences", partners: "Organizers & Partners", news: "News & Updates", highlights: "Event Highlight", "the-venue": "The Venue", contact: "Contact",
-  privacy: "Privacy notice", terms: "Registration & payment terms", site: "Header & footer (all pages)"};
+  privacy: "Privacy notice", terms: "Registration & payment terms", floorplan: "Exhibition Floorplan", site: "Header & footer (all pages)"};
 const pageName = (k: string) => PAGE_NAMES[k] || k;
 const decode = (s: string) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 const TAG_NAMES: Record<string, string> = {h1: "Page title", h2: "Heading", h3: "Sub-heading", h4: "Sub-heading", p: "Paragraph", a: "Link / button", button: "Button", li: "List item",
@@ -70,6 +70,9 @@ export default function PagesCms() {
         <label>Meta description (max 170)<textarea disabled={!canEdit} maxLength={170} value={layout.seo.description} onChange={e => edit(l => { l.seo.description = e.target.value; return l; })} /></label></div></section>
     {key === "site" && Object.entries(d.fields).map(([group, defs]) => <section className="cms-card" key={group}><h2>{group === "site-header" ? "Header & navigation (all pages)" : group === "site-footer" ? "Footer (all pages)" : group}</h2>
       <FieldEditor base={d.path} defs={defs} values={layout.fields || {}} disabled={!canEdit} onChange={fn => edit(l => { l.fields = fn({...(l.fields || {})}); return l; })} /></section>)}
+    {key !== "site" && (d.fields["page-hero"] || []).length > 0 && <section className="cms-card cms-page-banner"><h2>Page banner</h2>
+      <p className="micro">The photo, title and subtitle at the top of this page (always shown first). Upload a new photo for the current year or event.</p>
+      <FieldEditor base={d.path} defs={d.fields["page-hero"]} values={layout.fields || {}} disabled={!canEdit} onChange={fn => edit(l => { l.fields = fn({...(l.fields || {})}); return l; })} /></section>}
     {key !== "site" && <section className="cms-card"><h2>Layout ({layout.blocks.length} blocks)</h2>
       <ol className="page-blocks">{layout.blocks.map((b, i) => <li key={b.id} className={b.hidden ? "is-hidden" : ""}>
         <div className="cms-row-actions"><strong>{label(b)}</strong>{b.hidden && <span className="status">Hidden</span>}

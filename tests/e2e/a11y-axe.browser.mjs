@@ -11,7 +11,7 @@ let chromium = null;
 try { ({chromium} = require("playwright")); } catch { /* skipped */ }
 const SITE = process.env.E2E_SITE_URL;
 const skip = !chromium ? "playwright not installed" : !SITE ? "E2E_FRONTEND_DIR not set" : false;
-const PAGES = ["/", "/about/", "/contact/", "/exhibition/", "/exhibitors/", "/highlights/", "/news/", "/partners/", "/privacy/", "/programme/", "/programme/mining-downstream-industry-green-mining/", "/terms/", "/the-venue/", "/visitors/"];
+const PAGES = ["/", "/about/", "/about-organizer/", "/contact/", "/exhibition/", "/exhibitors/", "/highlights/", "/news/", "/partners/", "/privacy/", "/programme/", "/programme/mining-downstream-industry-green-mining/", "/terms/", "/the-venue/", "/visitors/"];
 
 test("axe-core WCAG 2.x A/AA: no serious or critical violations", {skip, timeout: 240000}, async () => {
   const axe = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
@@ -20,7 +20,7 @@ test("axe-core WCAG 2.x A/AA: no serious or critical violations", {skip, timeout
   const serious = [], other = new Map();
   try {
     const ctx = await browser.newContext({viewport: {width: 1280, height: 900}, reducedMotion: "reduce"});
-    for (const url of [...PAGES.map(p => SITE + p), ...PAGES.map(p => SITE + "/zh" + p), BASE + "/account"]) {
+    for (const url of [...PAGES.map(p => SITE + p), ...PAGES.map(p => SITE + "/zh" + p), BASE + "/account", BASE + "/floorplan"]) {
       const page = await ctx.newPage();
       await page.goto(url, {waitUntil: "load"}); await page.waitForTimeout(900);
       await page.addScriptTag({content: axe});

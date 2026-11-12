@@ -51,6 +51,7 @@ test("compact page hero on inner pages + Why Exhibit block", {skip}, async () =>
     assert.match(await page.locator("#vs-intro-h").textContent(), /Explore Solutions/);
     assert.equal(await page.locator('button[data-action="register"].vs-btn').count(), 2, "two Register as Visitor buttons");
     assert.equal(await page.locator(".vs-glance-facts li").count(), 2); assert.equal(await page.locator(".vs-why-cards li").count(), 4);
+    assert.equal(await page.locator('.vs-glance a.vs-venue-btn[href="../the-venue/"]').textContent().then(t => t.trim().startsWith("View Venue Details")), true, "venue button");
     assert.equal(await page.locator(".vs-tiles li").count(), 8);
     { const edge = sel => page.locator(sel).first().evaluate(e => Math.round(e.getBoundingClientRect().right));
       assert.ok(Math.abs(await edge(".xb-intro-photo") - await edge(".vs-why-cards li:last-child")) <= 2, "visitors intro photo aligned with the cards"); }
@@ -61,17 +62,18 @@ test("compact page hero on inner pages + Why Exhibit block", {skip}, async () =>
     assert.equal(await page.getByText("From interest to").count(), 0, "old journey section removed");
     await page.locator('button[data-action="register"].vs-btn').first().click(); await page.locator(".auth-popup").waitFor();
     await page.keyboard.press("Escape");
-    // About: overview 01–05 from the owner mockup; the old showcase banner and "Explore the eight sectors" link are gone.
+    // About (Event Overview mockup): 01 copy + Join buttons + photo, Event Information card, 03 audience photo cards, 04, 05.
     await page.goto(SITE + "/about/");
     const ov = page.locator('[data-cms-block="where-possibility-meets"]');
     assert.match(await ov.locator("#aboutExhibitionTitle").textContent(), /One platform\./);
-    assert.deepEqual((await ov.locator(".ov-num").allTextContents()), ["01", "02", "03", "04", "05"]);
-    assert.equal(await ov.locator(".ov-facts li").count(), 3); assert.equal(await ov.locator(".ov-steps li").count(), 5);
-    assert.equal(await ov.locator(".ov-aud-cards li").count(), 3); assert.equal(await ov.locator(".ov-happen-cards li").count(), 3);
+    assert.deepEqual((await ov.locator(".ov-num").allTextContents()), ["01", "03", "04", "05"]);
+    assert.equal(await ov.locator('.ov-actions button[data-action="exhibitor"]').count(), 1); assert.equal(await ov.locator('.ov-actions button[data-action="register"]').count(), 1);
+    assert.equal(await ov.locator(".ov-intro-photo img").count(), 1); assert.equal(await ov.locator(".ov-event .vs-glance-facts li").count(), 2);
+    assert.equal(await ov.locator(".ov-chain, .ov-steps, .ov-facts").count(), 0, "value chain band and facts card removed");
+    assert.equal(await ov.locator(".ov-aud-cards li img").count(), 3); assert.equal(await ov.locator(".ov-happen-cards li").count(), 3);
     assert.equal(await ov.locator(".ov-past-photos img").count(), 4); assert.equal(await ov.locator('.ov-past-link[href="../highlights/"]').count(), 1);
     assert.equal(await page.locator(".intro-showcase").count(), 0, "showcase banner removed");
-    assert.equal(await page.getByText("Explore the eight exhibition sectors").count(), 0);
-    assert.equal(await ov.locator('[data-cms-f="where-possibility-meets.14"]').textContent(), "26–28 May 2027", "date keeps its CMS key");
+    assert.equal(await ov.locator('[data-cms-f="where-possibility-meets.14"]').textContent(), "26 – 28 May 2027", "date keeps its CMS key");
     // 中文
     await page.goto(SITE + "/zh/exhibitors/");
     assert.equal(await page.locator("h1").textContent(), "参展商"); assert.equal(await page.locator(".page-hero .breadcrumb a").textContent(), "首页");
