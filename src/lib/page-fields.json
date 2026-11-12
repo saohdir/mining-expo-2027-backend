@@ -86,14 +86,6 @@
     "href": "visitors/"
    },
    {
-    "key": "site-header.12",
-    "kind": "text",
-    "tag": "a",
-    "mode": "plain",
-    "text": "Visitor Registration",
-    "href": "/floorplan"
-   },
-   {
     "key": "site-header.13",
     "kind": "text",
     "tag": "a",
