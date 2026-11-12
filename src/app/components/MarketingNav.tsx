@@ -6,6 +6,7 @@ import type React from "react";
 const navigation = [
   {label: "About", items: [
     {label: "Event Overview", href: "/about/"},
+    {label: "About Organizer", href: "/about-organizer/"},
     {label: "Organizers & Partners", href: "/partners/"},
     {label: "The Venue", href: "/the-venue/"}
   ]},

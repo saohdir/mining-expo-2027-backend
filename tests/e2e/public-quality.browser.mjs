@@ -8,7 +8,7 @@ let chromium = null;
 try { ({chromium} = createRequire(import.meta.url)("playwright")); } catch { /* skipped */ }
 const SITE = process.env.E2E_SITE_URL;
 const skip = !chromium ? "playwright not installed" : !SITE ? "E2E_FRONTEND_DIR not set" : false;
-const PAGES = ["/", "/about/", "/contact/", "/exhibition/", "/exhibitors/", "/highlights/", "/news/", "/partners/", "/privacy/", "/programme/", "/terms/", "/the-venue/", "/visitors/"];
+const PAGES = ["/", "/about/", "/about-organizer/", "/contact/", "/exhibition/", "/exhibitors/", "/highlights/", "/news/", "/partners/", "/privacy/", "/programme/", "/terms/", "/the-venue/", "/visitors/"];
 
 test("public pages: 360 px without horizontal scroll and basic accessibility", {skip}, async () => {
   const browser = await chromium.launch();

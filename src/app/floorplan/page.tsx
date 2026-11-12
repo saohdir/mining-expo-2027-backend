@@ -1,5 +1,6 @@
 import type {Metadata} from "next";
 import {FloorplanViewer} from "../components/FloorplanViewer";
+import {PageHero} from "../components/PageHero";
 
 export const metadata: Metadata = {
   title: "Exhibition floorplan | IMDX 2027",
@@ -7,9 +8,8 @@ export const metadata: Metadata = {
   alternates: {canonical: "/floorplan"}
 };
 export default function PublicFloorplanPage() {
-  return <main className="portal-shell">
-    <header><p className="eyebrow">EXHIBIT AT IMDX 2027</p><h1>Exhibition <em>floorplan.</em></h1>
-      <p>Explore the published booth map. Choosing an available booth starts a request in your account; it does not reserve the space.</p></header>
-    <FloorplanViewer />
-  </main>;
+  return <>
+    <PageHero pageKey="floorplan" crumb="Exhibition Floorplan" />
+    <main className="portal-shell floorplan-page"><FloorplanViewer /></main>
+  </>;
 }

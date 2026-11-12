@@ -29,8 +29,9 @@ test("published layout reorders/hides designed sections, adds text-only blocks a
     await page.goto(SITE + "/visitors/?v=2");
     await page.waitForFunction(() => document.documentElement.dataset.cmsLayout === "published", null, {timeout: 10000});
     assert.equal(await page.title(), "Visit IMDX 2027 — CMS title");
-    const order = await page.$$eval("main > [data-cms-block], main > [data-cms-custom]", els => els.filter(e => getComputedStyle(e).display !== "none").map(e => e.dataset.cmsBlock || e.dataset.cmsCustom));
+    const order = await page.$$eval("main > [data-cms-block]:not([data-cms-fixed]), main > [data-cms-custom]", els => els.filter(e => getComputedStyle(e).display !== "none").map(e => e.dataset.cmsBlock || e.dataset.cmsCustom));
     assert.deepEqual(order, [c.ref, "hello", a.ref], "order and hidden section applied");
+    assert.equal(await page.evaluate(() => document.querySelector("main").firstElementChild?.dataset.cmsBlock), "page-hero", "page banner stays first");
     assert.equal(await page.evaluate(() => window.pwned), undefined, "CMS text is never executed as HTML");
     assert.equal(await page.locator("[data-cms-custom=hello] li").count(), 2, "bullets rendered");
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

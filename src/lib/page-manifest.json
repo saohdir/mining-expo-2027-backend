@@ -160,5 +160,19 @@
       "id": "questions-we-ve-got-you",
       "label": "Questions? We've got you."
     }
+  ],
+  "about-organizer": [
+    {
+      "id": "organizer-intro",
+      "label": "PT Seesion Exhibition Indonesia"
+    },
+    {
+      "id": "organizer-track-record",
+      "label": "Backed by Shixin International Exhibition Group."
+    },
+    {
+      "id": "indonesia-advantages",
+      "label": "Advantages of Indonesia's Mineral Resources"
+    }
   ]
 }
