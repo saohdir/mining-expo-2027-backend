@@ -43,20 +43,23 @@ test("page banners editable in the CMS (static pages and /floorplan); About Orga
     ok(await ED.post("/api/admin/pages/floorplan/publish", {reason: "E2E floorplan banner"}), 200, "floorplan publish");
     await page.goto(BASE + "/floorplan?v=" + Date.now()); await page.waitForFunction(() => document.querySelector(".app-page-hero h1")?.textContent === "Booth map 2028", null, {timeout: 10000});
     ok(await ED.post("/api/admin/pages/floorplan/rollback", {version: 0, reason: "Restore floorplan banner"}), 200, "rollback floorplan");
-    // About Organizer (owner brief, + photo banner on request): banner, logo panel, one group-metrics strip, three cards,
-    // commitment banner, Why Indonesia; ICEE 2025 figures phrased as plans, metrics labelled as group-level.
+    // About Organizer v3 (owner-approved mockup): photo banner, intro with both logos + photo, dark group-metrics band,
+    // three photo cards, commitment photo banner, Why Indonesia photo cards; every photo/text is a CMS field.
     await page.goto(SITE + "/about-organizer/");
     assert.equal(await page.locator("h1").count(), 1); assert.equal(await page.locator("h1").textContent(), "About the Organizer");
-    assert.equal(await page.locator('.page-hero img.page-hero-bg[data-cms-f="page-hero.0"]').count(), 1, "photo banner like the other pages (CMS-editable)");
+    assert.equal(await page.locator('.page-hero img.page-hero-bg[data-cms-f="page-hero.0"]').count(), 1, "photo banner");
     assert.deepEqual(await page.locator(".page-hero .breadcrumb li").allTextContents(), ["Home", "About", "About the Organizer"]);
-    assert.deepEqual(await page.locator(".og2-logos img").evaluateAll(i => i.map(x => x.getAttribute("alt"))), ["PT Seesion Exhibition Indonesia logo", "Shixin International Exhibition Group logo"]);
-    assert.equal(await page.locator(".og2-stats li").count(), 5); assert.match(await page.locator(".og2-stats-label").textContent(), /Shixin Group track record/);
-    assert.deepEqual(await page.locator(".og2-cards h3").allTextContents(), ["Organizer Profile", "Track Record", "Strategic Cooperation"]);
-    assert.match(await page.locator(".og2-cards li").nth(1).textContent(), /was scheduled for 15–17 May 2025.*published plan targeted/);
+    assert.deepEqual(await page.locator(".og3-logos img").evaluateAll(i => i.map(x => x.getAttribute("alt"))), ["PT Seesion Exhibition Indonesia logo", "Shixin International Exhibition Group logo"]);
+    assert.equal(await page.locator(".og3-stats li").count(), 5); assert.match(await page.locator(".og3-stats-band").textContent(), /SHIXIN GROUP TRACK RECORD.*not IMDX 2027 figures/s);
+    assert.deepEqual(await page.locator(".og3-cards h3").allTextContents(), ["Organizer Profile", "Track Record", "Strategic Cooperation"]);
+    assert.equal(await page.locator(".og3-cards li figure img[data-cms-f]").count(), 3, "photo cards are CMS fields");
+    assert.match(await page.locator(".og3-cards li").nth(1).textContent(), /was scheduled for 15–17 May 2025.*published plan targeted/);
     assert.doesNotMatch(await page.locator("main").textContent(), /successfully held|welcomed 20,000|30 years/i);
-    assert.equal(await page.locator(".og2-commit h2").textContent(), "Connecting China and ASEAN");
-    assert.deepEqual(await page.locator(".og2-why-cards h3").allTextContents(), ["Economy", "Culture & Society", "Coal Resources"]);
-    assert.equal(await page.locator(".og2-sec img:not(.og2-logos img)").count(), 0, "no photo sections");
+    assert.equal(await page.locator(".og3-commit h2").textContent(), "Connecting China and ASEAN");
+    assert.deepEqual(await page.locator(".og3-why h3").allTextContents(), ["Economy", "Culture & Society", "Coal Resources"]);
+    assert.equal(await page.locator(".og3-why li img[data-cms-f]").count(), 3);
+    const fields = (await ED.get("/api/admin/pages/about-organizer")).body.fields;
+    assert.ok(Object.values(fields).flat().filter(f => f.kind === "image").length >= 10, "all photos and logos editable in the CMS");
     for (const w of [390, 820]) { await page.setViewportSize({width: w, height: 900}); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth) <= 1, "no overflow at " + w); }
     await page.setViewportSize({width: 1280, height: 900});
     await page.goto(SITE + "/"); assert.equal(await page.locator('[data-cms-site="header"] a[href="about-organizer/"]').textContent(), "About Organizer");
