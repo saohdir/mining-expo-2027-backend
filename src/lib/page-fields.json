@@ -268,121 +268,149 @@
     "text": "About the Organizer"
    },
    {
-    "key": "page-hero.3",
+    "key": "page-hero.4",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "PT Seesion Exhibition Indonesia is based in Jakarta and works as part of Shixin International Exhibition Group's international exhibition network, connecting industry participants and creating opportunities for cooperation across Indonesia and the wider region."
+    "text": "PT Seesion Exhibition Indonesia is based in Jakarta and works as part of Shixin International Exhibition Group's international exhibition network."
    }
   ],
   "organizer-intro": [
    {
-    "key": "organizer-intro.65",
+    "key": "organizer-intro.100",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "THE ORGANIZER"
+   },
+   {
+    "key": "organizer-intro.101",
     "kind": "text",
     "tag": "h2",
-    "mode": "plain",
-    "text": "The organizer and its parent group"
+    "mode": "rich",
+    "text": "Local presence in Jakarta. *An international exhibition network.*"
    },
    {
-    "key": "organizer-intro.50",
-    "kind": "image",
-    "tag": "img",
-    "src": "../assets/organizer-seesion-logo.webp",
-    "alt": "PT Seesion Exhibition Indonesia logo"
-   },
-   {
-    "key": "organizer-intro.51",
-    "kind": "image",
-    "tag": "img",
-    "src": "../assets/organizer-shixin-logo.webp",
-    "alt": "Shixin International Exhibition Group logo"
-   },
-   {
-    "key": "organizer-intro.52",
+    "key": "organizer-intro.102",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
     "text": "Headquartered in Jakarta, PT Seesion Exhibition Indonesia supports Shixin International Exhibition Group's global exhibition strategy. Backed by the parent group's experience since 1998, it connects enterprises through professional exhibitions spanning energy and mining, agriculture, livestock, and industrial machinery."
    },
    {
-    "key": "organizer-intro.53",
+    "key": "organizer-intro.103",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/organizer-seesion-logo.webp",
+    "alt": "PT Seesion Exhibition Indonesia logo"
+   },
+   {
+    "key": "organizer-intro.104",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/organizer-shixin-logo.webp",
+    "alt": "Shixin International Exhibition Group logo"
+   },
+   {
+    "key": "organizer-intro.105",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/where-progress-hero.webp",
+    "alt": "Speaker at an industry conference opening ceremony"
+   },
+   {
+    "key": "organizer-intro.106",
+    "kind": "text",
+    "tag": "figcaption",
+    "mode": "own",
+    "text": "Exhibitions & industry forums in Jakarta"
+   },
+   {
+    "key": "organizer-intro.107",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "Shixin Group track record"
+    "text": "EVENT ORGANIZER"
    },
    {
-    "key": "organizer-intro.54",
+    "key": "organizer-intro.108",
     "kind": "text",
-    "tag": "small",
+    "tag": "span",
+    "mode": "plain",
+    "text": "SHIXIN GROUP TRACK RECORD"
+   },
+   {
+    "key": "organizer-intro.109",
+    "kind": "text",
+    "tag": "p",
     "mode": "plain",
     "text": "Group-level achievements of the parent group — not IMDX 2027 figures."
    },
    {
-    "key": "organizer-intro.55",
+    "key": "organizer-intro.110",
     "kind": "text",
     "tag": "strong",
     "mode": "plain",
     "text": "30+"
    },
    {
-    "key": "organizer-intro.56",
+    "key": "organizer-intro.111",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Internationally certified exhibition brands"
    },
    {
-    "key": "organizer-intro.57",
+    "key": "organizer-intro.112",
     "kind": "text",
     "tag": "strong",
     "mode": "plain",
     "text": "180+"
    },
    {
-    "key": "organizer-intro.58",
+    "key": "organizer-intro.113",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Government agencies & business associations partnered with"
    },
    {
-    "key": "organizer-intro.59",
+    "key": "organizer-intro.114",
     "kind": "text",
     "tag": "strong",
     "mode": "plain",
     "text": "100,000+"
    },
    {
-    "key": "organizer-intro.60",
+    "key": "organizer-intro.115",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Enterprises served"
    },
    {
-    "key": "organizer-intro.61",
+    "key": "organizer-intro.116",
     "kind": "text",
     "tag": "strong",
     "mode": "plain",
     "text": "700,000 m²"
    },
    {
-    "key": "organizer-intro.62",
+    "key": "organizer-intro.117",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "Average annual exhibition area"
    },
    {
-    "key": "organizer-intro.63",
+    "key": "organizer-intro.118",
     "kind": "text",
     "tag": "strong",
     "mode": "plain",
     "text": "Top Ten"
    },
    {
-    "key": "organizer-intro.64",
+    "key": "organizer-intro.119",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
@@ -391,84 +419,126 @@
   ],
   "organizer-track-record": [
    {
-    "key": "organizer-track-record.61",
+    "key": "organizer-track-record.100",
     "kind": "text",
-    "tag": "h2",
+    "tag": "span",
     "mode": "plain",
-    "text": "Profile, track record and cooperation"
+    "text": "WHAT WE DO"
    },
    {
-    "key": "organizer-track-record.50",
+    "key": "organizer-track-record.101",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Profile, track record & *cooperation.*"
+   },
+   {
+    "key": "organizer-track-record.102",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/networking-reception.webp",
+    "alt": "Business leaders networking at an industry exhibition"
+   },
+   {
+    "key": "organizer-track-record.103",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "ORGANIZER PROFILE"
+   },
+   {
+    "key": "organizer-track-record.104",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
     "text": "Organizer Profile"
    },
    {
-    "key": "organizer-track-record.51",
+    "key": "organizer-track-record.105",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
     "text": "Based in Jakarta, Seesion Indonesia combines local industry insight with Shixin Group's international exhibition experience to connect companies, institutions, and business opportunities across industrial sectors."
    },
    {
-    "key": "organizer-track-record.52",
+    "key": "organizer-track-record.106",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/imdx-showcase-audience.webp",
+    "alt": "Audience at an exhibition conference session"
+   },
+   {
+    "key": "organizer-track-record.107",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "ICEE 2025 · 15–17 MAY 2025"
+   },
+   {
+    "key": "organizer-track-record.108",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
     "text": "Track Record"
    },
    {
-    "key": "organizer-track-record.53",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "Indonesia Coal and Energy Expo (ICEE) 2025"
-   },
-   {
-    "key": "organizer-track-record.54",
+    "key": "organizer-track-record.109",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
     "text": "ICEE 2025 was scheduled for 15–17 May 2025 at JIExpo Jakarta. Its published plan targeted 20,000 m² of exhibition space, 500+ participating enterprises, and more than 20,000 professional visitors, alongside industry forums."
    },
    {
-    "key": "organizer-track-record.55",
+    "key": "organizer-track-record.110",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/where-progress-dialogue.webp",
+    "alt": "Industry partners in a panel discussion"
+   },
+   {
+    "key": "organizer-track-record.111",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "19 MARCH 2025"
+   },
+   {
+    "key": "organizer-track-record.112",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
     "text": "Strategic Cooperation"
    },
    {
-    "key": "organizer-track-record.56",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "19 March 2025"
-   },
-   {
-    "key": "organizer-track-record.57",
+    "key": "organizer-track-record.113",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
     "text": "Seesion Indonesia signed a strategic cooperation memorandum with the Indonesian Coal Mining Association to advance information sharing, market development, technical exchange, and exhibition promotion."
    },
    {
-    "key": "organizer-track-record.58",
+    "key": "organizer-track-record.114",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/jiexpo-kemayoran-aerial.jpg",
+    "alt": "Aerial view of JIEXPO Kemayoran, Jakarta"
+   },
+   {
+    "key": "organizer-track-record.115",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "OUR COMMITMENT"
    },
    {
-    "key": "organizer-track-record.59",
+    "key": "organizer-track-record.116",
     "kind": "text",
     "tag": "h2",
     "mode": "plain",
     "text": "Connecting China and ASEAN"
    },
    {
-    "key": "organizer-track-record.60",
+    "key": "organizer-track-record.117",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
@@ -477,53 +547,81 @@
   ],
   "indonesia-advantages": [
    {
-    "key": "indonesia-advantages.50",
+    "key": "indonesia-advantages.100",
     "kind": "text",
-    "tag": "h2",
+    "tag": "span",
     "mode": "plain",
-    "text": "Why Indonesia?"
+    "text": "WHY INDONESIA?"
    },
    {
-    "key": "indonesia-advantages.51",
+    "key": "indonesia-advantages.101",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "A market built on *resources & growth.*"
+   },
+   {
+    "key": "indonesia-advantages.102",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-04.webp",
+    "alt": "Industrial processing complex"
+   },
+   {
+    "key": "indonesia-advantages.103",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
     "text": "Economy"
    },
    {
-    "key": "indonesia-advantages.52",
+    "key": "indonesia-advantages.104",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Indonesia is Southeast Asia's largest economy, with a diverse industrial base and strong demand for industrial and mining-related partnerships."
+    "text": "Southeast Asia's largest economy, with a diverse industrial base and strong demand for industrial and mining-related partnerships."
    },
    {
-    "key": "indonesia-advantages.53",
+    "key": "indonesia-advantages.105",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/where-progress-connect.webp",
+    "alt": "Delegates meeting on an exhibition floor"
+   },
+   {
+    "key": "indonesia-advantages.106",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
     "text": "Culture & Society"
    },
    {
-    "key": "indonesia-advantages.54",
+    "key": "indonesia-advantages.107",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
     "text": "A diverse society and expanding education, health, and social development provide a foundation for continued regional engagement."
    },
    {
-    "key": "indonesia-advantages.55",
+    "key": "indonesia-advantages.108",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-01.webp",
+    "alt": "Haul truck and excavator at an open-pit mine"
+   },
+   {
+    "key": "indonesia-advantages.109",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
     "text": "Coal Resources"
    },
    {
-    "key": "indonesia-advantages.56",
+    "key": "indonesia-advantages.110",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Indonesia has substantial coal resources, with major coal-bearing regions including Sumatra and Kalimantan, supporting its mining and energy economy."
+    "text": "Substantial coal resources, with major coal-bearing regions including Sumatra and Kalimantan, supporting the mining and energy economy."
    }
   ]
  },
