@@ -156,3 +156,8 @@
  .floorplan-clone,.floorplan-publish-review,.floorplan-unblock,.booth-hold-panel{padding:15px}
  .booth-hold-panel .form-grid{grid-template-columns:1fr}
 }
+/* Customer booth picker: one view at a time (floor map or booth list). */
+.booth-view-switch{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+.booth-view-switch button{border-radius:999px;padding:8px 16px;font-weight:600;border:1px solid #ECD5C2;background:#fff;color:#520F00;box-shadow:none}
+.booth-view-switch button[aria-pressed="true"]{background:#C2410C;border-color:#C2410C;color:#fff}
+.booth-view-switch .status{margin-left:auto}

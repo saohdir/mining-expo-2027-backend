@@ -55,5 +55,15 @@ test("customer booth picker matches the public map style", {skip}, async () => {
     await page.locator(`${map} g[aria-label^="CM2,"]`).click();
     assert.equal(await page.locator(`${map} g[aria-label^="CM2,"]`).getAttribute("aria-pressed"), "false", "booked booth cannot be chosen");
     assert.match(await page.locator("text=preferred booth(s) selected").innerText(), /^1 preferred/);
+    // One view at a time: the map hides the list, the list hides the map; the selection carries over.
+    assert.equal(await page.locator(".booth-choice-list").count(), 0, "map view has no list");
+    await page.getByRole("button", {name: "Booth list"}).click();
+    assert.equal(await page.locator(map).count(), 0, "list view has no map");
+    assert.equal(await page.locator(".booth-choice", {hasText: "CM1"}).getAttribute("aria-pressed"), "true", "selection kept");
+    const sel = page.locator(".booth-choice.is-selected").first();
+    const [bg, fg] = await sel.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color]);
+    assert.notEqual(bg, fg, "selected card text is readable"); assert.notEqual(bg, "rgb(255, 255, 255)", "selected card is highlighted");
+    await page.getByRole("button", {name: "Floor map"}).click();
+    assert.equal(await page.locator(`${map} g[aria-label^="CM1,"]`).getAttribute("aria-pressed"), "true");
   } finally { await browser.close(); }
 });

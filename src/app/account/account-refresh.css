@@ -65,7 +65,8 @@
 .action-needed{border:1px solid #FEDF89;background:var(--a-warn-bg);border-radius:14px;padding:14px 18px;margin-bottom:12px}
 .action-needed h2{font-size:16px!important;color:var(--a-warn)!important}
 .account-app .booth-choice{border-radius:12px;border:1px solid var(--a-line);background:#fff}
-.account-app .booth-choice.is-selected{border-color:var(--a-brand);box-shadow:0 0 0 3px var(--a-brand-soft)}
+.account-app .booth-choice.is-selected,.account-app .booth-choice.is-selected:hover{background:var(--a-brand);color:#fff;border-color:var(--a-brand);box-shadow:0 0 0 3px var(--a-brand-soft)}
+.account-app .booth-choice.is-selected small,.account-app .booth-choice.is-selected span{color:#fff}
 @media (max-width:640px){
   .account-app .portal-heading.portal-hero{padding:18px;margin-top:12px!important}
   .account-app .tabline.portal-tabs{top:60px}
