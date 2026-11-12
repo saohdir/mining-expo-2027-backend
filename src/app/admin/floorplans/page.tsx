@@ -1,5 +1,6 @@
 "use client";
 import {useConfirm} from "../components/Confirm";
+import PublicDisplay from "./PublicDisplay";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {useCmsSession} from "../components/CmsShell";
 import {CategoryManager,CsvAndAlign,PatternDefs,RemapReport,StatsPanel,type Category} from "./EditorPanels";
@@ -161,6 +162,7 @@ export default function FloorplanEditor(){
  return <main className="portal-shell"><nav className="portal-top"><a className="brandmark brandmark-image" href="/"><img src="/assets/imd-logo-orange.webp" alt="IMDX Indonesia Mining and Downstream Industries Exhibition 2027"/></a><span>CMS / FLOORPLAN</span><a href="/admin">Back to CMS</a></nav>
  <header><p className="eyebrow">OPERATIONS</p><h1>Floorplan <em>management.</em></h1><p>Several floors can be live at once; customers see only the active ones. On a live floor you can see and enter who booked each booth and split a booth&apos;s area. Booths can be edited on a draft or directly on a live floor (Edit booth layout). Drafts publish in one click; drafts, inactive floors and old versions can be deleted.</p></header>
  {message&&<div className="notice" role="status">{message}</div>}
+ <PublicDisplay canEdit={canEdit}/>
  <section><h2>Choose a floorplan version</h2>
  {!canEdit&&<p className="micro">Read-only access. Only Operations and Super Admin can create, edit, publish or delete floorplans.</p>}<div className="form-grid"><label>New draft title<input value={draftName} onChange={e=>setDraftName(e.target.value)} required/></label><label>What is it?<select value={kind} onChange={e=>setKind(e.target.value)}><option value="new">A new floor (shown next to the other live floors)</option>{plans.filter(p=>p.status==="PUBLISHED").map(p=><option key={p.id} value={p.id}>New version of “{p.title}” (replaces it when published)</option>)}</select></label>
  <button disabled={busy||!canEdit} onClick={()=>void run(async()=>{const d=await api("/api/admin/floorplans","POST",{title:draftName,canvasWidth:1200,canvasHeight:800,...(kind==="new"?{newFloor:true}:{replacesId:kind})});await refresh();await load(d.plan.id)})}>Create draft version</button></div>

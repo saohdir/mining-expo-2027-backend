@@ -336,3 +336,9 @@
 .imdx-cms .cms-field-image{display:flex;gap:14px;align-items:center;margin-bottom:8px}
 .imdx-cms .cms-field-image img{width:132px;height:88px;object-fit:cover;border-radius:8px;border:1px solid #e4e7ec;background:#f4f5f7}
 .imdx-cms .cms-field-image .be-upload{margin-top:6px}
+/* Floorplans › Public floor plan display */
+.fp-display-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:8px}
+button.fp-display-option{display:flex!important;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px!important;text-align:left;border:1px solid #e4e7ec!important;border-radius:10px!important;background:#fff!important;color:#102b43!important;white-space:normal;cursor:pointer}
+button.fp-display-option span{font-size:13px;font-weight:400;color:#5c6b78;line-height:1.45}
+button.fp-display-option[aria-checked="true"]{border-color:#c2410c!important;background:#fff4ec!important;box-shadow:inset 0 0 0 1px #c2410c}
+button.fp-display-option[aria-checked="true"] strong::before{content:"● ";color:#c2410c}

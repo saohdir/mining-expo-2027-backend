@@ -1,5 +1,6 @@
 "use client";
 import {useCallback,useEffect,useState} from "react";
+import {boothFill, boothText} from "@/lib/booth-colors";
 import {InvoicePanel,type CustomerInvoice} from "./InvoicePanel";
 import {AccountSecurity,AttendanceHistory} from "./AccountSecurity";
 import {ActionNeeded} from "./ActionNeeded";
@@ -16,7 +17,7 @@ type AccountData={phone?:string|null;verifiedPhoneAt?:string|null;id:string;emai
  enrollments:{id:string;type:string;status:string;conference?:{id:string;title:string;feeMinor:string|null}|null}[];requests:CustomerBooth[];invoices:{id:string;boothRequestId:string|null;number:string;status:string;totalMinor:string}[]};
 type BoothOfferView={id:string;revision:number;offeredUnits:{id:string;code:string;hall:string|null;zone:string|null;areaSqm:string}[];offeredAreaSqm:string;quotedPriceMinor:string;expiresAt:string|null;acceptedAt:string|null;createdAt:string};
 type CustomerBooth={id:string;createdAt:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];holds:{id:string;expiresAt:string;boothUnit:{code:string;hall:string|null}}[];floorplan:{versionNo:number;units:{id:string;code:string;hall:string|null}[]};offers:BoothOfferView[];assignments:{boothUnit:{code:string;hall:string|null;areaSqm:string}}[]};
-type Floorplan={state:string;id?:string;version?:number;title?:string;floors?:{id:string;title:string;version:number}[];canvas?:{width:number;height:number};backgroundUrl?:string;units?:{id:string;code:string;category:string;hall?:string;areaSqm:string;status:string;x:number;y:number;w:number;h:number}[]};
+type Floorplan={state:string;id?:string;version?:number;title?:string;floors?:{id:string;title:string;version:number}[];canvas?:{width:number;height:number};backgroundUrl?:string;units?:{id:string;code:string;category:string;hall?:string;areaSqm:string;status:string;x:number;y:number;w:number;h:number;categoryColor?:string|null}[]};
 async function request(path:string,options:RequestInit={}){const res=await fetch(path,{...options,headers:{...(options.body?{"Content-Type":"application/json"}:{}),...options.headers},cache:"no-store"});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error((data as ApiError).message||(data as ApiError).issues?.map(i=>i.message).join(", ")||"Request failed");return data;}
 const send=(path:string,data:unknown)=>request(path,{method:"POST",body:JSON.stringify(data)});
 const money=(v:string)=>"Rp "+Number(v).toLocaleString("id-ID",{maximumFractionDigits:0});
@@ -160,8 +161,8 @@ export default function AccountPage(){
       <div className="floorplan-frame"><svg role="group" aria-label="Available booth preferences" viewBox={"0 0 "+plan.canvas.width+" "+plan.canvas.height}>
         <rect x={0} y={0} width={plan.canvas.width} height={plan.canvas.height} fill="#fff3e9"/>
         {(plan.units||[]).filter(u=>(/outdoor/i.test(u.hall||"")||/outdoor/i.test((u as {zone?:string}).zone||""))===(location==="OUTDOOR")&&(!fHall||u.hall===fHall)&&(!fZone||(u as {zone?:string}).zone===fZone)&&(!fAvail||u.status==="AVAILABLE")&&(!fq||u.code.toLowerCase().includes(fq.toLowerCase()))).map(u=><g key={u.id} onClick={()=>u.status==="AVAILABLE"&&setChosen(prev=>prev.includes(u.id)?prev.filter(i=>i!==u.id):[...prev,u.id])} role="button" tabIndex={u.status==="AVAILABLE"?0:-1} onKeyDown={e=>{if(e.key==="Enter"&&u.status==="AVAILABLE")setChosen(prev=>prev.includes(u.id)?prev.filter(i=>i!==u.id):[...prev,u.id])}}>
-         <rect x={u.x} y={u.y} width={u.w} height={u.h} stroke="#fff" strokeWidth={3} fill={chosen.includes(u.id)?"#c2410c":u.status==="AVAILABLE"?"#96d8c4":"#bbb"} opacity={.96}/>
-         <text x={u.x+5} y={u.y+17} fontSize={13} fill="#351109">{u.code}</text></g>)}
+         <rect x={u.x} y={u.y} width={u.w} height={u.h} stroke="#fff" strokeWidth={3} fill={chosen.includes(u.id)?"#c2410c":boothFill(u.status,u.categoryColor)} opacity={.96}/>
+         <text x={u.x+5} y={u.y+17} fontSize={13} fill={chosen.includes(u.id)?"#fff":boothText(boothFill(u.status,u.categoryColor))}>{u.code}</text></g>)}
        </svg></div>
       <p className="micro">{chosen.length} preferred booth(s) selected. Green = available; gray = unavailable; orange = selected.</p>
       <div className="booth-choices-heading"><div><h3>Choose by booth list</h3><p className="micro">Accessible alternative to the interactive map. These are preferences only; no space is held or reserved.</p></div><span className="status">{chosen.length} SELECTED</span></div>

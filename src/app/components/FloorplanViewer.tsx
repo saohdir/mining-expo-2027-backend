@@ -1,12 +1,14 @@
 "use client";
 import {useEffect, useMemo, useRef, useState} from "react";
+import {boothFill, boothText, STATUS_FILL} from "@/lib/booth-colors";
 
 type Unit = {id: string; code: string; category: string; hall: string | null; zone: string | null; x: number; y: number; w: number; h: number; rotation?: number;
-  areaSqm: string; lengthM: string | null; widthM: string | null; dimensionLabel: string | null; status: string; approvedPublicName: string | null; categoryColor: string | null};
-type Plan = {state: "PUBLISHED" | "COMING_SOON"; id?: string; floors?: {id: string; title: string; version: number}[]; version?: number; title?: string; backgroundUrl?: string | null; backgroundAlt?: string | null; canvas?: {width: number; height: number}; units: Unit[]};
-const LABEL: Record<string, string> = {AVAILABLE: "Available", RESERVED: "Reserved", OCCUPIED: "Occupied", BLOCKED: "Unavailable"};
+  areaSqm: string; lengthM: string | null; widthM: string | null; dimensionLabel: string | null; status: string; approvedPublicName: string | null; categoryColor: string | null; categoryName?: string | null};
+type Plan = {state: "PUBLISHED" | "COMING_SOON"; id?: string; floors?: {id: string; title: string; version: number}[]; version?: number; title?: string; backgroundUrl?: string | null; backgroundAlt?: string | null; canvas?: {width: number; height: number}; categories?: {name: string; colorHex: string | null}[]; display?: "names" | "status"; units: Unit[]};
+const LABEL: Record<string, string> = {AVAILABLE: "Available", RESERVED: "Reserved", OCCUPIED: "Occupied", BLOCKED: "Unavailable", UNAVAILABLE: "Not available"};
+const who = (u: Unit) => u.approvedPublicName ? (u.status === "RESERVED" ? "Reserved by " : "Occupied by ") + u.approvedPublicName : LABEL[u.status] || u.status;
 const size = (u: Unit) => u.lengthM && u.widthM ? `${u.lengthM} by ${u.widthM} metres` : (u.dimensionLabel || "");
-export const accessibleName = (u: Unit) => [u.code, size(u), u.areaSqm + " square metres", u.status === "OCCUPIED" && u.approvedPublicName ? "occupied by " + u.approvedPublicName : LABEL[u.status] || u.status].filter(Boolean).join(", ");
+export const accessibleName = (u: Unit) => [u.code, size(u), u.areaSqm + " square metres", u.status === "AVAILABLE" && u.categoryName ? "available, " + u.categoryName : who(u)].filter(Boolean).join(", ");
 
 /** Public, read-only published map (FR-015/104/105/106/108/109, AT-091/092). Selecting an
  * AVAILABLE unit only starts an account-gated preference request — never a reservation. */
@@ -18,7 +20,7 @@ export function FloorplanViewer({requestHref = (id: string) => "/account?request
   const [floor, setFloor] = useState("");
   useEffect(() => { fetch("/api/public/floorplan" + (floor ? "?floor=" + encodeURIComponent(floor) : ""), {cache: "no-store"}).then(r => r.json()).then(p => { setPlan(p); setFocus(null); setHall(""); setZone(""); }).catch(() => setErr("Floorplan is temporarily unavailable.")); }, [floor]);
   const units = useMemo(() => (plan?.units || []).filter(u => (!hall || u.hall === hall) && (!zone || u.zone === zone) && (!onlyAvailable || u.status === "AVAILABLE") &&
-    (!q || (u.code + " " + (u.approvedPublicName || "")).toLowerCase().includes(q.toLowerCase()))), [plan, hall, zone, onlyAvailable, q]);
+    (!q || (u.code + " " + (u.approvedPublicName || "") + " " + (u.categoryName || "")).toLowerCase().includes(q.toLowerCase()))), [plan, hall, zone, onlyAvailable, q]);
   if (err) return <p role="alert">{err}</p>;
   if (!plan) return <p role="status">Loading floorplan…</p>;
   if (plan.state !== "PUBLISHED" || !plan.canvas) return <section className="floorplan-empty"><h2>Floorplan coming soon</h2><p>The organizer has not published an approved booth map yet. No availability is shown until it is published.</p></section>;
@@ -38,7 +40,11 @@ export function FloorplanViewer({requestHref = (id: string) => "/account?request
       <button type="button" aria-pressed={view === "list"} onClick={() => setView(v => v === "map" ? "list" : "map")}>{view === "map" ? "Show list view" : "Show map view"}</button>
     </div>
     {noneAvailable && <p role="status" className="warning">No booth is currently available on the published map. You may still contact the organizer.</p>}
-    <p className="micro">Legend: <span className="fp-key fp-available">Available (hatched)</span> <span className="fp-key fp-reserved">Reserved</span> <span className="fp-key fp-occupied">Occupied</span> <span className="fp-key fp-blocked">Unavailable</span>. Selecting a booth sends a preference request; the organizer confirms any allocation.</p>
+    <div className="fp-legend micro" aria-label="Legend"><strong>Available:</strong>
+      {(plan.categories?.length ? plan.categories : [{name: "Booth", colorHex: null}]).filter(c => plan.units.some(u => u.status === "AVAILABLE" && (u.categoryName || "") === c.name) || !plan.categories?.length).map(c => <span key={c.name} className="fp-chip"><i style={{background: boothFill("AVAILABLE", c.colorHex)}} />{c.name}</span>)}
+      <strong>Booked:</strong>{plan.display === "status" ? <span className="fp-chip"><i style={{background: STATUS_FILL.UNAVAILABLE}} />Not available</span>
+        : <><span className="fp-chip"><i style={{background: STATUS_FILL.RESERVED}} />Reserved</span><span className="fp-chip"><i style={{background: STATUS_FILL.OCCUPIED}} />Occupied</span><span className="fp-chip"><i style={{background: STATUS_FILL.BLOCKED}} />Unavailable</span></>}
+      <span>Selecting an available booth sends a preference request; the organizer confirms any allocation.</span></div>
     {view === "map" ? <>
       <div className="cms-row-actions" role="group" aria-label="Zoom and pan">
         <button type="button" onClick={() => setZ(zoom + 0.5)} aria-label="Zoom in">+</button><button type="button" onClick={() => setZ(zoom - 0.5)} aria-label="Zoom out">−</button>
@@ -54,24 +60,24 @@ export function FloorplanViewer({requestHref = (id: string) => "/account?request
           onPointerMove={e => { const d = drag.current; if (!d || zoom === 1) return; const sc = vb.w / (e.currentTarget.clientWidth || 1); setPan(clampPan({x: d.px - (e.clientX - d.x) * sc, y: d.py - (e.clientY - d.y) * sc})); }}
           onPointerUp={() => { drag.current = null; }} onPointerLeave={() => { drag.current = null; }}
           onWheel={e => { if (e.ctrlKey) { e.preventDefault(); setZ(zoom - Math.sign(e.deltaY) * 0.25); } }}>
-          <defs><pattern id="fp-avail" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#ffffff" /><path d="M0 8L8 0" stroke="#2F6FD6" strokeWidth="1.5" /></pattern></defs>
           {plan.backgroundUrl && <image href={plan.backgroundUrl} x={0} y={0} width={plan.canvas.width} height={plan.canvas.height}><title>{plan.backgroundAlt || "Floorplan background"}</title></image>}
-          {units.map(u => <g key={u.id} role="button" tabIndex={0} aria-label={accessibleName(u)} aria-pressed={focus?.id === u.id}
+          {units.map(u => { const fill = boothFill(u.status, u.categoryColor), ink = boothText(fill), fs = Math.max(7, Math.min(13, u.w / 4.5, u.h / 2.6));
+            const second = u.status === "AVAILABLE" ? (u.dimensionLabel || "") : (u.approvedPublicName || LABEL[u.status] || "");
+            return <g key={u.id} role="button" tabIndex={0} aria-label={accessibleName(u)} aria-pressed={focus?.id === u.id}
             onClick={() => setFocus(u)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFocus(u); } }}
             transform={u.rotation ? `rotate(${u.rotation} ${u.x} ${u.y})${u.rotation === 90 ? ` translate(0 ${-u.h})` : u.rotation === 180 ? ` translate(${-u.w} ${-u.h})` : ` translate(${-u.w} 0)`}` : undefined}>
-            <rect x={u.x} y={u.y} width={u.w} height={u.h} stroke={focus?.id === u.id ? "#ff5912" : "#35120a"} strokeWidth={focus?.id === u.id ? 4 : 1}
-              fill={u.status === "AVAILABLE" ? "url(#fp-avail)" : u.status === "RESERVED" ? "#F2C14E" : u.status === "OCCUPIED" ? (u.categoryColor || "#6B3FA0") : "#BDBDBD"} />
-            <text x={u.x + 4} y={u.y + 14} fontSize={12} fill="#111" pointerEvents="none">{u.code}</text>
-            <text x={u.x + 4} y={u.y + 28} fontSize={9} fill="#111" pointerEvents="none">{u.status === "OCCUPIED" && u.approvedPublicName ? u.approvedPublicName.slice(0, 18) : LABEL[u.status]}</text>
-          </g>)}
+            <rect x={u.x} y={u.y} width={u.w} height={u.h} rx={1.5} stroke={focus?.id === u.id ? "#ff5912" : "rgba(53,18,10,.35)"} strokeWidth={focus?.id === u.id ? 4 : 0.8} fill={fill} />
+            <text x={u.x + 3} y={u.y + fs + 2} fontSize={fs} fontWeight={600} fill={ink} pointerEvents="none">{u.code}</text>
+            {second && u.h > fs * 2.4 && <text x={u.x + 3} y={u.y + fs * 2 + 4} fontSize={Math.max(6, fs * 0.72)} fill={ink} opacity={0.85} pointerEvents="none">{second.slice(0, Math.max(6, Math.floor(u.w / (fs * 0.45))))}</text>}
+          </g>; })}
         </svg>
       </div>
     </> : <div className="table-scroll" role="region" aria-label="Booth list" tabIndex={0}><table className="cms-table"><caption>Booths ({units.length})</caption><thead><tr><th>Booth</th><th>Hall / zone</th><th>Size</th><th>Area</th><th>Status</th><th /></tr></thead><tbody>
       {units.map(u => <tr key={u.id}><td>{u.code}</td><td>{[u.hall, u.zone].filter(Boolean).join(" / ") || "—"}</td><td>{u.dimensionLabel || "—"}</td><td>{u.areaSqm} m²</td>
-        <td>{u.status === "OCCUPIED" && u.approvedPublicName ? "Occupied by " + u.approvedPublicName : LABEL[u.status]}</td>
+        <td>{u.status === "AVAILABLE" ? "Available" + (u.categoryName ? " · " + u.categoryName : "") : who(u)}</td>
         <td>{u.status === "AVAILABLE" && <a href={requestHref(u.id)}>Request this area</a>}</td></tr>)}</tbody></table></div>}
     {focus && <aside className="floorplan-detail" aria-live="polite"><h3>Booth {focus.code}</h3><p>{[focus.hall && "Hall " + focus.hall, focus.zone && "Zone " + focus.zone, focus.dimensionLabel, focus.areaSqm + " m²", focus.category].filter(Boolean).join(" · ")}</p>
-      <p><strong>{focus.status === "OCCUPIED" && focus.approvedPublicName ? "Occupied by " + focus.approvedPublicName : LABEL[focus.status]}</strong></p>
+      <p><strong>{focus.status === "AVAILABLE" ? "Available" : who(focus)}</strong></p>
       {focus.status === "AVAILABLE" ? <><a className="button" href={requestHref(focus.id)}>Request this area</a><p className="micro">Sign in required. Your request is a preference only — the final booth, area and price are confirmed by the organizer.</p></> : <p className="micro">This booth cannot be requested.</p>}
     </aside>}
   </section>;
