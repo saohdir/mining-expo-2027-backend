@@ -254,103 +254,32 @@
  "about": {
   "where-possibility-meets": [
    {
-    "key": "where-possibility-meets.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "own",
-    "text": "/ THE EXHIBITION"
+    "key": "where-possibility-meets.40",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-01.webp",
+    "alt": "Haul truck and excavator at an open-pit mine"
    },
    {
-    "key": "where-possibility-meets.1",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "01"
-   },
-   {
-    "key": "where-possibility-meets.2",
+    "key": "where-possibility-meets.41",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "A GLOBAL INDUSTRY MEETING POINT"
+    "text": "WHAT IS IMDX 2027?"
    },
    {
-    "key": "where-possibility-meets.3",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "INTRODUCING IMDX 2027"
-   },
-   {
-    "key": "where-possibility-meets.4",
+    "key": "where-possibility-meets.42",
     "kind": "text",
     "tag": "h2",
-    "mode": "own",
-    "text": "Where possibility meets"
+    "mode": "rich",
+    "text": "One platform.\nThe entire mining &\ndownstream *value chain.*"
    },
    {
-    "key": "where-possibility-meets.5",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "progress."
-   },
-   {
-    "key": "where-possibility-meets.6",
+    "key": "where-possibility-meets.43",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "A dedicated platform connecting upstream mining, mineral processing, smart technology and high-value downstream opportunities."
-   },
-   {
-    "key": "where-possibility-meets.7",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "WHAT IS THE EXHIBITION?"
-   },
-   {
-    "key": "where-possibility-meets.8",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "One meeting place for the entire mining and downstream value chain."
-   },
-   {
-    "key": "where-possibility-meets.9",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Indonesia Mining & Downstream Industries Exhibition 2027 brings together industry players, technology providers and decision-makers to exchange ideas, explore partnerships and shape what's next for the sector."
-   },
-   {
-    "key": "where-possibility-meets.10",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Designed as a business-to-business exhibition, IMDX 2027 connects the sectors behind the industry's transformation — from exploration and extraction to mineral processing, metallurgy, automation, responsible mining and high-value downstream applications."
-   },
-   {
-    "key": "where-possibility-meets.11",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Exhibitors can introduce equipment, services and practical solutions to potential partners, while industry professionals can discover emerging technologies and exchange perspectives. Planned conference and networking activities provide further opportunities for dialogue and collaboration."
-   },
-   {
-    "key": "where-possibility-meets.12",
-    "kind": "text",
-    "tag": "a",
-    "mode": "own",
-    "text": "Explore the eight exhibition sectors",
-    "href": "../exhibition/"
-   },
-   {
-    "key": "where-possibility-meets.13",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "WHEN"
+    "text": "IMDX 2027 is a business-to-business exhibition connecting mining companies, equipment manufacturers, technology providers, processing industries and decision-makers across Indonesia's mining and downstream ecosystem."
    },
    {
     "key": "where-possibility-meets.14",
@@ -360,25 +289,11 @@
     "text": "26–28 May 2027"
    },
    {
-    "key": "where-possibility-meets.15",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "WHERE"
-   },
-   {
     "key": "where-possibility-meets.16",
     "kind": "text",
     "tag": "strong",
     "mode": "plain",
     "text": "JIEXPO Kemayoran, Jakarta"
-   },
-   {
-    "key": "where-possibility-meets.17",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "EXPERIENCE"
    },
    {
     "key": "where-possibility-meets.18",
@@ -388,137 +303,250 @@
     "text": "Exhibition · Conference · Networking"
    },
    {
-    "key": "where-possibility-meets.19",
-    "kind": "image",
-    "tag": "img",
-    "src": "../assets/where-progress-hero.webp",
-    "alt": "Speaker at an industry conference opening ceremony with an audience"
-   },
-   {
-    "key": "where-possibility-meets.20",
+    "key": "where-possibility-meets.44",
     "kind": "text",
     "tag": "span",
-    "mode": "own",
-    "text": "JIEXPO KEMAYORAN · JAKARTA 2027"
+    "mode": "plain",
+    "text": "FROM SOURCE TO VALUE"
    },
    {
-    "key": "where-possibility-meets.21",
+    "key": "where-possibility-meets.45",
     "kind": "text",
-    "tag": "span",
+    "tag": "h2",
     "mode": "rich",
-    "text": "EXHIBITION SHOWCASE**Connecting the Complete Mining & Downstream Value Chain**"
+    "text": "The value chain\nat a glance."
    },
    {
-    "key": "where-possibility-meets.22",
+    "key": "where-possibility-meets.46",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "3 Days of Innovation"
+    "text": "Exploration"
    },
    {
-    "key": "where-possibility-meets.23",
+    "key": "where-possibility-meets.47",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "THE EXHIBITION EXPERIENCE"
+    "text": "Extraction"
    },
    {
-    "key": "where-possibility-meets.24",
+    "key": "where-possibility-meets.48",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Mineral Processing"
+   },
+   {
+    "key": "where-possibility-meets.49",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Metallurgy"
+   },
+   {
+    "key": "where-possibility-meets.50",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Downstream Applications"
+   },
+   {
+    "key": "where-possibility-meets.51",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "WHO WILL YOU MEET?"
+   },
+   {
+    "key": "where-possibility-meets.52",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "A focused audience across the mining and downstream ecosystem."
+   },
+   {
+    "key": "where-possibility-meets.53",
     "kind": "text",
     "tag": "h3",
-    "mode": "rich",
-    "text": "Discover. Connect. *Collaborate.*"
+    "mode": "plain",
+    "text": "Mining & Industrial Operators"
    },
    {
-    "key": "where-possibility-meets.25",
+    "key": "where-possibility-meets.54",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Explore solutions on the exhibition floor, meet industry stakeholders and take part in conversations about the sector's future."
+    "text": "Mining companies, mineral processing and downstream industries seeking solutions, partnerships and investment opportunities."
    },
    {
-    "key": "where-possibility-meets.26",
+    "key": "where-possibility-meets.55",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Equipment & Technology Providers"
+   },
+   {
+    "key": "where-possibility-meets.56",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Manufacturers, solution providers and service companies offering mining equipment, processing technology, automation and digital solutions."
+   },
+   {
+    "key": "where-possibility-meets.57",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Business Leaders & Industry Professionals"
+   },
+   {
+    "key": "where-possibility-meets.58",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Executives, decision-makers, technical experts, investors and other stakeholders involved in the development of Indonesia's mining and downstream sector."
+   },
+   {
+    "key": "where-possibility-meets.59",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "WHAT HAPPENS AT IMDX?"
+   },
+   {
+    "key": "where-possibility-meets.60",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/imdx-exhibitor-opportunity.webp",
+    "alt": "Mining equipment on display at an industry exhibition"
+   },
+   {
+    "key": "where-possibility-meets.61",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Exhibition"
+   },
+   {
+    "key": "where-possibility-meets.62",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Discover industrial solutions"
+   },
+   {
+    "key": "where-possibility-meets.63",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Explore a wide range of equipment, technology and services for mining, processing and downstream operations."
+   },
+   {
+    "key": "where-possibility-meets.64",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/conference-keynote.webp",
+    "alt": "Speaker presenting to a conference audience"
+   },
+   {
+    "key": "where-possibility-meets.65",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Conference"
+   },
+   {
+    "key": "where-possibility-meets.66",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Exchange market & technical insights"
+   },
+   {
+    "key": "where-possibility-meets.67",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Join industry-focused discussions on market outlook, technology development, operational excellence and sector opportunities."
+   },
+   {
+    "key": "where-possibility-meets.68",
     "kind": "image",
     "tag": "img",
     "src": "../assets/where-progress-connect.webp",
     "alt": "Delegates connecting on a mining exhibition floor"
    },
    {
-    "key": "where-possibility-meets.27",
+    "key": "where-possibility-meets.69",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "01 / CONNECT"
+    "text": "Networking"
    },
    {
-    "key": "where-possibility-meets.28",
+    "key": "where-possibility-meets.70",
     "kind": "text",
-    "tag": "h3",
+    "tag": "strong",
     "mode": "plain",
-    "text": "Industry connections"
+    "text": "Build practical business connections"
    },
    {
-    "key": "where-possibility-meets.29",
+    "key": "where-possibility-meets.71",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Meet stakeholders across mining, equipment, services, processing and downstream value chains."
+    "text": "Meet potential partners, customers and industry peers to explore collaboration and create new opportunities."
    },
    {
-    "key": "where-possibility-meets.30",
+    "key": "where-possibility-meets.72",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "THE EXHIBITION EXPERIENCE"
+   },
+   {
+    "key": "where-possibility-meets.73",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Previous Edition Highlights"
+   },
+   {
+    "key": "where-possibility-meets.74",
+    "kind": "text",
+    "tag": "a",
+    "mode": "own",
+    "text": "View the gallery",
+    "href": "../highlights/"
+   },
+   {
+    "key": "where-possibility-meets.75",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/imdx-showcase-audience.webp",
+    "alt": "Audience at an exhibition conference session"
+   },
+   {
+    "key": "where-possibility-meets.76",
     "kind": "image",
     "tag": "img",
     "src": "../assets/where-progress-discover.webp",
-    "alt": "Mining equipment and industrial technology presented to exhibition visitors"
+    "alt": "Mining equipment presented to exhibition visitors"
    },
    {
-    "key": "where-possibility-meets.31",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "02 / DISCOVER"
-   },
-   {
-    "key": "where-possibility-meets.32",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "Technology discovery"
-   },
-   {
-    "key": "where-possibility-meets.33",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Explore emerging solutions in automation, processing equipment and responsible operations."
-   },
-   {
-    "key": "where-possibility-meets.34",
+    "key": "where-possibility-meets.77",
     "kind": "image",
     "tag": "img",
-    "src": "../assets/where-progress-dialogue.webp",
-    "alt": "Coal industry speakers participating in a panel discussion"
+    "src": "../assets/china-indonesia-forum.webp",
+    "alt": "Speakers at the China–Indonesia coal and energy conference"
    },
    {
-    "key": "where-possibility-meets.35",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "03 / COLLABORATE"
-   },
-   {
-    "key": "where-possibility-meets.36",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "Strategic dialogue"
-   },
-   {
-    "key": "where-possibility-meets.37",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Take part in conference discussions and conversations that move the industry forward."
+    "key": "where-possibility-meets.78",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/networking-reception.webp",
+    "alt": "Exhibitors and buyers networking at an industry exhibition"
    }
   ],
   "indonesia-a-core-hub-in-the": [
