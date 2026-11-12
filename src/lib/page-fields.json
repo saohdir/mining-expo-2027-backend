@@ -1234,6 +1234,13 @@
     "text": "Position your brand at the center of Indonesia-China's mining and energy business, meet qualified buyers, and generate real opportunities for partnerships, investment, and new projects."
    },
    {
+    "key": "make-your-next-connection.53",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/networking-reception.webp",
+    "alt": "Delegates meeting decision-makers at the exhibition"
+   },
+   {
     "key": "make-your-next-connection.47",
     "kind": "text",
     "tag": "h3",
@@ -1248,6 +1255,13 @@
     "text": "Connect directly with government, mining companies, EPCs, and key buyers from Indonesia and China."
    },
    {
+    "key": "make-your-next-connection.54",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/china-indonesia-forum.webp",
+    "alt": "Officials and industry leaders at a China–Indonesia cooperation forum"
+   },
+   {
     "key": "make-your-next-connection.49",
     "kind": "text",
     "tag": "h3",
@@ -1260,6 +1274,13 @@
     "tag": "p",
     "mode": "plain",
     "text": "Be part of policy dialogue, project matching, and investment cooperation that create real business opportunities."
+   },
+   {
+    "key": "make-your-next-connection.55",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/where-progress-dialogue.webp",
+    "alt": "Industry partners in a panel discussion"
    },
    {
     "key": "make-your-next-connection.51",
@@ -1299,6 +1320,13 @@
     "text": "A comprehensive showcase across the mining and energy value chain, connecting technologies, equipment, and solutions for a more efficient, safer, and sustainable industry."
    },
    {
+    "key": "a-world-of-opportunity.119",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-01.webp",
+    "alt": "Haul truck and excavator at an open-pit mine"
+   },
+   {
     "key": "a-world-of-opportunity.103",
     "kind": "text",
     "tag": "h3",
@@ -1311,6 +1339,13 @@
     "tag": "p",
     "mode": "plain",
     "text": "Heavy equipment and machines for exploration, mining, and processing."
+   },
+   {
+    "key": "a-world-of-opportunity.120",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-02.webp",
+    "alt": "Mineral processing plant"
    },
    {
     "key": "a-world-of-opportunity.105",
@@ -1327,6 +1362,13 @@
     "text": "Crushing, grinding, separation, and refining technologies."
    },
    {
+    "key": "a-world-of-opportunity.121",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-03.webp",
+    "alt": "Molten metal pouring in a smelter"
+   },
+   {
     "key": "a-world-of-opportunity.107",
     "kind": "text",
     "tag": "h3",
@@ -1339,6 +1381,13 @@
     "tag": "p",
     "mode": "plain",
     "text": "Smelting, refining, and value-added metal production solutions."
+   },
+   {
+    "key": "a-world-of-opportunity.122",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-04.webp",
+    "alt": "Industrial processing complex by the coast"
    },
    {
     "key": "a-world-of-opportunity.109",
@@ -1355,6 +1404,13 @@
     "text": "Power generation, energy supply, and integrated energy solutions for mining."
    },
    {
+    "key": "a-world-of-opportunity.123",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-05.webp",
+    "alt": "Robotic automation in a modern facility"
+   },
+   {
     "key": "a-world-of-opportunity.111",
     "kind": "text",
     "tag": "h3",
@@ -1367,6 +1423,13 @@
     "tag": "p",
     "mode": "plain",
     "text": "Automation, IoT, AI, and digital solutions for safer, smarter, and more efficient mining."
+   },
+   {
+    "key": "a-world-of-opportunity.124",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-06.webp",
+    "alt": "Green reclaimed mining landscape"
    },
    {
     "key": "a-world-of-opportunity.113",
@@ -1383,6 +1446,13 @@
     "text": "Environmental protection, resource efficiency, reclamation, and sustainable mining practices."
    },
    {
+    "key": "a-world-of-opportunity.125",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-07.webp",
+    "alt": "Large industrial gear in a workshop"
+   },
+   {
     "key": "a-world-of-opportunity.115",
     "kind": "text",
     "tag": "h3",
@@ -1395,6 +1465,13 @@
     "tag": "p",
     "mode": "plain",
     "text": "EPC, engineering, consulting, logistics, finance, and other professional services."
+   },
+   {
+    "key": "a-world-of-opportunity.126",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-08.webp",
+    "alt": "Geologists surveying a mining site"
    },
    {
     "key": "a-world-of-opportunity.117",
@@ -1491,56 +1568,6 @@
     "tag": "p",
     "mode": "plain",
     "text": "Get the key materials you need to plan your participation at IMDX 2027."
-   },
-   {
-    "key": "exhibitor-downloads.13",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "Exhibition Brochure"
-   },
-   {
-    "key": "exhibitor-downloads.14",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Overview, key highlights, exhibition scope, and participation guide."
-   },
-   {
-    "key": "exhibitor-downloads.15",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "Exhibitor Invitation"
-   },
-   {
-    "key": "exhibitor-downloads.16",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Official invitation to exhibit at IMDX 2027. Share it with your team and partners."
-   },
-   {
-    "key": "exhibitor-downloads.17",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "Exhibition Floor Plan"
-   },
-   {
-    "key": "exhibitor-downloads.18",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "View the latest hall layout, booth zones, and available exhibition areas."
-   },
-   {
-    "key": "exhibitor-downloads.19",
-    "kind": "text",
-    "tag": "a",
-    "mode": "own",
-    "text": "View Floor Plan",
-    "href": "/floorplan"
    }
   ]
  },

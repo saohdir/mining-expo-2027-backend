@@ -21,6 +21,14 @@ const TYPES: Record<string, {label: string; fields: [string, string, number?][];
   faq: {label: "FAQ", fields: [["heading", "Heading"]], list: [["q", "Question"], ["a", "Answer"]]},
   list: {label: "CMS list (partners, downloads, news, gallery, contacts)", fields: [["heading", "Heading"], ["kind", "Kind: PARTNER | DOWNLOAD | NEWS | GALLERY | CONTACT"]]}
 };
+/** Readable page names for the picker (the URL alone looked like a single page). */
+const PAGE_NAMES: Record<string, string> = {home: "Home", about: "About the Exhibition", exhibition: "Exhibition scope", exhibitors: "Exhibitors", visitors: "Visitor Information",
+  programme: "Conferences", partners: "Organizers & Partners", news: "News & Updates", highlights: "Event Highlight", "the-venue": "The Venue", contact: "Contact",
+  privacy: "Privacy notice", terms: "Registration & payment terms", site: "Header & footer (all pages)"};
+const pageName = (k: string) => PAGE_NAMES[k] || k;
+const decode = (s: string) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+const TAG_NAMES: Record<string, string> = {h1: "Page title", h2: "Heading", h3: "Sub-heading", h4: "Sub-heading", p: "Paragraph", a: "Link / button", button: "Button", li: "List item",
+  span: "Label", strong: "Bold label", small: "Small text", em: "Highlighted text", summary: "Question", figcaption: "Caption", time: "Date", label: "Label", dt: "Term", dd: "Description"};
 const emptyData = (t: string) => Object.fromEntries([...TYPES[t].fields.map(([k]) => [k, t === "list" && k === "kind" ? "PARTNER" : ""]), ...(TYPES[t].list ? [["items", []]] : [])]);
 
 /** CMS page builder: manage content blocks and the layout (order/visibility) of every public page,
@@ -33,18 +41,25 @@ export default function PagesCms() {
   const [layout, setLayout] = useState<Layout | null>(null), [dirty, setDirty] = useState(false), [msg, setMsg] = useState(""), [busy, setBusy] = useState(false), [open, setOpen] = useState<string>("");
   const loadList = useCallback(async () => { try { setPages((await call("/api/admin/pages")).pages); } catch (e) { setMsg((e as Error).message); } }, []);
   const load = useCallback(async () => { try { const x = await call(`/api/admin/pages/${key}?locale=${locale}`); setD(x); setLayout(x.draft); setDirty(false); } catch (e) { setMsg((e as Error).message); } }, [key, locale]);
-  useEffect(() => { void loadList(); }, [loadList]);
+  useEffect(() => { void loadList(); const p = new URLSearchParams(window.location.search).get("page"); if (p) setKey(p); }, [loadList]);
+  const pick = async (v: string) => { if (v === key) return; if (dirty && !await ask({title: "Discard unsaved changes?", tone: "warning", confirmLabel: "Yes, discard", changes: ["Your edits on this page that are not saved as a draft are lost."]})) return;
+    setKey(v); setOpen(""); const u = new URL(window.location.href); u.searchParams.set("page", v); window.history.replaceState(null, "", u); };
   useEffect(() => { void load(); }, [load]);
   const act = async (fn: () => Promise<unknown>, ok: string) => { setBusy(true); setMsg(""); try { await fn(); setMsg(ok); await load(); await loadList(); } catch (e) { setMsg((e as Error).message); } finally { setBusy(false); } };
   const edit = (fn: (l: Layout) => Layout) => { setLayout(l => l ? fn(structuredClone(l)) : l); setDirty(true); };
   const move = (i: number, dir: number) => edit(l => { const j = i + dir; if (j < 0 || j >= l.blocks.length) return l; [l.blocks[i], l.blocks[j]] = [l.blocks[j], l.blocks[i]]; return l; });
-  const label = (b: Block) => b.type === "static" ? "Designed section · " + (d?.sections.find(s => s.id === b.ref)?.label || b.ref) : TYPES[b.type]?.label + (b.data && (b.data.title || b.data.heading) ? " · " + String(b.data.title || b.data.heading) : "");
+  const label = (b: Block) => b.type === "static" ? "Designed section · " + decode(d?.sections.find(s => s.id === b.ref)?.label || b.ref || "") : TYPES[b.type]?.label + (b.data && (b.data.title || b.data.heading) ? " · " + String(b.data.title || b.data.heading) : "");
   const missingStatic = d ? d.sections.filter(s => !layout?.blocks.some(b => b.type === "static" && b.ref === s.id)) : [];
   if (!layout || !d) return <main className="cms-page"><p>{msg || "Loading pages…"}</p></main>;
   return <main className="cms-page"><header><p className="eyebrow">CONTENT</p><h1>Pages &amp; layout</h1>
     <p>Change the content and layout of the public website: reorder or hide designed sections and add your own blocks. Changes stay in draft until published; every publish is a version you can roll back.</p></header>
+    <nav className="cms-page-picker" aria-label="Choose a page to edit">
+      {pages.map(p => <button key={p.key} type="button" className="ghost cms-pick" aria-pressed={p.key === key} onClick={() => void pick(p.key)}>
+        <strong>{pageName(p.key)}</strong><small>{p.key === "site" ? "Navigation, footer" : p.path}</small>
+        {p.locales.some(l => l.unpublishedChanges) && <span className="cms-page-draft">Draft</span>}</button>)}
+    </nav>
+    <h2 className="cms-page-current">Editing: {pageName(key)} <span className="micro">{d.path}</span></h2>
     <div className="cms-row-actions">
-      <label>Page<select value={key} onChange={async e => { const v = e.target.value; if (!dirty || await ask({title: "Discard unsaved changes?", tone: "warning", confirmLabel: "Yes, discard", changes: ["Your edits on this page that are not saved as a draft are lost."]})) setKey(v); }}>{pages.map(p => <option key={p.key} value={p.key}>{p.path} {p.locales.some(l => l.unpublishedChanges) ? "• draft" : ""}</option>)}</select></label>
       <label>Language<select value={locale} onChange={e => setLocale(e.target.value)}><option value="en">English</option><option value="zh">中文 (Simplified Chinese)</option></select></label>
       <a className="button-link ghost" href={d.path + "?cmsPreview=1"} target="_blank" rel="noreferrer">Preview draft ↗</a>
       <span className="micro">Published v{d.version}{d.publishedAt ? " · " + new Date(d.publishedAt).toLocaleString("en-GB", {timeZone: "Asia/Jakarta"}) : " · showing original design"}</span>
@@ -54,10 +69,10 @@ export default function PagesCms() {
       <div className="form-grid"><label>Page title (max 70)<input disabled={!canEdit} maxLength={70} value={layout.seo.title} onChange={e => edit(l => { l.seo.title = e.target.value; return l; })} /></label>
         <label>Meta description (max 170)<textarea disabled={!canEdit} maxLength={170} value={layout.seo.description} onChange={e => edit(l => { l.seo.description = e.target.value; return l; })} /></label></div></section>
     {key === "site" && Object.entries(d.fields).map(([group, defs]) => <section className="cms-card" key={group}><h2>{group === "site-header" ? "Header & navigation (all pages)" : group === "site-footer" ? "Footer (all pages)" : group}</h2>
-      <FieldEditor defs={defs} values={layout.fields || {}} disabled={!canEdit} onChange={fn => edit(l => { l.fields = fn({...(l.fields || {})}); return l; })} /></section>)}
+      <FieldEditor base={d.path} defs={defs} values={layout.fields || {}} disabled={!canEdit} onChange={fn => edit(l => { l.fields = fn({...(l.fields || {})}); return l; })} /></section>)}
     {key !== "site" && <section className="cms-card"><h2>Layout ({layout.blocks.length} blocks)</h2>
       <ol className="page-blocks">{layout.blocks.map((b, i) => <li key={b.id} className={b.hidden ? "is-hidden" : ""}>
-        <div className="cms-row-actions"><strong>{i + 1}. {label(b)}</strong>{b.hidden && <span className="status">Hidden</span>}
+        <div className="cms-row-actions"><strong>{label(b)}</strong>{b.hidden && <span className="status">Hidden</span>}
           {canEdit && <><button type="button" className="ghost cms-small" aria-label={"Move " + label(b) + " up"} disabled={i === 0} onClick={() => move(i, -1)}>↑</button>
             <button type="button" className="ghost cms-small" aria-label={"Move " + label(b) + " down"} disabled={i === layout.blocks.length - 1} onClick={() => move(i, 1)}>↓</button>
             <button type="button" className="ghost cms-small" onClick={() => edit(l => { l.blocks[i].hidden = !l.blocks[i].hidden; return l; })}>{b.hidden ? "Show" : "Hide"}</button>
@@ -66,7 +81,7 @@ export default function PagesCms() {
               <button type="button" className="ghost cms-small" onClick={async () => { if (await ask({title: "Remove this block?", tone: "warning", confirmLabel: "Yes, remove", changes: ["The block is removed from the draft."], impact: ["The live page changes only after you publish."]})) edit(l => { l.blocks.splice(i, 1); return l; }); }}>Remove</button></>}</>}
         </div>
         {open === b.id && b.data && <BlockForm block={b} onChange={data => edit(l => { l.blocks[i].data = data; return l; })} />}
-        {open === b.id && b.type === "static" && <FieldEditor defs={d.fields[b.ref!] || []} values={layout.fields || {}} disabled={!canEdit} onChange={fn => edit(l => { l.fields = fn({...(l.fields || {})}); return l; })} />}
+        {open === b.id && b.type === "static" && <FieldEditor base={d.path} defs={d.fields[b.ref!] || []} values={layout.fields || {}} disabled={!canEdit} onChange={fn => edit(l => { l.fields = fn({...(l.fields || {})}); return l; })} />}
       </li>)}</ol>
       {canEdit && <div className="cms-row-actions"><label>Add block<select value="" onChange={e => { const t = e.target.value; if (!t) return; const id = t + "-" + Math.random().toString(36).slice(2, 8); edit(l => { l.blocks.push({id, type: t, hidden: false, data: emptyData(t)}); return l; }); setOpen(id); }}>
         <option value="">Choose block type…</option>{Object.entries(TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
@@ -101,7 +116,22 @@ function BlockForm({block, onChange}: {block: Block; onChange: (d: Record<string
 }
 
 /** Edit text, links and images inside a designed section (or the shared header/footer). Empty = keep the designed text. */
-function FieldEditor({defs, values, disabled, onChange}: {defs: FieldDef[]; values: Record<string, FieldVal>; disabled: boolean; onChange: (fn: (f: Record<string, FieldVal>) => Record<string, FieldVal>) => void}) {
+function FieldEditor({base, defs, values, disabled, onChange}: {base: string; defs: FieldDef[]; values: Record<string, FieldVal>; disabled: boolean; onChange: (fn: (f: Record<string, FieldVal>) => Record<string, FieldVal>) => void}) {
+  const [busy, setBusy] = useState(""), [err, setErr] = useState("");
+  const abs = (src?: string) => { if (!src) return ""; try { return new URL(src, window.location.origin + (base.startsWith("/") ? base : "/")).pathname; } catch { return src; } };
+  /** Replace a designed photo: upload (PNG/JPG/WebP ≤12 MB, converted to WebP) and use the returned URL. */
+  const upload = async (f: FieldDef, file: File) => {
+    setErr("");
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { setErr(`“${file.name}”: use a PNG, JPG or WebP image (iPhone HEIC: export as JPG).`); return; }
+    if (file.size > 12 * 1024 * 1024) { setErr(`“${file.name}” is ${(file.size / 1048576).toFixed(1)} MB; the limit is 12 MB.`); return; }
+    setBusy(f.key);
+    try {
+      const fd = new FormData(); fd.append("file", file);
+      const r = await fetch("/api/admin/assets", {method: "POST", body: fd}); const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(r.status === 413 ? "The image is too large for the server." : j.message || "Upload failed (" + r.status + ").");
+      set(f, {src: j.url});
+    } catch (e) { setErr((e as Error).message); } finally { setBusy(""); }
+  };
   const set = (f: FieldDef, patch: FieldVal) => onChange(all => {
     const next: FieldVal = {...(all[f.key] || {}), ...patch};
     for (const k of Object.keys(next) as (keyof FieldVal)[]) if (next[k] === "" || next[k] === undefined || (k !== "mode" && next[k] === f[k as keyof FieldDef])) delete next[k];
@@ -110,14 +140,18 @@ function FieldEditor({defs, values, disabled, onChange}: {defs: FieldDef[]; valu
     return all;
   });
   return <div className="cms-field-editor">
+    {err && <p className="cms-dl-error" role="alert">{err}</p>}
     <p className="micro">Leave a field empty to keep the designed text. Plain text only{defs.some(f => f.mode === "rich") ? "; in multi-line fields a new line = line break, *text* = italic, **text** = bold" : ""}.</p>
     {defs.map(f => { const v = values[f.key] || {}, changed = Object.keys(v).some(k => k !== "mode");
       return <div key={f.key} className={"cms-field" + (changed ? " is-changed" : "")}>
         {f.kind === "image" ? <>
-          <label>Image ({f.key}) — URL<input disabled={disabled} placeholder={f.src} value={v.src ?? ""} onChange={e => set(f, {src: e.target.value})} /></label>
+          <div className="cms-field-image"><img src={v.src || abs(f.src)} alt="" />
+            <div><strong>Photo</strong> <small className="micro">({f.key}){v.src ? " · replaced" : " · designed photo"}</small>
+              {!disabled && <label className="be-upload">{busy === f.key ? "Uploading…" : "Upload photo"}<input type="file" accept="image/png,image/jpeg,image/webp" disabled={busy === f.key} onChange={e => { const file = e.target.files?.[0]; if (file) void upload(f, file); e.target.value = ""; }} /></label>}</div></div>
+          <label>Image URL (filled in by the upload)<input disabled={disabled} placeholder={f.src} value={v.src ?? ""} onChange={e => set(f, {src: e.target.value})} /></label>
           <label>Alt text<input disabled={disabled} maxLength={200} placeholder={f.alt} value={v.alt ?? ""} onChange={e => set(f, {alt: e.target.value})} /></label>
         </> : <>
-          <label>{f.tag.toUpperCase()} ({f.key}){f.mode === "own" ? " — text next to an icon" : ""}
+          <label>{TAG_NAMES[f.tag] || f.tag.toUpperCase()} <small className="micro">({f.key})</small>{f.mode === "own" ? " — text next to an icon" : ""}
             {f.mode === "rich" || (f.text || "").length > 80
               ? <textarea disabled={disabled} rows={Math.min(8, Math.max(2, Math.ceil((f.text || "").length / 70)))} maxLength={4000} placeholder={f.text} value={v.text ?? ""} onChange={e => set(f, {text: e.target.value})} />
               : <input disabled={disabled} maxLength={4000} placeholder={f.text} value={v.text ?? ""} onChange={e => set(f, {text: e.target.value})} />}</label>

@@ -40,17 +40,20 @@ test("compact page hero on inner pages + Why Exhibit block", {skip}, async () =>
     assert.equal(await page.locator(".xb-why-cards li").count(), 3); assert.equal(await page.locator(".xb-why-cards a, .xb-why-cards button").count(), 0);
     assert.equal(await page.locator(".xb-scope-cards li").count(), 8); assert.equal(await page.locator("#industryPhotoGrid, .industry-modal").count(), 0);
     assert.equal(await page.locator('.xb-reserve a.xb-btn[href="/floorplan"]').count(), 1);
-    assert.equal(await page.locator(".xb-dl-cards li").count(), 3);
-    // Downloads: a button links only to a published CMS download (else "Coming soon"; see exhibitor-downloads.browser.mjs).
-    for (const m of ["brochure", "invitation"]) { const a = page.locator(`a[data-download-match="${m}"]`), href = await a.getAttribute("href");
-      assert.equal((await a.textContent()).trim(), href ? "Download PDF" : "Coming soon"); }
-    assert.equal(await page.locator('.xb-dl-cards a[href="/floorplan"]').count(), 1);
+    // Photo cards (no icons) and the intro photo ends where the cards end (same right edge).
+    assert.equal(await page.locator(".xb-why-cards li img").count(), 3); assert.equal(await page.locator(".xb-scope-cards li img").count(), 8);
+    assert.equal(await page.locator(".xb-why-cards .xb-ico, .xb-scope-cards .xb-ico").count(), 0);
+    const edge = sel => page.locator(sel).first().evaluate(e => Math.round(e.getBoundingClientRect().right));
+    assert.ok(Math.abs(await edge(".xb-intro-photo") - await edge(".xb-why-cards li:last-child")) <= 2, "intro photo aligned with the cards");
+    // Downloads: only files published in CMS › Downloads (see exhibitor-downloads.browser.mjs).
     // Visitors (owner mockup): intro + Register as Visitor, at a glance, why visit, 8 scope tiles, FAQ (#faq), plan-your-visit CTA.
     await page.goto(SITE + "/visitors/");
     assert.match(await page.locator("#vs-intro-h").textContent(), /Explore Solutions/);
     assert.equal(await page.locator('button[data-action="register"].vs-btn').count(), 2, "two Register as Visitor buttons");
     assert.equal(await page.locator(".vs-glance-facts li").count(), 2); assert.equal(await page.locator(".vs-why-cards li").count(), 4);
     assert.equal(await page.locator(".vs-tiles li").count(), 8);
+    { const edge = sel => page.locator(sel).first().evaluate(e => Math.round(e.getBoundingClientRect().right));
+      assert.ok(Math.abs(await edge(".xb-intro-photo") - await edge(".vs-why-cards li:last-child")) <= 2, "visitors intro photo aligned with the cards"); }
     const faq = page.locator("#faq .vs-faq-list details"); assert.equal(await faq.count(), 5);
     assert.equal(await faq.first().getAttribute("open"), "", "first answer open");
     await faq.nth(1).locator("summary").click(); assert.equal(await faq.nth(1).getAttribute("open"), "");

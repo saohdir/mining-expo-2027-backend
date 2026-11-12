@@ -1,5 +1,5 @@
-// Exhibitors › Exhibitor Downloads: the designed Brochure / Invitation cards link to the PDF published in
-// CMS › Website content › Downloads (matched by "brochure" / "invitation" in the title or slug); otherwise "Coming soon".
+// Exhibitors › Exhibitor Downloads: shows only the files published in CMS › Website content › Downloads (one card each);
+// the section is hidden while there is none.
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {createRequire} from "node:module";
@@ -18,24 +18,29 @@ test.after(async () => {
   await db.$disconnect();
 });
 
-test("exhibitor download cards: Coming soon without a PDF, Download PDF once the brochure is published", {skip}, async () => {
+test("exhibitor downloads: hidden without files, one card per published CMS download", {skip}, async () => {
   hidden = (await db.contentItem.findMany({where: {kind: "DOWNLOAD", status: "PUBLISHED"}, select: {id: true}})).map(i => i.id);
   await db.contentItem.updateMany({where: {id: {in: hidden}}, data: {status: "DRAFT"}});
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage(); const errors = []; page.on("pageerror", e => errors.push(e.message));
-    await page.goto(SITE + "/exhibitors/");
-    const brochure = page.locator('a[data-download-match="brochure"]'), invite = page.locator('a[data-download-match="invitation"]');
-    await page.waitForTimeout(800);
-    assert.equal((await brochure.textContent()).trim(), "Coming soon"); assert.equal(await brochure.getAttribute("href"), null);
+    await page.goto(SITE + "/exhibitors/"); await page.waitForTimeout(1000);
+    const sec = page.locator('[data-cms-block="exhibitor-downloads"]');
+    assert.equal(await sec.isVisible(), false, "no published files → section hidden");
+    assert.equal(await page.getByText("Coming soon").count(), 0); assert.equal(await page.locator("[data-xb-downloads] li").count(), 0);
     const ED = await adminLogin("CONTENT_EDITOR");
-    const c = await ED.post("/api/admin/content", {kind: "DOWNLOAD", title: "IMDX 2027 Exhibition Brochure", slug: "e2e-xdl-" + run, url: "/downloads/e2e-brochure.pdf", fileType: "PDF"});
-    assert.equal(c.status, 201);
-    assert.equal((await ED.patch("/api/admin/content/" + c.body.item.id, {status: "PUBLISHED", reason: "E2E brochure"})).status, 200);
-    await page.reload(); await page.waitForFunction(() => document.querySelector('a[data-download-match="brochure"]')?.getAttribute("href"));
-    assert.equal(await brochure.getAttribute("href"), "/downloads/e2e-brochure.pdf");
-    assert.equal((await brochure.textContent()).trim(), "Download PDF"); assert.equal(await brochure.getAttribute("aria-disabled"), null);
-    assert.equal((await invite.textContent()).trim(), "Coming soon", "the invitation card stays empty");
+    for (const [n, title] of [[1, "IMDX 2027 Exhibition Brochure"], [2, "Exhibitor Manual"]]) {
+      const c = await ED.post("/api/admin/content", {kind: "DOWNLOAD", title, slug: `e2e-xdl-${run}-${n}`, summary: "Uploaded in the CMS", url: `/downloads/e2e-${n}.pdf`, fileType: "PDF", fileSizeBytes: 2 * 1048576, sortOrder: n});
+      assert.equal(c.status, 201);
+      assert.equal((await ED.patch("/api/admin/content/" + c.body.item.id, {status: "PUBLISHED", reason: "E2E download"})).status, 200);
+    }
+    await page.reload(); await page.locator("[data-xb-downloads] li").first().waitFor();
+    assert.equal(await sec.isVisible(), true);
+    const cards = page.locator("[data-xb-downloads] li"); assert.equal(await cards.count(), 2, "exactly the published files");
+    assert.deepEqual(await cards.locator("h3").allTextContents(), ["IMDX 2027 Exhibition Brochure", "Exhibitor Manual"]);
+    const a = cards.first().locator("a.xb-btn-o");
+    assert.equal(await a.getAttribute("href"), "/downloads/e2e-1.pdf"); assert.equal((await a.textContent()).trim(), "Download PDF");
+    assert.match(await cards.first().locator(".xb-dl-meta").textContent(), /PDF · 2\.0 MB/);
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
