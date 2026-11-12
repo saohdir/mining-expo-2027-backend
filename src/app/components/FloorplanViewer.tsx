@@ -1,11 +1,10 @@
 "use client";
 import {useEffect, useMemo, useRef, useState} from "react";
-import {boothFill, boothText, STATUS_FILL} from "@/lib/booth-colors";
+import {BoothLegend, BoothShape, STATUS_LABEL as LABEL} from "./BoothMap";
 
 type Unit = {id: string; code: string; category: string; hall: string | null; zone: string | null; x: number; y: number; w: number; h: number; rotation?: number;
   areaSqm: string; lengthM: string | null; widthM: string | null; dimensionLabel: string | null; status: string; approvedPublicName: string | null; categoryColor: string | null; categoryName?: string | null};
 type Plan = {state: "PUBLISHED" | "COMING_SOON"; id?: string; floors?: {id: string; title: string; version: number}[]; version?: number; title?: string; backgroundUrl?: string | null; backgroundAlt?: string | null; canvas?: {width: number; height: number}; categories?: {name: string; colorHex: string | null}[]; display?: "names" | "status"; units: Unit[]};
-const LABEL: Record<string, string> = {AVAILABLE: "Available", RESERVED: "Reserved", OCCUPIED: "Occupied", BLOCKED: "Unavailable", UNAVAILABLE: "Not available"};
 const who = (u: Unit) => u.approvedPublicName ? (u.status === "RESERVED" ? "Reserved by " : "Occupied by ") + u.approvedPublicName : LABEL[u.status] || u.status;
 const size = (u: Unit) => u.lengthM && u.widthM ? `${u.lengthM} by ${u.widthM} metres` : (u.dimensionLabel || "");
 export const accessibleName = (u: Unit) => [u.code, size(u), u.areaSqm + " square metres", u.status === "AVAILABLE" && u.categoryName ? "available, " + u.categoryName : who(u)].filter(Boolean).join(", ");
@@ -40,11 +39,7 @@ export function FloorplanViewer({requestHref = (id: string) => "/account?request
       <button type="button" aria-pressed={view === "list"} onClick={() => setView(v => v === "map" ? "list" : "map")}>{view === "map" ? "Show list view" : "Show map view"}</button>
     </div>
     {noneAvailable && <p role="status" className="warning">No booth is currently available on the published map. You may still contact the organizer.</p>}
-    <div className="fp-legend micro" aria-label="Legend"><strong>Available:</strong>
-      {(plan.categories?.length ? plan.categories : [{name: "Booth", colorHex: null}]).filter(c => plan.units.some(u => u.status === "AVAILABLE" && (u.categoryName || "") === c.name) || !plan.categories?.length).map(c => <span key={c.name} className="fp-chip"><i style={{background: boothFill("AVAILABLE", c.colorHex)}} />{c.name}</span>)}
-      <strong>Booked:</strong>{plan.display === "status" ? <span className="fp-chip"><i style={{background: STATUS_FILL.UNAVAILABLE}} />Not available</span>
-        : <><span className="fp-chip"><i style={{background: STATUS_FILL.RESERVED}} />Reserved</span><span className="fp-chip"><i style={{background: STATUS_FILL.OCCUPIED}} />Occupied</span><span className="fp-chip"><i style={{background: STATUS_FILL.BLOCKED}} />Unavailable</span></>}
-      <span>Selecting an available booth sends a preference request; the organizer confirms any allocation.</span></div>
+    <BoothLegend categories={plan.categories} units={plan.units} display={plan.display} note="Selecting an available booth sends a preference request; the organizer confirms any allocation." />
     {view === "map" ? <>
       <div className="cms-row-actions" role="group" aria-label="Zoom and pan">
         <button type="button" onClick={() => setZ(zoom + 0.5)} aria-label="Zoom in">+</button><button type="button" onClick={() => setZ(zoom - 0.5)} aria-label="Zoom out">−</button>
@@ -61,15 +56,7 @@ export function FloorplanViewer({requestHref = (id: string) => "/account?request
           onPointerUp={() => { drag.current = null; }} onPointerLeave={() => { drag.current = null; }}
           onWheel={e => { if (e.ctrlKey) { e.preventDefault(); setZ(zoom - Math.sign(e.deltaY) * 0.25); } }}>
           {plan.backgroundUrl && <image href={plan.backgroundUrl} x={0} y={0} width={plan.canvas.width} height={plan.canvas.height}><title>{plan.backgroundAlt || "Floorplan background"}</title></image>}
-          {units.map(u => { const fill = boothFill(u.status, u.categoryColor), ink = boothText(fill), fs = Math.max(7, Math.min(13, u.w / 4.5, u.h / 2.6));
-            const second = u.status === "AVAILABLE" ? (u.dimensionLabel || "") : (u.approvedPublicName || LABEL[u.status] || "");
-            return <g key={u.id} role="button" tabIndex={0} aria-label={accessibleName(u)} aria-pressed={focus?.id === u.id}
-            onClick={() => setFocus(u)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFocus(u); } }}
-            transform={u.rotation ? `rotate(${u.rotation} ${u.x} ${u.y})${u.rotation === 90 ? ` translate(0 ${-u.h})` : u.rotation === 180 ? ` translate(${-u.w} ${-u.h})` : ` translate(${-u.w} 0)`}` : undefined}>
-            <rect x={u.x} y={u.y} width={u.w} height={u.h} rx={1.5} stroke={focus?.id === u.id ? "#ff5912" : "rgba(53,18,10,.35)"} strokeWidth={focus?.id === u.id ? 4 : 0.8} fill={fill} />
-            <text x={u.x + 3} y={u.y + fs + 2} fontSize={fs} fontWeight={600} fill={ink} pointerEvents="none">{u.code}</text>
-            {second && u.h > fs * 2.4 && <text x={u.x + 3} y={u.y + fs * 2 + 4} fontSize={Math.max(6, fs * 0.72)} fill={ink} opacity={0.85} pointerEvents="none">{second.slice(0, Math.max(6, Math.floor(u.w / (fs * 0.45))))}</text>}
-          </g>; })}
+          {units.map(u => <BoothShape key={u.id} u={u} label={accessibleName(u)} focused={focus?.id === u.id} onActivate={() => setFocus(u)} />)}
         </svg>
       </div>
     </> : <div className="table-scroll" role="region" aria-label="Booth list" tabIndex={0}><table className="cms-table"><caption>Booths ({units.length})</caption><thead><tr><th>Booth</th><th>Hall / zone</th><th>Size</th><th>Area</th><th>Status</th><th /></tr></thead><tbody>
