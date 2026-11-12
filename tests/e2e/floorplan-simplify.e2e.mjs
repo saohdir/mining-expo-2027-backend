@@ -71,3 +71,25 @@ test("replacing a live floor keeps every booking: booked booths missing in the d
   // The replaced version keeps its booking history, so it cannot be deleted (only archived history).
   const old = await R.OPS.del(`/api/admin/floorplans/${liveId}`, {}); ok(old, 409, "archived with history"); assert.equal(old.body.error, "HAS_HISTORY");
 });
+
+test("saving booths: readable reasons instead of a bare 400, small mistakes are tolerated", async () => {
+  R.OPS = R.OPS || await adminLogin("OPERATIONS");
+  const d = await R.OPS.post("/api/admin/floorplans", {title: "Save rules " + run, newFloor: true}); ok(d, 201, "draft");
+  let plan = await fresh(d.body.plan.id);
+  // A code with a space/dot and an empty size: the message names the booth and what to fix.
+  const bad = await R.OPS.put(`/api/admin/floorplans/${plan.id}/units`, {rowVersion: plan.rowVersion, units: [{...unit("A 1.2"), w: 0}, unit("B2", 60)]});
+  ok(bad, 400, "invalid booth"); assert.equal(bad.body.error, "INVALID_UNITS");
+  assert.match(bad.body.message, /Booth A 1\.2: booth code may only use letters, numbers/); assert.match(bad.body.message, /width on the plan must be greater than 0/);
+  const dup = await R.OPS.put(`/api/admin/floorplans/${plan.id}/units`, {rowVersion: plan.rowVersion, units: [unit("C1"), unit("c1", 60)]});
+  ok(dup, 400, "duplicate"); assert.match(dup.body.message, /used more than once: C1/);
+  // Dragged slightly past the edge → snapped to 0; empty area with length × width → area computed.
+  const good = await R.OPS.put(`/api/admin/floorplans/${plan.id}/units`, {rowVersion: plan.rowVersion, units: [{...unit("D1"), x: -3.5, y: -1}, {...unit("D2", 60), areaSqm: null, lengthM: 3, widthM: 4}]});
+  ok(good, 200, "tolerant save");
+  plan = await fresh(plan.id);
+  const byCode = Object.fromEntries(plan.units.map(u => [u.code, u]));
+  assert.equal(byCode.D1.x, 0); assert.equal(byCode.D1.y, 0); assert.equal(Number(byCode.D2.areaSqm), 12);
+  ok(await R.OPS.post(`/api/admin/floorplans/${plan.id}/publish`, {rowVersion: plan.rowVersion}), 200, "publish after save");
+  plan = await fresh(plan.id);
+  ok(await R.OPS.post(`/api/admin/floorplans/${plan.id}/activation`, {active: false, reason: "E2E cleanup save rules"}), 200, "inactive");
+  ok(await R.OPS.del(`/api/admin/floorplans/${plan.id}`, {reason: "E2E cleanup"}), 200, "cleanup");
+});

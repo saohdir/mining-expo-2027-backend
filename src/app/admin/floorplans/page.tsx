@@ -7,7 +7,7 @@ import {LiveFloor} from "./LiveFloor";
 type Unit={id?:string;code:string;category:string;categoryId?:string|null;hall?:string|null;zone?:string|null;x:number;y:number;w:number;h:number;areaSqm:number;status?:string;lengthM?:number|null;widthM?:number|null;dimensionLabel?:string|null;rotation?:number;internalNotes?:string|null;placed?:boolean};
 type Plan={id:string;title:string;versionNo:number;rowVersion:number;status:string;active?:boolean;replacesId?:string|null;canvasWidth:number;canvasHeight:number;backgroundUrl?:string|null;backgroundAlt?:string|null;backgroundRights?:string|null;units:Unit[]};
 type PublishCheck={replaces?:{id:string;title:string;versionNo:number;status:string}|null;canPublish:boolean;needsRemap?:boolean;openRequests:number;activeHolds:number;activeAssignments:number;rowVersion:number;hasUnits:boolean};
-const api=async(path:string,method="GET",body?:unknown)=>{const r=await fetch(path,{method,cache:"no-store",headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.message||"Request failed");return data};
+const api=async(path:string,method="GET",body?:unknown)=>{const r=await fetch(path,{method,cache:"no-store",headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.message||(Array.isArray(data.issues)&&data.issues.length?data.issues.map((i:{field:string;message:string})=>i.field+": "+i.message).join("; "):r.status===401?"Your CMS session has expired. Sign in again.":r.status===403?"Your role cannot do this.":"Request failed ("+r.status+")."));return data};
 export default function FloorplanEditor(){
  const {actor}=useCmsSession();
  const canEdit=actor?.role==="SUPER_ADMIN"||actor?.role==="OPERATIONS";
@@ -116,7 +116,22 @@ export default function FloorplanEditor(){
  const nudge=(dx:number,dy:number)=>{if(!plan||!editable||selected<0)return;edit(prev=>prev.map((u,i)=>i===selected?{...u,x:Math.max(0,Math.min(plan.canvasWidth-u.w,u.x+dx)),y:Math.max(0,Math.min(plan.canvasHeight-u.h,u.y+dy))}:u))};
  const placeUnit=(index:number)=>{if(!plan)return;const u=units[index];const free=(()=>{for(let yy=20;yy+u.h<=plan.canvasHeight;yy+=20)for(let xx=20;xx+u.w<=plan.canvasWidth;xx+=20)if(!units.some(o=>o.placed!==false&&xx<o.x+o.w&&xx+u.w>o.x&&yy<o.y+o.h&&yy+u.h>o.y))return {x:xx,y:yy};return {x:0,y:0}})();
    edit(prev=>prev.map((v,i)=>i===index?{...v,placed:true,...free}:v));setSelected(index)};
- const save=async()=>{if(!plan)return;try{const r=await api("/api/admin/floorplans/"+plan.id+"/units","PUT",{rowVersion:plan.rowVersion,units:units.map(({id,status,...u})=>({...u,categoryId:u.categoryId||null,rotation:u.rotation||0,placed:u.placed!==false}))});setWarnings(r.warnings||[]);setConflict(false);await load(plan.id);setWarnings(r.warnings||[])}catch(e){if(e instanceof Error&&/changed/i.test(e.message))setConflict(true);throw e}};
+ /** Checks every booth before saving and says exactly what to fix (the server applies the same rules). */
+ const unitProblems=(list:Unit[])=>{if(!plan)return [] as {i:number;text:string}[];const out:{i:number;text:string}[]=[];const seen=new Map<string,number>();
+  list.forEach((u,i)=>{const c=(u.code||"").trim(),name="Booth "+(c||"#"+(i+1));const num=(v:unknown)=>typeof v==="number"&&Number.isFinite(v);
+   if(!/^[A-Za-z0-9_-]{1,25}$/.test(c))out.push({i,text:name+": booth code may only use letters, numbers, - and _ (no spaces or dots, max 25)"});
+   const k=c.toUpperCase();if(c&&seen.has(k))out.push({i,text:name+": code is used twice"});else seen.set(k,i);
+   if(!(u.category||"").trim())out.push({i,text:name+": choose a category"});
+   if(!num(u.w)||u.w<=0||!num(u.h)||u.h<=0)out.push({i,text:name+": width and height on the plan must be greater than 0"});
+   if(!num(u.x)||!num(u.y))out.push({i,text:name+": position (x, y) is empty"});
+   if(!(num(u.areaSqm)&&u.areaSqm>0)&&!(u.lengthM&&u.widthM))out.push({i,text:name+": enter the area (m²) or length × width"});
+   if(u.placed!==false&&num(u.x)&&num(u.w)&&num(u.y)&&num(u.h)&&(u.x+u.w>plan.canvasWidth+0.5||u.y+u.h>plan.canvasHeight+0.5))out.push({i,text:name+": outside the floor area ("+plan.canvasWidth+" × "+plan.canvasHeight+") — move it inside or make it smaller"})});
+  return out};
+ const save=async()=>{if(!plan)return;
+  const clean=units.map(u=>({...u,code:(u.code||"").trim(),x:Math.max(0,Number(u.x)||0),y:Math.max(0,Number(u.y)||0)}));
+  const bad=unitProblems(clean);
+  if(bad.length){setSelected(bad[0].i);throw new Error("Cannot save yet — fix these booths: "+bad.slice(0,5).map(b=>b.text).join("; ")+(bad.length>5?"; and "+(bad.length-5)+" more":"")+".")}
+  try{const r=await api("/api/admin/floorplans/"+plan.id+"/units","PUT",{rowVersion:plan.rowVersion,units:clean.map(({id,status,...u})=>({...u,categoryId:u.categoryId||null,rotation:u.rotation||0,placed:u.placed!==false}))});setWarnings(r.warnings||[]);setConflict(false);await load(plan.id);setWarnings(r.warnings||[])}catch(e){if(e instanceof Error&&/changed/i.test(e.message))setConflict(true);throw e}};
  // FR-096 autosave (opt-in): saves every 30 s while there are unsaved edits and no conflict.
  useEffect(()=>{if(!autosave||!hasUnsaved||conflict||busy||!plan||!editable)return;const t=setTimeout(()=>void run(save),30000);return()=>clearTimeout(t)});
  const current=units[selected];
