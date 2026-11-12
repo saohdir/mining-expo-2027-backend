@@ -61,7 +61,11 @@ test("CMS editor: pick a page, reorder/hide blocks, add a block, save draft", {s
     const page = await ctx.newPage();
     await page.goto(SITE + "/admin/pages");
     await page.getByRole("heading", {name: "Pages & layout"}).waitFor();
-    await page.locator("label:has-text(\"Page\") select").first().selectOption("contact");
+    // Named page buttons (every public page is listed, not only Home).
+    const picker = page.getByRole("navigation", {name: "Choose a page to edit"});
+    for (const name of ["Home", "About the Exhibition", "Exhibitors", "Visitor Information", "Header & footer (all pages)"]) await picker.getByRole("button", {name: new RegExp("^" + name.replace(/[&()]/g, "\\$&"))}).waitFor();
+    await picker.getByRole("button", {name: /^Contact/}).click(); await page.waitForURL(/[?&]page=contact/);
+    await page.getByRole("heading", {name: /Editing: Contact/}).waitFor();
     const items = page.locator("ol.page-blocks > li");
     const n = (await ed.get("/api/admin/pages/contact")).body.draft.blocks.length;
     await page.waitForFunction(c => document.querySelectorAll("ol.page-blocks > li").length === c && /Organizer|Contact|contact/i.test(document.querySelector("ol.page-blocks")?.textContent || ""), n);
@@ -76,6 +80,14 @@ test("CMS editor: pick a page, reorder/hide blocks, add a block, save draft", {s
     const draft = (await ed.get("/api/admin/pages/contact")).body.draft;
     assert.equal(draft.blocks.length, n + 1); assert.equal(draft.blocks.at(-1).data.buttonHref, "/contact/");
     assert.ok(draft.blocks.some(b => b.hidden), "hidden flag saved");
+    // Photo fields: upload replaces the designed image (Exhibitors intro photo).
+    await page.goto(SITE + "/admin/pages?page=exhibitors"); await page.getByRole("heading", {name: /Editing: Exhibitors/}).waitFor();
+    await page.locator("ol.page-blocks > li").first().getByRole("button", {name: /Edit content/}).click();
+    const sharp = (await import("sharp")).default; const png = await sharp({create: {width: 40, height: 30, channels: 3, background: "#c33"}}).png().toBuffer();
+    const photo = page.locator(".cms-field-image").first();
+    await photo.locator('input[type=file]').setInputFiles({name: "year.png", mimeType: "image/png", buffer: png});
+    await photo.getByText("· replaced").waitFor();
+    assert.match(await photo.locator("img").getAttribute("src"), /^\/api\/public\/media\/.+\.webp$/);
   } finally { await browser.close(); }
 });
 
