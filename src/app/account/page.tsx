@@ -30,8 +30,8 @@ function PIcon({name}:{name:string}){const d:Record<string,string>={home:"M3 11 
 export default function AccountPage(){
  const [me,setMe]=useState<AccountData|null>(null),[events,setEvents]=useState<EventRecord[]>([]),[plan,setPlan]=useState<Floorplan|null>(null),[invoices,setInvoices]=useState<{invoices:CustomerInvoice[]}|null>(null),[passes,setPasses]=useState<{passes:{passId:string;qrDataUrl:string;entitlement:string;manualCode:string}[]}|null>(null);
  const [loading,setLoading]=useState(true),[message,setMessage]=useState(""),[busy,setBusy]=useState(false),[mode,setMode]=useState<"register"|"login">("register"),[email,setEmail]=useState(""),[channel,setChannel]=useState<"EMAIL"|"SMS">("EMAIL"),[phone,setPhone]=useState(""),[smsAvailable,setSmsAvailable]=useState(false),[name,setName]=useState(""),[challenge,setChallenge]=useState(""),[otp,setOtp]=useState(""),[tab,setTab]=useState("overview");
- const [fHall,setFHall]=useState(""),[fZone,setFZone]=useState(""),[fAvail,setFAvail]=useState(false),[fq,setFq]=useState("");
- const [company,setCompany]=useState(""),[picName,setPicName]=useState(""),[products,setProducts]=useState(""),[location,setLocation]=useState<"INDOOR"|"OUTDOOR">("INDOOR"),[customSize,setCustomSize]=useState(""),[area,setArea]=useState("18"),[notes,setNotes]=useState(""),[chosen,setChosen]=useState<string[]>([]),[conference,setConference]=useState("");
+ const [fHall,setFHall]=useState(""),[fZone,setFZone]=useState(""),[fAvail,setFAvail]=useState(false),[fq,setFq]=useState(""),[boothView,setBoothView]=useState<"map"|"list">("map");
+ const [company,setCompany]=useState(""),[picName,setPicName]=useState(""),[products,setProducts]=useState(""),[customSize,setCustomSize]=useState(""),[area,setArea]=useState("18"),[notes,setNotes]=useState(""),[chosen,setChosen]=useState<string[]>([]),[conference,setConference]=useState("");
  const reload=useCallback(async()=>{const results=await Promise.allSettled([request("/api/customer/me"),request("/api/public/events"),request("/api/public/floorplan"),request("/api/customer/invoices"),request("/api/customer/passes")]);if(results[0].status==="fulfilled")setMe(results[0].value);else setMe(null);if(results[1].status==="fulfilled")setEvents(results[1].value.events||[]);if(results[2].status==="fulfilled")setPlan(results[2].value);if(results[3].status==="fulfilled")setInvoices(results[3].value);if(results[4].status==="fulfilled")setPasses(results[4].value);setLoading(false)},[]);
  // AT-057 / NFR-31: keep the selected booth/tab across sign-in and OTP; restore once signed in.
  useEffect(()=>{try{const q=new URLSearchParams(window.location.search);const unit=q.get("request"),conf=q.get("conference"),t=q.get("tab")||(window.location.hash==="#booth"?"booth":"");if(unit||t||conf)sessionStorage.setItem("imdx-intent",JSON.stringify({unit,conf,tab:unit?"booth":conf?"conference":t}))}catch{}},[]);
@@ -144,31 +144,28 @@ export default function AccountPage(){
        </div>
        <WhatsAppVerify p={me} label="PIC WhatsApp number" onVerified={()=>void reload()}/>
        <label>Products to display at the booth<textarea value={products} required minLength={3} maxLength={1000} placeholder="e.g. haul trucks, crushers, mine-site software" onChange={e=>setProducts(e.target.value)}/></label>
-       <div className="cms-row-actions" role="radiogroup" aria-label="Booth location">
-        <label className="consent"><input type="radio" name="booth-loc" checked={location==="INDOOR"} onChange={()=>{setLocation("INDOOR");setChosen([])}}/> Indoor booth</label>
-        <label className="consent"><input type="radio" name="booth-loc" checked={location==="OUTDOOR"} onChange={()=>{setLocation("OUTDOOR");setChosen([])}}/> Outdoor booth</label>
-       </div>
        <label>Booth size needed if not shown on the floorplan (optional)<input value={customSize} maxLength={120} placeholder="e.g. 10 × 12 m, or 120 m² outdoor demo area" onChange={e=>setCustomSize(e.target.value)}/></label>
       </fieldset>
-      <h3>2. Choose preferred booths ({location==="OUTDOOR"?"outdoor":"indoor"})</h3>
+      <h3>2. Choose preferred booths</h3>
       {(plan.floors?.length||0)>1&&<div className="seg floor-switch" role="group" aria-label="Floor">{plan.floors!.map(f=><button type="button" key={f.id} aria-pressed={f.id===plan.id} className={f.id===plan.id?"chosen":"ghost"} onClick={()=>{if(f.id===plan.id)return;setChosen([]);void request("/api/public/floorplan?floor="+encodeURIComponent(f.id)).then(setPlan).catch(()=>{})}}>{f.title}</button>)}</div>}
       {/* FR-138: filter the published map by hall, zone, availability and code. */}
+      <div className="seg booth-view-switch" role="group" aria-label="Booth view">{(["map","list"] as const).map(v=><button type="button" key={v} aria-pressed={boothView===v} className={boothView===v?"chosen":"ghost"} onClick={()=>setBoothView(v)}>{v==="map"?"Floor map":"Booth list"}</button>)}<span className="status">{chosen.length} SELECTED</span></div>
       <div className="floorplan-toolbar" role="group" aria-label="Filter booths">
        <label>Search code<input type="search" value={fq} onChange={e=>setFq(e.target.value)}/></label>
        <label>Hall<select value={fHall} onChange={e=>setFHall(e.target.value)}><option value="">All halls</option>{[...new Set((plan.units||[]).map(u=>u.hall).filter(Boolean))].map(h=><option key={h}>{h}</option>)}</select></label>
        <label>Zone<select value={fZone} onChange={e=>setFZone(e.target.value)}><option value="">All zones</option>{[...new Set((plan.units||[]).map(u=>(u as {zone?:string}).zone).filter(Boolean))].map(z=><option key={z}>{z}</option>)}</select></label>
        <label className="consent"><input type="checkbox" checked={fAvail} onChange={e=>setFAvail(e.target.checked)}/> Available only</label>
       </div>
-      <BoothLegend categories={plan.categories} units={plan.units||[]} display={plan.display} selectable/>
+      {boothView==="map"&&<><BoothLegend categories={plan.categories} units={plan.units||[]} display={plan.display} selectable/>
       <div className="floorplan-frame"><svg role="group" aria-label="Available booth preferences" viewBox={"0 0 "+plan.canvas.width+" "+plan.canvas.height} style={{width:"100%",height:"auto",maxHeight:"75vh"}}>
         {plan.backgroundUrl&&<image href={plan.backgroundUrl} x={0} y={0} width={plan.canvas.width} height={plan.canvas.height}><title>{plan.backgroundAlt||"Floorplan background"}</title></image>}
-        {(plan.units||[]).filter(u=>(/outdoor/i.test(u.hall||"")||/outdoor/i.test(u.zone||""))===(location==="OUTDOOR")&&(!fHall||u.hall===fHall)&&(!fZone||u.zone===fZone)&&(!fAvail||u.status==="AVAILABLE")&&(!fq||u.code.toLowerCase().includes(fq.toLowerCase()))).map(u=>{const toggle=()=>setChosen(prev=>prev.includes(u.id)?prev.filter(i=>i!==u.id):[...prev,u.id]);
+        {(plan.units||[]).filter(u=>(!fHall||u.hall===fHall)&&(!fZone||u.zone===fZone)&&(!fAvail||u.status==="AVAILABLE")&&(!fq||u.code.toLowerCase().includes(fq.toLowerCase()))).map(u=>{const toggle=()=>setChosen(prev=>prev.includes(u.id)?prev.filter(i=>i!==u.id):[...prev,u.id]);
          return <BoothShape key={u.id} u={u} label={accessibleName({...u,hall:u.hall||null,zone:u.zone||null,lengthM:u.lengthM||null,widthM:u.widthM||null,dimensionLabel:u.dimensionLabel||null,approvedPublicName:u.approvedPublicName||null,categoryColor:u.categoryColor||null})+(chosen.includes(u.id)?", selected":"")} selected={chosen.includes(u.id)} focusable={u.status==="AVAILABLE"} onActivate={u.status==="AVAILABLE"?toggle:undefined}/>})}
        </svg></div>
-      <p className="micro">{chosen.length} preferred booth(s) selected. Click an available booth to add or remove it; booked booths cannot be chosen.</p>
-      <div className="booth-choices-heading"><div><h3>Choose by booth list</h3><p className="micro">Accessible alternative to the interactive map. These are preferences only; no space is held or reserved.</p></div><span className="status">{chosen.length} SELECTED</span></div>
+      <p className="micro">{chosen.length} preferred booth(s) selected. Click an available booth to add or remove it; booked booths cannot be chosen.</p></>}
+      {boothView==="list"&&<><div className="booth-choices-heading"><div><h3>Choose by booth list</h3><p className="micro">Same booths as the floor map. These are preferences only; no space is held or reserved.</p></div></div>
       <div className="booth-choice-list" role="group" aria-label="Preferred booth units">
-        {plan.units?.length?(plan.units||[]).filter(u=>(/outdoor/i.test(u.hall||"")||/outdoor/i.test((u as {zone?:string}).zone||""))===(location==="OUTDOOR")&&(!fHall||u.hall===fHall)&&(!fZone||(u as {zone?:string}).zone===fZone)&&(!fAvail||u.status==="AVAILABLE")&&(!fq||u.code.toLowerCase().includes(fq.toLowerCase()))).map(u=><button type="button" key={u.id}
+        {plan.units?.length?(plan.units||[]).filter(u=>(!fHall||u.hall===fHall)&&(!fZone||(u as {zone?:string}).zone===fZone)&&(!fAvail||u.status==="AVAILABLE")&&(!fq||u.code.toLowerCase().includes(fq.toLowerCase()))).map(u=><button type="button" key={u.id}
           className={"booth-choice"+(chosen.includes(u.id)?" is-selected":"")}
           disabled={u.status!=="AVAILABLE"} aria-pressed={chosen.includes(u.id)}
           onClick={()=>setChosen(prev=>prev.includes(u.id)?prev.filter(id=>id!==u.id):[...prev,u.id])}>
@@ -176,8 +173,8 @@ export default function AccountPage(){
           <small>{u.hall||"Hall to be confirmed"} · {u.areaSqm} m²</small>
           <span>{u.status==="AVAILABLE"?(chosen.includes(u.id)?"Selected ✓":"Available"):"Unavailable"}</span>
         </button>):<p className="micro">No booth units have been published yet.</p>}
-      </div>
-      <form onSubmit={e=>{e.preventDefault();void doAction(()=>send("/api/customer/booth-requests",{eventCode:event?.code||"IMDX-2027",floorplanId:plan.id,preferredUnitIds:chosen,requestedAreaSqm:Number(area),company,picName:picName||me.profile?.fullName||"",products,location,...(customSize.trim()?{customSize:customSize.trim()}:{}),notes,consent:true}),"Booth preference received. Organizer will review availability.")}}>
+      </div></>}
+      <form onSubmit={e=>{e.preventDefault();void doAction(()=>send("/api/customer/booth-requests",{eventCode:event?.code||"IMDX-2027",floorplanId:plan.id,preferredUnitIds:chosen,requestedAreaSqm:Number(area),company,picName:picName||me.profile?.fullName||"",products,...(customSize.trim()?{customSize:customSize.trim()}:{}),notes,consent:true}),"Booth preference received. Organizer will review availability.")}}>
        <h3>3. Send the request</h3><div className="form-grid"><label>Requested area (m²)<input type="number" step="0.1" min="1" max="10000" value={area} required onChange={e=>setArea(e.target.value)}/></label></div>
        {team.estimator&&<FeeEstimate area={area}/>}
        <label>Notes / preferred arrangement<textarea value={notes} onChange={e=>setNotes(e.target.value)} maxLength={1000}/></label><div className="record" role="note" aria-label="Request summary"><div><strong>Review before sending</strong><p className="micro">Preferred booths: {chosen.map(id=>plan.units?.find(u=>u.id===id)?.code).filter(Boolean).join(", ")||"none selected"} · Requested area: {area} m². No price or deposit applies yet: the organizer will send a quotation; any deposit (DP) and due date appear only on your official invoice. See the <a href="/terms/" target="_blank" rel="noreferrer">registration &amp; payment terms</a>.</p></div></div><button disabled={busy||(chosen.length===0&&!customSize.trim())||!company.trim()||products.trim().length<3||!me.verifiedPhoneAt} type="submit">Submit booth request</button></form></>:<p>The organizer has not published a booth floorplan. You can return after publication.</p>}

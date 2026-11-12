@@ -44,6 +44,8 @@ test("customer booth picker matches the public map style", {skip}, async () => {
     const page = await ctx.newPage(); await page.goto(BASE + "/account?tab=booth#booth");
     if ((await page.locator('.seg.floor-switch button', {hasText: "Customer map " + run}).count())) await page.locator('.seg.floor-switch button', {hasText: "Customer map " + run}).click();
     const map = 'svg[aria-label="Available booth preferences"]';
+    assert.equal(await page.locator('[aria-label="Booth location"], input[name="booth-loc"]').count(), 0, "no indoor/outdoor choice");
+    assert.equal(await page.getByRole("button", {name: "Floor map"}).count(), 1, "map/list toggle");
     await page.locator(`${map} g[role="button"][aria-label^="CM1,"]`).waitFor();
     assert.equal((await fillOf(page, map, "CM1")).toLowerCase(), (cm1.categoryColor ? "#" + cm1.categoryColor.replace("#", "") : "#A9D4F5").toLowerCase(), "available booth uses its CMS category colour");
     assert.equal(await fillOf(page, map, "CM2"), "#5B6472", "occupied booth uses the public status colour");
@@ -55,5 +57,15 @@ test("customer booth picker matches the public map style", {skip}, async () => {
     await page.locator(`${map} g[aria-label^="CM2,"]`).click();
     assert.equal(await page.locator(`${map} g[aria-label^="CM2,"]`).getAttribute("aria-pressed"), "false", "booked booth cannot be chosen");
     assert.match(await page.locator("text=preferred booth(s) selected").innerText(), /^1 preferred/);
+    // One view at a time: the map hides the list, the list hides the map; the selection carries over.
+    assert.equal(await page.locator(".booth-choice-list").count(), 0, "map view has no list");
+    await page.getByRole("button", {name: "Booth list"}).click();
+    assert.equal(await page.locator(map).count(), 0, "list view has no map");
+    assert.equal(await page.locator(".booth-choice", {hasText: "CM1"}).getAttribute("aria-pressed"), "true", "selection kept");
+    const sel = page.locator(".booth-choice.is-selected").first();
+    const [bg, fg] = await sel.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color]);
+    assert.notEqual(bg, fg, "selected card text is readable"); assert.notEqual(bg, "rgb(255, 255, 255)", "selected card is highlighted");
+    await page.getByRole("button", {name: "Floor map"}).click();
+    assert.equal(await page.locator(`${map} g[aria-label^="CM1,"]`).getAttribute("aria-pressed"), "true");
   } finally { await browser.close(); }
 });
