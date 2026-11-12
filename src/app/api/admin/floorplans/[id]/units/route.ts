@@ -6,17 +6,20 @@ import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 import {areaFrom, dimensionLabelOf, outOfCanvas, overlapWarnings} from "@/lib/floorplan-geometry";
 
+/** Decimal columns come back from the API as strings ("9.00"); accept those as numbers too. */
+const dec = (schema: z.ZodTypeAny) => z.preprocess(v => typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)) ? Number(v) : v, schema);
 const unit = z.object({
   code: z.string().min(1).max(25).regex(/^[A-Za-z0-9_-]+$/), category: z.string().min(1).max(60), categoryId: z.string().uuid().nullable().optional(),
   hall: z.string().max(60).nullable().optional(), zone: z.string().max(60).nullable().optional(),
   // A booth dragged a little past the left/top edge snaps to 0 instead of failing the whole save.
   x: z.number().finite().transform(v => Math.max(0, v)), y: z.number().finite().transform(v => Math.max(0, v)), w: z.number().positive().max(10000), h: z.number().positive().max(10000),
   // Empty area / length / width (null or 0) = not set: the area is then taken from length × width (AREA_REQUIRED if neither).
-  areaSqm: z.number().min(0).max(10000).nullable().optional().transform(v => v || undefined),
-  lengthM: z.number().min(0).max(200).nullable().optional().transform(v => v || null), widthM: z.number().min(0).max(200).nullable().optional().transform(v => v || null),
+  areaSqm: dec(z.number().min(0).max(10000).nullable().optional()).transform(v => (v as number | null | undefined) || undefined),
+  lengthM: dec(z.number().min(0).max(200).nullable().optional()).transform(v => (v as number | null | undefined) || null), widthM: dec(z.number().min(0).max(200).nullable().optional()).transform(v => (v as number | null | undefined) || null),
   dimensionLabel: z.string().max(40).nullable().optional(), rotation: z.union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)]).default(0),
   internalNotes: z.string().max(500).nullable().optional(), placed: z.boolean().default(true)
-}).strict();
+}); // not strict: read-only fields the editor loaded (floorplanId, occupant…, boothCategory, splitFromId) are ignored, never saved
+
 const schema = z.object({rowVersion: z.number().int().positive(), units: z.array(unit).max(500)}).strict();
 const FIELD: Record<string, string> = {code: "booth code may only use letters, numbers, - and _ (max 25 characters)", category: "category is required",
   x: "position (x) must be a number", y: "position (y) must be a number", w: "width on the plan must be greater than 0", h: "height on the plan must be greater than 0",

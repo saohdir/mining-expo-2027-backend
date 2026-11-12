@@ -88,6 +88,9 @@ test("saving booths: readable reasons instead of a bare 400, small mistakes are 
   plan = await fresh(plan.id);
   const byCode = Object.fromEntries(plan.units.map(u => [u.code, u]));
   assert.equal(byCode.D1.x, 0); assert.equal(byCode.D1.y, 0); assert.equal(Number(byCode.D2.areaSqm), 12);
+  // Booths sent back exactly as loaded (with read-only fields like floorplanId, occupant…, boothCategory) still save.
+  ok(await R.OPS.put(`/api/admin/floorplans/${plan.id}/units`, {rowVersion: plan.rowVersion, units: plan.units.map(({id, status, ...u}) => ({...u, areaSqm: Number(u.areaSqm)}))}), 200, "resave loaded booths");
+  plan = await fresh(plan.id);
   ok(await R.OPS.post(`/api/admin/floorplans/${plan.id}/publish`, {rowVersion: plan.rowVersion}), 200, "publish after save");
   plan = await fresh(plan.id);
   ok(await R.OPS.post(`/api/admin/floorplans/${plan.id}/activation`, {active: false, reason: "E2E cleanup save rules"}), 200, "inactive");

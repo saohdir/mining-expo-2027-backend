@@ -54,6 +54,12 @@ test("floorplan editor: create, draw, drag, save and reload (desktop + mobile)",
       await canvas.waitFor({timeout: 15000});
       await page.waitForTimeout(500);
       assert.ok(await booths.count() >= 3, vp.name + ": booths persisted after reload, got " + await booths.count());
+      // Save again after reload (owner report: loaded booths carry read-only fields and every second save failed with 400).
+      await canvas.locator('g[role="button"]').first().click();
+      const xField = page.getByLabel("x", {exact: true}); await xField.fill(String(Number(await xField.inputValue()) + 5));
+      const again = page.waitForResponse(r => r.url().includes("/units") && r.request().method() === "PUT");
+      await page.getByRole("button", {name: /^Save \d+ booth units$/}).click();
+      assert.equal((await again).status(), 200, vp.name + ": second save of loaded booths");
       await page.screenshot({path: `${SHOTS}/floorplan-${vp.name}-reloaded.png`, fullPage: true});
       assert.deepEqual(errors, [], vp.name + " page errors");
       await page.close();

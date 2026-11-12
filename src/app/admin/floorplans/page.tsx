@@ -131,7 +131,7 @@ export default function FloorplanEditor(){
   const clean=units.map(u=>({...u,code:(u.code||"").trim(),x:Math.max(0,Number(u.x)||0),y:Math.max(0,Number(u.y)||0)}));
   const bad=unitProblems(clean);
   if(bad.length){setSelected(bad[0].i);throw new Error("Cannot save yet — fix these booths: "+bad.slice(0,5).map(b=>b.text).join("; ")+(bad.length>5?"; and "+(bad.length-5)+" more":"")+".")}
-  try{const r=await api("/api/admin/floorplans/"+plan.id+"/units","PUT",{rowVersion:plan.rowVersion,units:clean.map(({id,status,...u})=>({...u,categoryId:u.categoryId||null,rotation:u.rotation||0,placed:u.placed!==false}))});setWarnings(r.warnings||[]);setConflict(false);await load(plan.id);setWarnings(r.warnings||[])}catch(e){if(e instanceof Error&&/changed/i.test(e.message))setConflict(true);throw e}};
+  try{const r=await api("/api/admin/floorplans/"+plan.id+"/units","PUT",{rowVersion:plan.rowVersion,units:clean.map(u=>({code:u.code,category:u.category,categoryId:u.categoryId||null,hall:u.hall??null,zone:u.zone??null,x:u.x,y:u.y,w:u.w,h:u.h,areaSqm:u.areaSqm,lengthM:u.lengthM??null,widthM:u.widthM??null,dimensionLabel:u.dimensionLabel??null,rotation:u.rotation||0,internalNotes:u.internalNotes??null,placed:u.placed!==false}))});setWarnings(r.warnings||[]);setConflict(false);await load(plan.id);setWarnings(r.warnings||[])}catch(e){if(e instanceof Error&&/changed/i.test(e.message))setConflict(true);throw e}};
  // FR-096 autosave (opt-in): saves every 30 s while there are unsaved edits and no conflict.
  useEffect(()=>{if(!autosave||!hasUnsaved||conflict||busy||!plan||!editable)return;const t=setTimeout(()=>void run(save),30000);return()=>clearTimeout(t)});
  const current=units[selected];
