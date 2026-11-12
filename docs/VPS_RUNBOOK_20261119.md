@@ -13,7 +13,7 @@ A published layout overrides that order and can hide sections.
 ```bash
 cd /opt/imdx/mining-expo-2027-backend && docker compose --env-file .env.uat -f deploy/compose.uat.yml exec -T postgres psql -U imdx -d imdx_uat -Atc "select coalesce((select string_agg(b->>'ref' || case when (b->>'hidden')::boolean then ' (HIDDEN)' else '' end, ' > ') from jsonb_array_elements(published->'blocks') b), 'no published layout') from \"PageLayout\" where \"pageKey\"='exhibitors' and locale='en'"
 ```
-`no published layout` → nothing to do. Otherwise, in CMS → Pages & layout → Exhibitors, move "exhibitor-directory-2" above "exhibitor-downloads", unhide anything marked HIDDEN, and publish.
+Empty output or `no published layout` → nothing to do. Otherwise, in CMS → Pages & layout → Exhibitors, move "exhibitor-directory-2" above "exhibitor-downloads", unhide anything marked HIDDEN, and publish.
 
 ## 3. Chinese texts (safe to re-run)
 ```bash
