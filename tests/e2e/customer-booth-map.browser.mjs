@@ -44,6 +44,8 @@ test("customer booth picker matches the public map style", {skip}, async () => {
     const page = await ctx.newPage(); await page.goto(BASE + "/account?tab=booth#booth");
     if ((await page.locator('.seg.floor-switch button', {hasText: "Customer map " + run}).count())) await page.locator('.seg.floor-switch button', {hasText: "Customer map " + run}).click();
     const map = 'svg[aria-label="Available booth preferences"]';
+    assert.equal(await page.locator('[aria-label="Booth location"], input[name="booth-loc"]').count(), 0, "no indoor/outdoor choice");
+    assert.equal(await page.getByRole("button", {name: "Floor map"}).count(), 1, "map/list toggle");
     await page.locator(`${map} g[role="button"][aria-label^="CM1,"]`).waitFor();
     assert.equal((await fillOf(page, map, "CM1")).toLowerCase(), (cm1.categoryColor ? "#" + cm1.categoryColor.replace("#", "") : "#A9D4F5").toLowerCase(), "available booth uses its CMS category colour");
     assert.equal(await fillOf(page, map, "CM2"), "#5B6472", "occupied booth uses the public status colour");

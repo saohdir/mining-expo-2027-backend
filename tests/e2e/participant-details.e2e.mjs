@@ -51,6 +51,9 @@ test("exhibitor request: PIC, products, indoor/outdoor, custom size; location mu
     ok(await S.cust.post("/api/customer/booth-requests", {...base, preferredUnitIds: [indoor.id], location: "OUTDOOR"}), 400, "indoor booth with outdoor choice");
     ok(await S.cust.post("/api/customer/booth-requests", {...base, preferredUnitIds: [], location: "INDOOR"}), 400, "booth or custom size required");
     const a = await S.cust.post("/api/customer/booth-requests", {...base, preferredUnitIds: [outdoor.id], location: "OUTDOOR"}); ok(a, 201, "outdoor request");
+    // The customer page no longer asks indoor/outdoor: without a location it is derived from the chosen booths.
+    const n = await S.cust.post("/api/customer/booth-requests", {...base, preferredUnitIds: [outdoor.id], notes: "no location"}); ok(n, 201, "request without indoor/outdoor choice");
+    assert.equal((await db.boothRequest.findUnique({where: {id: n.body.id}})).companySnapshot.location, "OUTDOOR", "location derived from booth");
     const b = await S.cust.post("/api/customer/booth-requests", {...base, preferredUnitIds: [], location: "INDOOR", customSize: "10 × 12 m", requestedAreaSqm: 120, notes: "custom"}); ok(b, 201, "custom size only");
     const cs = (await db.boothRequest.findUniqueOrThrow({where: {id: b.body.id}})).companySnapshot;
     assert.deepEqual([cs.name, cs.contactName, cs.products, cs.location, cs.customSize, !!cs.picWhatsapp], ["PT Pameran Contoh", "Siti PIC", "Excavators and crushers", "INDOOR", "10 × 12 m", true]);
