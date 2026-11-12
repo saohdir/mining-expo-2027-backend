@@ -1,5 +1,5 @@
 // Design CR (Nov 2026): one compact hero on the public inner pages (single breadcrumb, h1, subtitle, 中文), light variant on the legal pages,
-// and the Why Exhibit block on /exhibitors/ (photo cards with icons; CMS keys .10–.17 text, .18–.20 photos; cards not interactive).
+// and the redesigned /exhibitors/ page (owner mockup).
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {createRequire} from "node:module";
@@ -33,17 +33,18 @@ test("compact page hero on inner pages + Why Exhibit block", {skip}, async () =>
     // Legal pages: light breadcrumb band, the CMS h1 stays the only title.
     await page.goto(SITE + "/privacy/");
     assert.equal(await page.locator(".page-hero--light .breadcrumb").count(), 1); assert.equal(await page.locator("h1").count(), 1);
-    // Exhibitors: breadcrumb link reachable by keyboard; Why Exhibit keeps its CMS keys and has no hover/click affordance.
+    // Exhibitors (owner mockup): intro + photo, Why exhibit (3 icon cards), 8 scope cards, reserve banner, downloads.
     await page.goto(SITE + "/exhibitors/");
     await page.locator(".page-hero .breadcrumb a").focus(); assert.equal(await page.evaluate(() => document.activeElement.textContent), "Home");
-    for (let n = 10; n <= 20; n++) assert.equal(await page.locator(`.why-exhibit [data-cms-f="make-your-next-connection.${n}"]`).count(), 1, "field ." + n);
-    assert.equal(await page.locator(".why-exhibit-list li .why-media img").count(), 3, "a photo per card");
-    assert.equal(await page.locator(".why-exhibit-list li .why-icon svg").count(), 3, "an icon per card");
-    assert.deepEqual(await page.locator(".why-exhibit-list .why-num").allTextContents(), ["01", "02", "03"]);
-    assert.match(await page.locator("#why-exhibit-h").textContent(), /More than a booth\./);
-    assert.equal(await page.locator(".why-exhibit-list li").count(), 3); assert.equal(await page.locator(".why-exhibit-list a, .why-exhibit-list button").count(), 0);
-    const li = page.locator(".why-exhibit-list li").first(), before = await li.boundingBox(); await li.hover();
-    assert.equal((await li.boundingBox()).y, before.y, "cards do not lift on hover");
+    assert.match(await page.locator("#xb-intro-h").textContent(), /More than a booth\./);
+    assert.equal(await page.locator(".xb-why-cards li").count(), 3); assert.equal(await page.locator(".xb-why-cards a, .xb-why-cards button").count(), 0);
+    assert.equal(await page.locator(".xb-scope-cards li").count(), 8); assert.equal(await page.locator("#industryPhotoGrid, .industry-modal").count(), 0);
+    assert.equal(await page.locator('.xb-reserve a.xb-btn[href="/floorplan"]').count(), 1);
+    assert.equal(await page.locator(".xb-dl-cards li").count(), 3);
+    // Downloads: a button links only to a published CMS download (else "Coming soon"; see exhibitor-downloads.browser.mjs).
+    for (const m of ["brochure", "invitation"]) { const a = page.locator(`a[data-download-match="${m}"]`), href = await a.getAttribute("href");
+      assert.equal((await a.textContent()).trim(), href ? "Download PDF" : "Coming soon"); }
+    assert.equal(await page.locator('.xb-dl-cards a[href="/floorplan"]').count(), 1);
     // About: overview 01–05 from the owner mockup; the old showcase banner and "Explore the eight sectors" link are gone.
     await page.goto(SITE + "/about/");
     const ov = page.locator('[data-cms-block="where-possibility-meets"]');
@@ -58,7 +59,6 @@ test("compact page hero on inner pages + Why Exhibit block", {skip}, async () =>
     // 中文
     await page.goto(SITE + "/zh/exhibitors/");
     assert.equal(await page.locator("h1").textContent(), "参展商"); assert.equal(await page.locator(".page-hero .breadcrumb a").textContent(), "首页");
-    assert.equal(await page.locator(".why-kicker").textContent(), "为何参展？");
     assert.equal(await page.locator(".page-hero .breadcrumb a").getAttribute("href"), "/zh/");
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
