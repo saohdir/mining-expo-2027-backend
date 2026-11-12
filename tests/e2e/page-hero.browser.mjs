@@ -45,6 +45,19 @@ test("compact page hero on inner pages + Why Exhibit block", {skip}, async () =>
     for (const m of ["brochure", "invitation"]) { const a = page.locator(`a[data-download-match="${m}"]`), href = await a.getAttribute("href");
       assert.equal((await a.textContent()).trim(), href ? "Download PDF" : "Coming soon"); }
     assert.equal(await page.locator('.xb-dl-cards a[href="/floorplan"]').count(), 1);
+    // Visitors (owner mockup): intro + Register as Visitor, at a glance, why visit, 8 scope tiles, FAQ (#faq), plan-your-visit CTA.
+    await page.goto(SITE + "/visitors/");
+    assert.match(await page.locator("#vs-intro-h").textContent(), /Explore Solutions/);
+    assert.equal(await page.locator('button[data-action="register"].vs-btn').count(), 2, "two Register as Visitor buttons");
+    assert.equal(await page.locator(".vs-glance-facts li").count(), 2); assert.equal(await page.locator(".vs-why-cards li").count(), 4);
+    assert.equal(await page.locator(".vs-tiles li").count(), 8);
+    const faq = page.locator("#faq .vs-faq-list details"); assert.equal(await faq.count(), 5);
+    assert.equal(await faq.first().getAttribute("open"), "", "first answer open");
+    await faq.nth(1).locator("summary").click(); assert.equal(await faq.nth(1).getAttribute("open"), "");
+    assert.equal(await page.locator('#faq a[href="../the-venue/"]').count(), 1);
+    assert.equal(await page.getByText("From interest to").count(), 0, "old journey section removed");
+    await page.locator('button[data-action="register"].vs-btn').first().click(); await page.locator(".auth-popup").waitFor();
+    await page.keyboard.press("Escape");
     // About: overview 01–05 from the owner mockup; the old showcase banner and "Explore the eight sectors" link are gone.
     await page.goto(SITE + "/about/");
     const ov = page.locator('[data-cms-block="where-possibility-meets"]');

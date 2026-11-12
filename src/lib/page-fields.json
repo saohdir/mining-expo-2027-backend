@@ -3479,302 +3479,435 @@
  "visitors": {
   "your-access": [
    {
-    "key": "your-access.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "own",
-    "text": "/ YOUR EVENT EXPERIENCE"
-   },
-   {
-    "key": "your-access.1",
+    "key": "your-access.100",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "04"
+    "text": "VISITORS"
    },
    {
-    "key": "your-access.2",
+    "key": "your-access.101",
     "kind": "text",
     "tag": "h2",
-    "mode": "own",
-    "text": "Your access."
-   },
-   {
-    "key": "your-access.3",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "All in one place."
-   },
-   {
-    "key": "your-access.4",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Experience a concept of the future participant journey, from registration to your personalized QR event pass—all from the same website."
-   },
-   {
-    "key": "your-access.5",
-    "kind": "text",
-    "tag": "button",
-    "mode": "own",
-    "text": "Register / Sign in"
-   },
-   {
-    "key": "your-access.6",
-    "kind": "text",
-    "tag": "span",
-    "mode": "own",
-    "text": "IMDX"
-   },
-   {
-    "key": "your-access.7",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "27"
-   },
-   {
-    "key": "your-access.8",
-    "kind": "text",
-    "tag": "span",
     "mode": "rich",
-    "text": "**** ACCOUNT PASS"
+    "text": "Explore Solutions, Connect Partners, Grow *Your Business.*"
    },
    {
-    "key": "your-access.9",
+    "key": "your-access.102",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Welcome to your event dashboard"
+    "text": "Join Indonesia's comprehensive exhibition for mining, mineral processing, and downstream industries. Discover the latest technologies, meet industry players, and explore new business opportunities across the mining and energy value chain."
    },
    {
-    "key": "your-access.10",
+    "key": "your-access.103",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "EVENT ACCESS"
+    "text": "Register as Visitor"
    },
    {
-    "key": "your-access.11",
+    "key": "your-access.104",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/where-progress-connect.webp",
+    "alt": "Visitors and exhibitors meeting on the exhibition floor"
+   },
+   {
+    "key": "your-access.105",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "IMDX 2027 AT A GLANCE"
+   },
+   {
+    "key": "your-access.106",
     "kind": "text",
     "tag": "strong",
-    "mode": "rich",
-    "text": "Indonesia Mining &\nDownstream 2027"
-   },
-   {
-    "key": "your-access.12",
-    "kind": "text",
-    "tag": "small",
     "mode": "plain",
-    "text": "26–28 MAY 2027 · JIEXPO JAKARTA"
+    "text": "26 – 28 May 2027"
    },
    {
-    "key": "your-access.13",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "PERSONAL QR PASS\nISSUED AFTER REGISTRATION APPROVAL"
-   },
-   {
-    "key": "your-access.14",
+    "key": "your-access.107",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "One account. One event journey."
+    "text": "3 days of exhibition and business programs"
    },
    {
-    "key": "your-access.15",
+    "key": "your-access.108",
     "kind": "text",
-    "tag": "button",
+    "tag": "strong",
     "mode": "plain",
-    "text": "View Dashboard ↗"
+    "text": "JIEXPO Kemayoran, Jakarta"
+   },
+   {
+    "key": "your-access.109",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Indonesia"
+   },
+   {
+    "key": "your-access.110",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/jiexpo-kemayoran-aerial.jpg",
+    "alt": "Aerial view of JIEXPO Kemayoran, Jakarta"
+   },
+   {
+    "key": "your-access.111",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "WHY VISIT?"
+   },
+   {
+    "key": "your-access.112",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "More than an exhibition."
+   },
+   {
+    "key": "your-access.113",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "A strategic platform to gain market insights, discover innovations, meet key decision-makers, and build valuable partnerships in the mining and energy industry."
+   },
+   {
+    "key": "your-access.114",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/networking-reception.webp",
+    "alt": "Industry professionals networking at the exhibition"
+   },
+   {
+    "key": "your-access.115",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Expand Your Network"
+   },
+   {
+    "key": "your-access.116",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Meet industry leaders, government representatives, and potential business partners."
+   },
+   {
+    "key": "your-access.117",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-01.webp",
+    "alt": "Haul truck and excavator at an open-pit mine"
+   },
+   {
+    "key": "your-access.118",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Discover New Solutions"
+   },
+   {
+    "key": "your-access.119",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Explore the latest technologies, equipment, and services for mining and downstream industries."
+   },
+   {
+    "key": "your-access.120",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/china-indonesia-forum.webp",
+    "alt": "Speakers on stage at an industry conference session"
+   },
+   {
+    "key": "your-access.121",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Gain Market Insights"
+   },
+   {
+    "key": "your-access.122",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Get updates on industry trends, regulations, and investment opportunities."
+   },
+   {
+    "key": "your-access.123",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/conference-keynote.webp",
+    "alt": "Speaker presenting to a conference audience"
+   },
+   {
+    "key": "your-access.124",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Join Industry Dialogue"
+   },
+   {
+    "key": "your-access.125",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Take part in conferences, forums, and networking sessions with key stakeholders."
    }
   ],
   "from-interest-to-entry": [
    {
-    "key": "from-interest-to-entry.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "own",
-    "text": "/ HOW IT WORKS"
-   },
-   {
-    "key": "from-interest-to-entry.1",
+    "key": "from-interest-to-entry.100",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "05"
+    "text": "EXHIBITION SCOPE"
    },
    {
-    "key": "from-interest-to-entry.2",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "SEAMLESS BY DESIGN"
-   },
-   {
-    "key": "from-interest-to-entry.3",
+    "key": "from-interest-to-entry.101",
     "kind": "text",
     "tag": "h2",
-    "mode": "own",
-    "text": "From interest to"
+    "mode": "rich",
+    "text": "A complete mining and energy *value chain.*"
    },
    {
-    "key": "from-interest-to-entry.4",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "entry."
-   },
-   {
-    "key": "from-interest-to-entry.5",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "STEP 01"
-   },
-   {
-    "key": "from-interest-to-entry.7",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "Register online"
-   },
-   {
-    "key": "from-interest-to-entry.8",
+    "key": "from-interest-to-entry.102",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Create an event account and choose your visitor or conference experience."
+    "text": "From exploration to downstream processing, IMDX 2027 brings together solutions across the entire mining and energy ecosystem."
    },
    {
-    "key": "from-interest-to-entry.9",
+    "key": "from-interest-to-entry.103",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-01.webp",
+    "alt": "Haul truck and excavator at an open-pit mine"
+   },
+   {
+    "key": "from-interest-to-entry.104",
     "kind": "text",
     "tag": "span",
-    "mode": "plain",
-    "text": "STEP 02"
+    "mode": "rich",
+    "text": "Mining\nEquipment"
    },
    {
-    "key": "from-interest-to-entry.11",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "Confirm your place"
+    "key": "from-interest-to-entry.105",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-02.webp",
+    "alt": "Mineral processing plant"
    },
    {
-    "key": "from-interest-to-entry.12",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Review your booking and request a manual bank-transfer invoice in your account."
-   },
-   {
-    "key": "from-interest-to-entry.13",
+    "key": "from-interest-to-entry.106",
     "kind": "text",
     "tag": "span",
-    "mode": "plain",
-    "text": "STEP 03"
+    "mode": "rich",
+    "text": "Mineral\nProcessing"
    },
    {
-    "key": "from-interest-to-entry.15",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "Get your QR pass"
+    "key": "from-interest-to-entry.107",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-03.webp",
+    "alt": "Molten metal pouring in a smelter"
    },
    {
-    "key": "from-interest-to-entry.16",
+    "key": "from-interest-to-entry.108",
     "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Receive your personal pass after registration approval. Admission is checked only in the secured CMS."
+    "tag": "span",
+    "mode": "rich",
+    "text": "Metallurgy\n& Smelting"
+   },
+   {
+    "key": "from-interest-to-entry.109",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-04.webp",
+    "alt": "Industrial processing complex by the coast"
+   },
+   {
+    "key": "from-interest-to-entry.110",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "Energy\n& Power"
+   },
+   {
+    "key": "from-interest-to-entry.111",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-05.webp",
+    "alt": "Robotic automation in a modern facility"
+   },
+   {
+    "key": "from-interest-to-entry.112",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "Smart Mining\n& Digitalization"
+   },
+   {
+    "key": "from-interest-to-entry.113",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-06.webp",
+    "alt": "Green reclaimed mining landscape"
+   },
+   {
+    "key": "from-interest-to-entry.114",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "Green Mining\n& ESG"
+   },
+   {
+    "key": "from-interest-to-entry.115",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-07.webp",
+    "alt": "Large industrial gear in a workshop"
+   },
+   {
+    "key": "from-interest-to-entry.116",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "Supporting\nServices"
+   },
+   {
+    "key": "from-interest-to-entry.117",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/industry-08.webp",
+    "alt": "Geologists surveying a mining site"
+   },
+   {
+    "key": "from-interest-to-entry.118",
+    "kind": "text",
+    "tag": "span",
+    "mode": "rich",
+    "text": "Mineral Resources\n& Products"
    }
   ],
   "questions-we-ve-got-you": [
    {
-    "key": "questions-we-ve-got-you.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "own",
-    "text": "/ GOOD TO KNOW"
-   },
-   {
-    "key": "questions-we-ve-got-you.1",
+    "key": "questions-we-ve-got-you.110",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "07"
+    "text": "FAQ"
    },
    {
-    "key": "questions-we-ve-got-you.2",
+    "key": "questions-we-ve-got-you.111",
     "kind": "text",
     "tag": "h2",
-    "mode": "own",
-    "text": "Questions?"
+    "mode": "rich",
+    "text": "Questions?\n*We've got you.*"
    },
    {
-    "key": "questions-we-ve-got-you.3",
+    "key": "questions-we-ve-got-you.112",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Find quick answers to common questions about visiting IMDX 2027."
+   },
+   {
+    "key": "questions-we-ve-got-you.100",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "We've got you."
+    "text": "Is there a registration fee to visit IMDX 2027?"
    },
    {
-    "key": "questions-we-ve-got-you.4",
+    "key": "questions-we-ve-got-you.101",
     "kind": "text",
-    "tag": "summary",
-    "mode": "own",
-    "text": "When and where will the event be held?"
+    "tag": "span",
+    "mode": "plain",
+    "text": "Visitor registration is free of charge. Please register online in advance to receive your visitor pass and the latest event updates."
    },
    {
-    "key": "questions-we-ve-got-you.5",
+    "key": "questions-we-ve-got-you.102",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "How do I register as a visitor?"
+   },
+   {
+    "key": "questions-we-ve-got-you.103",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Click “Register as Visitor”, create your account with your email address, and complete the visitor registration in your account. Your personal QR visitor pass is issued after your registration is confirmed."
+   },
+   {
+    "key": "questions-we-ve-got-you.104",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Where is the exhibition venue and how do I get there?"
+   },
+   {
+    "key": "questions-we-ve-got-you.105",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "IMDX 2027 takes place at JIEXPO Kemayoran, Jakarta, Indonesia. See The Venue page for the location, access and getting-there information."
+   },
+   {
+    "key": "questions-we-ve-got-you.106",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "What can I expect at IMDX 2027?"
+   },
+   {
+    "key": "questions-we-ve-got-you.107",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Three days of exhibition, conferences and networking across the mining, mineral processing, metallurgy and downstream value chain."
+   },
+   {
+    "key": "questions-we-ve-got-you.108",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Who can visit the exhibition?"
+   },
+   {
+    "key": "questions-we-ve-got-you.109",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "IMDX 2027 is a business-to-business exhibition for industry professionals: mining and processing companies, government and associations, investors, engineers, buyers and other stakeholders of the mining and energy sector."
+   },
+   {
+    "key": "questions-we-ve-got-you.113",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "rich",
+    "text": "Plan Your Visit to *IMDX 2027*"
+   },
+   {
+    "key": "questions-we-ve-got-you.114",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Indonesia Mining & Downstream Industries Exhibition 2027 is scheduled for 26–28 May 2027 at JIEXPO, Jakarta, Indonesia."
+    "text": "Register now to get your visitor pass, receive the latest updates, and be part of Indonesia's leading mining and energy exhibition."
    },
    {
-    "key": "questions-we-ve-got-you.6",
+    "key": "questions-we-ve-got-you.115",
     "kind": "text",
-    "tag": "summary",
-    "mode": "own",
-    "text": "Can I request a specific booth size?"
-   },
-   {
-    "key": "questions-we-ve-got-you.7",
-    "kind": "text",
-    "tag": "p",
+    "tag": "span",
     "mode": "plain",
-    "text": "Yes. The demo reservation form offers 9, 18, 36, 72, 90, 108, 144, 180, and 240 m². Final availability and quotation are subject to confirmation by the event organizer."
-   },
-   {
-    "key": "questions-we-ve-got-you.8",
-    "kind": "text",
-    "tag": "summary",
-    "mode": "own",
-    "text": "How do I register for a conference?"
-   },
-   {
-    "key": "questions-we-ve-got-you.9",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Create a verified account and select a published conference. Paid bookings use a manually issued invoice and organizer-confirmed bank transfer."
-   },
-   {
-    "key": "questions-we-ve-got-you.10",
-    "kind": "text",
-    "tag": "summary",
-    "mode": "own",
-    "text": "Are payments available on this website?"
-   },
-   {
-    "key": "questions-we-ve-got-you.11",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "Paid conference and booth bookings use organizer-issued invoices and manual bank transfers. Finance confirms payments in CMS; no automatic checkout is available."
+    "text": "Register as Visitor"
    }
   ]
  }
