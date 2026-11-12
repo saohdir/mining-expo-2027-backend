@@ -254,13 +254,6 @@
  "about-organizer": {
   "page-hero": [
    {
-    "key": "page-hero.0",
-    "kind": "image",
-    "tag": "img",
-    "src": "/assets/where-progress-connect.webp",
-    "alt": "About the Organizer — banner photo"
-   },
-   {
     "key": "page-hero.1",
     "kind": "text",
     "tag": "h1",
@@ -268,269 +261,262 @@
     "text": "About the Organizer"
    },
    {
-    "key": "page-hero.2",
+    "key": "page-hero.3",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "PT Seesion Exhibition Indonesia, part of Shixin International Exhibition Group."
+    "text": "PT Seesion Exhibition Indonesia is based in Jakarta and works as part of Shixin International Exhibition Group's international exhibition network, connecting industry participants and creating opportunities for cooperation across Indonesia and the wider region."
    }
   ],
   "organizer-intro": [
    {
-    "key": "organizer-intro.0",
+    "key": "organizer-intro.65",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "The organizer and its parent group"
+   },
+   {
+    "key": "organizer-intro.50",
     "kind": "image",
     "tag": "img",
     "src": "../assets/organizer-seesion-logo.webp",
     "alt": "PT Seesion Exhibition Indonesia logo"
    },
    {
-    "key": "organizer-intro.1",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "THE ORGANIZER"
-   },
-   {
-    "key": "organizer-intro.2",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "rich",
-    "text": "PT Seesion Exhibition *Indonesia*"
-   },
-   {
-    "key": "organizer-intro.3",
-    "kind": "text",
-    "tag": "p",
-    "mode": "plain",
-    "text": "PT Seesion Exhibition Indonesia (referred to as \"Seesion Indonesia\") is headquartered in the core business district of Jakarta and serves as an important implementation platform for the globalization strategy of Shixin International Exhibition Group. Relying on the 26-year professional accumulation of its parent company (founded in 1998), Seesion Indonesia has established an international exhibition service system covering core fields such as energy and mining, animal husbandry, agriculture, and mechanical industry, forming a unique operation model of \"driving industrial upgrading through professional exhibition clusters\"."
-   },
-   {
-    "key": "organizer-intro.4",
-    "kind": "text",
-    "tag": "strong",
-    "mode": "plain",
-    "text": "1998"
-   },
-   {
-    "key": "organizer-intro.5",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "Parent company founded — 26 years of professional exhibition experience"
-   },
-   {
-    "key": "organizer-intro.6",
-    "kind": "text",
-    "tag": "strong",
-    "mode": "plain",
-    "text": "30+"
-   },
-   {
-    "key": "organizer-intro.7",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "International certified exhibition brands"
-   },
-   {
-    "key": "organizer-intro.8",
-    "kind": "text",
-    "tag": "strong",
-    "mode": "plain",
-    "text": "180+"
-   },
-   {
-    "key": "organizer-intro.9",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "Government agencies and business associations as partners"
-   },
-   {
-    "key": "organizer-intro.10",
-    "kind": "text",
-    "tag": "strong",
-    "mode": "plain",
-    "text": "100,000+"
-   },
-   {
-    "key": "organizer-intro.11",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "Enterprises served"
-   },
-   {
-    "key": "organizer-intro.12",
-    "kind": "text",
-    "tag": "strong",
-    "mode": "plain",
-    "text": "700,000 m²"
-   },
-   {
-    "key": "organizer-intro.13",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "Average annual exhibition area"
-   },
-   {
-    "key": "organizer-intro.14",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "Awarded **“Top Ten Brand Exhibition Organizers in China”** by the China Convention and Exhibition Society (CCES)."
-   },
-   {
-    "key": "organizer-intro.15",
-    "kind": "text",
-    "tag": "span",
-    "mode": "rich",
-    "text": "Recognized by the **Ministry of Commerce of China** as one of the first batch of key contact enterprises in the exhibition industry."
-   }
-  ],
-  "organizer-track-record": [
-   {
-    "key": "organizer-track-record.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "PARENT COMPANY & TRACK RECORD"
-   },
-   {
-    "key": "organizer-track-record.1",
-    "kind": "text",
-    "tag": "h2",
-    "mode": "rich",
-    "text": "Backed by *Shixin International Exhibition Group.*"
-   },
-   {
-    "key": "organizer-track-record.2",
+    "key": "organizer-intro.51",
     "kind": "image",
     "tag": "img",
     "src": "../assets/organizer-shixin-logo.webp",
     "alt": "Shixin International Exhibition Group logo"
    },
    {
-    "key": "organizer-track-record.3",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "ICEE 2025 · 15–17 MAY 2025"
-   },
-   {
-    "key": "organizer-track-record.4",
-    "kind": "text",
-    "tag": "h3",
-    "mode": "plain",
-    "text": "Indonesia Coal and Energy Expo 2025"
-   },
-   {
-    "key": "organizer-track-record.5",
+    "key": "organizer-intro.52",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "From May 15–17, 2025, the 2025 Indonesia Coal and Energy Expo (ICEE 2025), organized by Seesion Indonesia, will grandly open at the Jakarta International Exhibition Center. This exhibition is planned to cover an area of 20,000 square meters and is expected to attract over 500 domestic and international energy equipment enterprises to participate. The number of professional visitors is projected to exceed 20,000, showcasing the latest technologies and innovative solutions in coal mining, clean energy, energy chemicals, and other fields. During the exhibition, multiple high-end forums such as the China-Indonesia Coal Supply Chain and Coal Chemical Industry Cooperation Conference and the China-Indonesia Renewable Energy Industry Cooperation Conference will be held, establishing an in-depth integration platform connecting government, industry, academia, research, and practitioners."
+    "text": "Headquartered in Jakarta, PT Seesion Exhibition Indonesia supports Shixin International Exhibition Group's global exhibition strategy. Backed by the parent group's experience since 1998, it connects enterprises through professional exhibitions spanning energy and mining, agriculture, livestock, and industrial machinery."
    },
    {
-    "key": "organizer-track-record.6",
+    "key": "organizer-intro.53",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
-    "text": "STRATEGIC COOPERATION · 19 MARCH 2025"
+    "text": "Shixin Group track record"
    },
    {
-    "key": "organizer-track-record.7",
+    "key": "organizer-intro.54",
+    "kind": "text",
+    "tag": "small",
+    "mode": "plain",
+    "text": "Group-level achievements of the parent group — not IMDX 2027 figures."
+   },
+   {
+    "key": "organizer-intro.55",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "30+"
+   },
+   {
+    "key": "organizer-intro.56",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Internationally certified exhibition brands"
+   },
+   {
+    "key": "organizer-intro.57",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "180+"
+   },
+   {
+    "key": "organizer-intro.58",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Government agencies & business associations partnered with"
+   },
+   {
+    "key": "organizer-intro.59",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "100,000+"
+   },
+   {
+    "key": "organizer-intro.60",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Enterprises served"
+   },
+   {
+    "key": "organizer-intro.61",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "700,000 m²"
+   },
+   {
+    "key": "organizer-intro.62",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Average annual exhibition area"
+   },
+   {
+    "key": "organizer-intro.63",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Top Ten"
+   },
+   {
+    "key": "organizer-intro.64",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Brand exhibition organizer in China (CCES award)"
+   }
+  ],
+  "organizer-track-record": [
+   {
+    "key": "organizer-track-record.61",
+    "kind": "text",
+    "tag": "h2",
+    "mode": "plain",
+    "text": "Profile, track record and cooperation"
+   },
+   {
+    "key": "organizer-track-record.50",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
-    "text": "Partnership with the Indonesian Coal Mining Association"
+    "text": "Organizer Profile"
    },
    {
-    "key": "organizer-track-record.8",
+    "key": "organizer-track-record.51",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "To deepen international energy cooperation, Seesion Indonesia signed a strategic cooperation memorandum with the Indonesian Coal Mining Association on March 19, 2025, establishing a long-term cooperation mechanism in areas such as information sharing, market expansion, technical exchanges and exhibition promotion. By integrating energy industry resources of China and Indonesia, the two sides are committed to building an industry exchange platform with international influence, promoting technological innovation and industrial upgrading in the Indonesian and global energy markets."
+    "text": "Based in Jakarta, Seesion Indonesia combines local industry insight with Shixin Group's international exhibition experience to connect companies, institutions, and business opportunities across industrial sectors."
    },
    {
-    "key": "organizer-track-record.9",
+    "key": "organizer-track-record.52",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Track Record"
+   },
+   {
+    "key": "organizer-track-record.53",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "Indonesia Coal and Energy Expo (ICEE) 2025"
+   },
+   {
+    "key": "organizer-track-record.54",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "ICEE 2025 was scheduled for 15–17 May 2025 at JIExpo Jakarta. Its published plan targeted 20,000 m² of exhibition space, 500+ participating enterprises, and more than 20,000 professional visitors, alongside industry forums."
+   },
+   {
+    "key": "organizer-track-record.55",
+    "kind": "text",
+    "tag": "h3",
+    "mode": "plain",
+    "text": "Strategic Cooperation"
+   },
+   {
+    "key": "organizer-track-record.56",
+    "kind": "text",
+    "tag": "span",
+    "mode": "plain",
+    "text": "19 March 2025"
+   },
+   {
+    "key": "organizer-track-record.57",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Seesion Indonesia signed a strategic cooperation memorandum with the Indonesian Coal Mining Association to advance information sharing, market development, technical exchange, and exhibition promotion."
+   },
+   {
+    "key": "organizer-track-record.58",
     "kind": "text",
     "tag": "span",
     "mode": "plain",
     "text": "OUR COMMITMENT"
    },
    {
-    "key": "organizer-track-record.10",
+    "key": "organizer-track-record.59",
     "kind": "text",
-    "tag": "h3",
+    "tag": "h2",
     "mode": "plain",
     "text": "Connecting China and ASEAN"
    },
    {
-    "key": "organizer-track-record.11",
+    "key": "organizer-track-record.60",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "As an accelerator for industrial upgrading in Southeast Asia, Seesion Indonesia will continue to deepen the \"professional exhibition curation, industrial operation, and global connection\" tripartite service model, continuously providing high-quality exhibition services for enterprises in different fields globally, and striving to become the core hub connecting industrial resources between China and ASEAN, promoting high-quality economic development in the region."
+    "text": "Seesion Indonesia aims to strengthen professional exhibition services, industrial cooperation, and global connections, serving as a bridge for enterprises and resources between China and ASEAN."
    }
   ],
   "indonesia-advantages": [
    {
-    "key": "indonesia-advantages.0",
-    "kind": "text",
-    "tag": "span",
-    "mode": "plain",
-    "text": "WHY INDONESIA"
-   },
-   {
-    "key": "indonesia-advantages.1",
+    "key": "indonesia-advantages.50",
     "kind": "text",
     "tag": "h2",
-    "mode": "rich",
-    "text": "Advantages of Indonesia's *Mineral Resources*"
+    "mode": "plain",
+    "text": "Why Indonesia?"
    },
    {
-    "key": "indonesia-advantages.2",
+    "key": "indonesia-advantages.51",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
     "text": "Economy"
    },
    {
-    "key": "indonesia-advantages.3",
+    "key": "indonesia-advantages.52",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Indonesia is the largest economy in Southeast Asia, with a total GDP of 22,139 trillion Indonesian rupiah (about 1.39 trillion US dollars) in 2024, accounting for more than 1/3 of Southeast Asia's total GDP. It has abundant natural resources and a diversified industrial structure."
+    "text": "Indonesia is Southeast Asia's largest economy, with a diverse industrial base and strong demand for industrial and mining-related partnerships."
    },
    {
-    "key": "indonesia-advantages.4",
+    "key": "indonesia-advantages.53",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
-    "text": "Culture and Society"
+    "text": "Culture & Society"
    },
    {
-    "key": "indonesia-advantages.5",
+    "key": "indonesia-advantages.54",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Indonesia boasts unique traditional arts, music, and dances, which vividly reflect the harmonious integration of diverse ethnic groups and religions. Meanwhile, it has been continuously advancing the development in the fields of education, health, and social security. Through systematic measures, it promotes the upgrading of relevant services, providing a solid guarantee for improving people's livelihood."
+    "text": "A diverse society and expanding education, health, and social development provide a foundation for continued regional engagement."
    },
    {
-    "key": "indonesia-advantages.6",
+    "key": "indonesia-advantages.55",
     "kind": "text",
     "tag": "h3",
     "mode": "plain",
     "text": "Coal Resources"
    },
    {
-    "key": "indonesia-advantages.7",
+    "key": "indonesia-advantages.56",
     "kind": "text",
     "tag": "p",
     "mode": "plain",
-    "text": "Indonesia is the world's largest coal exporter and third-largest coal producer, with rich coal reserves of about 40 billion tons (China's coal reserves are about 218.5 billion tons), accounting for 3.2% of the world's total reserves, ranking seventh in the world. Indonesia's coal is of good quality and high calorific value, mainly distributed in Sumatra, Kalimantan and other regions, providing important support for the local economy."
+    "text": "Indonesia has substantial coal resources, with major coal-bearing regions including Sumatra and Kalimantan, supporting its mining and energy economy."
    }
   ]
  },
