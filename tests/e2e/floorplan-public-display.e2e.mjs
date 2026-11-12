@@ -8,16 +8,21 @@ import {adminLogin, Client} from "./lib.mjs";
 const db = new PrismaClient();
 const run = Date.now().toString(36);
 const ok = (r, code, label) => assert.equal(r.status, code, label + " → " + r.status + " " + JSON.stringify(r.body).slice(0, 300));
-let planId = null;
+let planId = null, OPS = null;
+// Remove the test floor completely: a leftover published floor makes later tests see "several floors live".
 test.after(async () => {
   await db.appSetting.deleteMany({where: {key: "floorplan.publicDisplay"}});
-  if (planId) { await db.floorplan.update({where: {id: planId}, data: {active: false}}).catch(() => {}); }
+  if (planId && OPS) {
+    await OPS.post(`/api/admin/floorplans/${planId}/activation`, {active: false, reason: "E2E cleanup public display"}).catch(() => {});
+    const del = await OPS.del(`/api/admin/floorplans/${planId}`, {reason: "E2E cleanup public display"}).catch(() => null);
+    if (!del || del.status !== 200) await db.floorplan.delete({where: {id: planId}}).catch(() => {});
+  }
   await db.$disconnect();
 });
 const unit = (code, x = 0) => ({code, category: "Standard", x, y: 0, w: 40, h: 40, areaSqm: 9});
 
 test("public floor plan: company names or only Not available, category colour for available booths", async () => {
-  const SA = await adminLogin("SUPER_ADMIN"), OPS = await adminLogin("OPERATIONS"), SALES = await adminLogin("SALES");
+  const SA = await adminLogin("SUPER_ADMIN"), SALES = await adminLogin("SALES"); OPS = await adminLogin("OPERATIONS");
   ok(await SA.patch("/api/admin/events", {published: true, visitorOpen: true, reason: "E2E public display"}), 200, "event");
   const d = await OPS.post("/api/admin/floorplans", {title: "Display " + run, newFloor: true}); ok(d, 201, "draft"); planId = d.body.plan.id;
   let plan = (await OPS.get("/api/admin/floorplans/" + planId)).body.plan;
@@ -49,4 +54,8 @@ test("public floor plan: company names or only Not available, category colour fo
 
   ok(await OPS.req("PUT", "/api/admin/floorplans/public-display", {display: "names"}), 200, "back to names");
   assert.equal(by(await pub()).P2.approvedPublicName, "PT Contoh Tambang");
+  // Clean up now (also covered by the after hook if an assertion fails earlier).
+  ok(await OPS.post(`/api/admin/floorplans/${planId}/activation`, {active: false, reason: "E2E cleanup public display"}), 200, "inactive");
+  ok(await OPS.del(`/api/admin/floorplans/${planId}`, {reason: "E2E cleanup public display"}), 200, "delete test floor");
+  assert.equal(await db.floorplan.count({where: {id: planId}}), 0); planId = null;
 });
