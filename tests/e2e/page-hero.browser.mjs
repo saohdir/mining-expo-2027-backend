@@ -98,6 +98,21 @@ test("The Venue: JIEXPO site map under the aerial photo, CMS-editable, opens ful
       assert.ok(siteMap.y > photo.y + photo.height - 1, "site map sits under the aerial photo at " + width);
       assert.ok(Math.abs(siteMap.width - photo.width) < 2, "same width as the aerial photo at " + width);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "no horizontal overflow at " + width);
+      // Click to enlarge: lightbox on the same page, toggles full size, closes with Esc and returns focus.
+      await page.locator(".venue-site-map a").click();
+      const box = page.locator(".zoom-lightbox");
+      await box.waitFor({state: "visible"}); assert.equal(page.url(), SITE + "/the-venue/", "stays on the page");
+      assert.match(await box.locator("img").getAttribute("src"), /jiexpo-site-map\.webp/);
+      const fit = (await box.locator("img").boundingBox()).width;
+      assert.ok(fit > width * 0.6, "enlarged image is bigger than the thumbnail at " + width);
+      await box.locator("img").click(); assert.ok((await box.locator("img").boundingBox()).width > fit, "click zooms to full size");
+      await page.keyboard.press("Escape"); await box.waitFor({state: "hidden"});
+      assert.equal(await page.evaluate(() => document.activeElement?.closest(".venue-site-map") !== null), true, "focus returns to the map");
+      await page.locator(".venue-site-map a").click(); await box.waitFor({state: "visible"});
+      await box.locator(".zoom-close").click(); await box.waitFor({state: "hidden"});
+      await page.locator(".venue-story-media .venue-story-photo a[data-zoom]").click(); await box.waitFor({state: "visible"});
+      assert.match(await box.locator("img").getAttribute("src"), /jiexpo-kemayoran-aerial/, "aerial photo enlarges too");
+      await page.keyboard.press("Escape"); await box.waitFor({state: "hidden"});
       await page.close();
     }
   } finally { await browser.close(); }
