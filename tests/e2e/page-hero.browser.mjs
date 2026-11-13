@@ -81,3 +81,24 @@ test("compact page hero on inner pages + Why Exhibit block", {skip}, async () =>
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
+
+test("The Venue: JIEXPO site map under the aerial photo, CMS-editable, opens full size", {skip}, async () => {
+  const browser = await chromium.launch();
+  try {
+    for (const width of [1440, 390]) {
+      const page = await browser.newPage({viewport: {width, height: 900}});
+      await page.goto(SITE + "/the-venue/");
+      const map = page.locator(".venue-story-media .venue-site-map img");
+      assert.equal(await map.getAttribute("data-cms-f"), "jakarta-international-expo-jiexpo-kemayo.100");
+      assert.match(await map.getAttribute("alt"), /site map/i);
+      assert.match(await page.locator(".venue-site-map a").getAttribute("href"), /jiexpo-site-map\.webp$/);
+      await map.scrollIntoViewIfNeeded(); await page.waitForFunction(() => document.querySelector(".venue-site-map img")?.complete);
+      assert.ok(await map.evaluate(i => i.naturalWidth > 0), "site map image loads");
+      const [photo, siteMap] = [await page.locator(".venue-story-media .venue-story-photo").boundingBox(), await map.boundingBox()];
+      assert.ok(siteMap.y > photo.y + photo.height - 1, "site map sits under the aerial photo at " + width);
+      assert.ok(Math.abs(siteMap.width - photo.width) < 2, "same width as the aerial photo at " + width);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "no horizontal overflow at " + width);
+      await page.close();
+    }
+  } finally { await browser.close(); }
+});

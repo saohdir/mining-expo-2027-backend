@@ -4076,6 +4076,20 @@
     "alt": "Aerial photograph of Jakarta International Expo (JIExpo), Kemayoran"
    },
    {
+    "key": "jakarta-international-expo-jiexpo-kemayo.100",
+    "kind": "image",
+    "tag": "img",
+    "src": "../assets/jiexpo-site-map.webp",
+    "alt": "JIEXPO Kemayoran site map showing halls A–E, the convention centre, open space, gates 1–9 and parking areas"
+   },
+   {
+    "key": "jakarta-international-expo-jiexpo-kemayo.101",
+    "kind": "text",
+    "tag": "figcaption",
+    "mode": "plain",
+    "text": "JIEXPO Kemayoran site map · tap to enlarge"
+   },
+   {
     "key": "jakarta-international-expo-jiexpo-kemayo.8",
     "kind": "text",
     "tag": "strong",
