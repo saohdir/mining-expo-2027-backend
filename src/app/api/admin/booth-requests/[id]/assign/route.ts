@@ -28,7 +28,7 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
         where: {id},
         include: {
           offers: {orderBy: {revision: "desc"}, take: 1},
-          invoices: {include: {transfers: true, adjustments: true}},
+          invoices: {include: {transfers: true, adjustments: true, items: {select: {kind: true, amountMinor: true}}}},
           floorplan: {select: {status: true, versionNo: true}},
           assignments: {where: {active: true}, select: {id: true}}
         }
@@ -52,7 +52,10 @@ export async function POST(req: NextRequest, {params}: {params: Promise<{id: str
       }
       const ids = uniqueOfferedIds(offer.offeredUnitIds);
       const confirmed = request.invoices.some(invoice => {
-        if (invoice.totalMinor !== offer.quotedPriceMinor ||
+        // The quotation is the pre-tax price: compare it with the invoice's item subtotal, as invoice drafting and
+        // revision do. Configured TAX/FEE lines (e.g. VAT) are added on top and are covered by the PAID_IN_FULL check.
+        const itemSubtotal = invoice.items.filter(i => i.kind === "ITEM").reduce((a, i) => a + i.amountMinor, 0n);
+        if (itemSubtotal !== offer.quotedPriceMinor ||
             !["PARTIALLY_PAID", "PAID"].includes(invoice.status)) return false;
         const totals = financeTotals(invoice.totalMinor, invoice.transfers, invoice.adjustments.filter(r=>r.type==="REVERSAL").map(r=>r.amountMinor));
         return totals.state === "PAID_IN_FULL" ||

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {ConfirmProvider, OVERRIDES, useConfirm} from "./Confirm";
+import {ConfirmProvider, OVERRIDES, OVERRIDE_SCOPE, useConfirm} from "./Confirm";
 import {usePathname, useRouter} from "next/navigation";
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
@@ -133,7 +133,7 @@ function OverrideInterceptor({role}:{role?:string}){
       const method=(init?.method||(input instanceof Request?input.method:"GET")).toUpperCase();
       if(method==="GET"||!url.includes("/api/admin/")||![403,409].includes(res.status)||typeof init?.body!=="string")return res;
       let code="";try{code=String((await res.clone().json()).error||"")}catch{return res}
-      const info=OVERRIDES[code];if(!info)return res;
+      const info=OVERRIDES[code];if(!info||(OVERRIDE_SCOPE[code]&&!OVERRIDE_SCOPE[code].test(url)))return res;
       let body:Record<string,unknown>;try{body=JSON.parse(init.body)}catch{return res}
       if(!body||typeof body!=="object"||"override" in body)return res; // pages that handle overrides themselves send override:false
       const ok=await ask({...info,override:true,confirmLabel:"Yes, override and continue",reason:{min:8,initial:typeof body.reason==="string"?body.reason:""}});

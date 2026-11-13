@@ -6,7 +6,7 @@ import {useConfirm} from "../components/Confirm";
 type OfferedUnit = {id:string;code:string;hall:string|null;zone:string|null;areaSqm:string};
 type Offer = {id:string;revision:number;offeredUnits:OfferedUnit[];offeredUnitIds:string[];offeredAreaSqm:string;quotedPriceMinor:string;acceptedAt:string|null;expiresAt:string|null;createdAt:string};
 type Unit = OfferedUnit & {status:string};
-type Booth = {id:string;accountId:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];invoices:{id:string;status:string}[];account:{email:string|null;profile:{fullName:string;organization:string|null}|null};floorplan:{title:string;versionNo:number;status:string;units:Unit[]};offers:Offer[];assignments:{id:string;boothUnit:{code:string;hall:string|null}}[]};
+type Booth = {id:string;accountId:string;status:string;requestedAreaSqm:string;preferredUnitIds:string[];invoices:{id:string;status:string}[];account:{email:string|null;profile:{fullName:string;organization:string|null}|null};companySnapshot?:{name?:string|null}|null;floorplan:{title:string;versionNo:number;status:string;units:Unit[]};offers:Offer[];assignments:{id:string;boothUnit:{code:string;hall:string|null}}[]};
 type Actor = {role:string;email:string};
 type HoldView={id:string;status:string;expiresAt:string;endedAt:string|null;boothUnit:{code:string;hall:string|null}};
 
@@ -36,6 +36,8 @@ const BOOTH_STATUSES=["NEW","UNDER_REVIEW","OFFERED","ACCEPTED","WAITING_INVOICE
 const idr=(n:string)=>"Rp "+Number(n||0).toLocaleString("id-ID");
 const wib=(date:string)=>new Date(date).toLocaleString("en-GB",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"})+" WIB";
 
+/** Company named on the booth request (snapshot taken when it was sent), falling back to the customer profile. */
+const companyOf=(b:Booth)=>b.companySnapshot?.name?.trim()||b.account.profile?.organization||"";
 export default function BoothManagement(){
   const [actor,setActor]=useState<Actor|null>(null);
   const ask=useConfirm();
@@ -144,7 +146,7 @@ export default function BoothManagement(){
         {filtered.map(record=><button type="button" key={record.id} aria-pressed={id===record.id}
           className={"booth-admin-record"+(id===record.id?" selected":"")} onClick={()=>updateSelection(record)}>
           <span className="booth-admin-record-top"><strong>{record.account.profile?.fullName||record.account.email||"Customer"}</strong><CmsStatus domain="Booth request" value={record.status}/></span>
-          <span>{record.account.profile?.organization||record.account.email||"—"}</span>
+          <span>{companyOf(record)||record.account.email||"—"}</span>
           <span className="micro">{record.requestedAreaSqm} m² requested · floorplan v{record.floorplan.versionNo} · {record.id.slice(0,8)}</span>
         </button>)}
         {filtered.length===0&&!listBusy&&<p className="micro">No matching requests. Clear the search or status filter.</p>}
@@ -156,7 +158,7 @@ export default function BoothManagement(){
         {!selected?<p>No booth requests recorded yet.</p>:<>
           <p className="eyebrow">CUSTOMER / QUOTATION REVIEW</p>
           <h2>{selected.account.profile?.fullName||selected.account.email||"Customer"}</h2>
-          <p className="micro">{selected.account.profile?.organization||"Company not provided"} · Request {selected.id.slice(0,8)}</p>
+          <p className="micro">{companyOf(selected)||"Company not provided"} · Request {selected.id.slice(0,8)}</p>
           <div className="imdx-cms-booth-status-row" aria-label="Booking state by domain">
             <CmsStatus domain="Booth request" value={selected.status}/>
             <CmsStatus domain="Invoice" value={invoiceStatus||"NOT_ISSUED"}/>

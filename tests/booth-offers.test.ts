@@ -48,7 +48,11 @@ test("customer can accept only latest explicit offer id; cannot automatically ho
 test("assignment requires matching accepted quote and verified finance, all units atomically",()=>{
   const route=read("src/app/api/admin/booth-requests/[id]/assign/route.ts");
   assert.match(route,/offer\.acceptedAt/);
-  assert.match(route,/invoice\.totalMinor !== offer\.quotedPriceMinor/);
+  // The quotation is the pre-tax price: assignment compares it with the invoice ITEM subtotal (VAT/fee lines excluded),
+  // matching invoice drafting and revision; comparing the tax-inclusive total made assignment impossible with VAT on.
+  assert.match(route,/i\.kind === "ITEM"/);
+  assert.match(route,/itemSubtotal !== offer\.quotedPriceMinor/);
+  assert.doesNotMatch(route,/invoice\.totalMinor !== offer\.quotedPriceMinor/);
   assert.match(route,/financeTotals/);
   assert.match(route,/Prisma\.TransactionIsolationLevel\.Serializable/);
   assert.match(route,/tx\.boothUnit\.updateMany/);
@@ -66,4 +70,17 @@ test("customer invoice can only follow approved offer with matching price",()=>{
   assert.match(request,/OFFER_NOT_ACCEPTED/);
   assert.doesNotMatch(oldStatus,/status:z\.enum\(\["UNDER_REVIEW","OFFERED"/);
   assert.match(oldStatus,/OFFERED may only be set/);
+});
+test("Super Admin override prompts only appear for endpoints that accept an override",()=>{
+  const confirm=read("src/app/admin/components/Confirm.tsx"), shell=read("src/app/admin/components/CmsShell.tsx");
+  // Booth assignment also answers 409 PAYMENT_REQUIRED but has no override path: it must not show the conference-seat prompt.
+  assert.match(confirm,/PAYMENT_REQUIRED: \/\\\/api\\\/admin\\\/registrations\\\/\[\^\/\]\+\\\/review\//);
+  assert.match(shell,/OVERRIDE_SCOPE\[code\]&&!OVERRIDE_SCOPE\[code\]\.test\(url\)/);
+  const assign=read("src/app/api/admin/booth-requests/[id]/assign/route.ts");
+  assert.doesNotMatch(assign,/input\.override/);
+});
+test("CMS booth request shows the company named on the request",()=>{
+  const page=read("src/app/admin/booths/page.tsx");
+  assert.match(page,/companySnapshot\?\.name/);
+  assert.match(page,/\{companyOf\(selected\)\|\|"Company not provided"\}/);
 });

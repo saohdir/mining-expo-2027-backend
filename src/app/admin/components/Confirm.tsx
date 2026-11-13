@@ -80,6 +80,19 @@ function ConfirmDialog({o, done}: {o: ConfirmOptions; done: (r: ConfirmResult | 
 /** Business rules a Super Admin may override after an explicit warning. The server accepts `override: true` only from
  * Super Admin and writes an "…_OVERRIDE" audit entry. Data-integrity rules (double booking, amounts above the balance,
  * concurrent edits, last Super Admin) are not overridable. */
+/** Endpoints that accept `override: true` for each rule. The same error code can come from endpoints without an
+ * override path (e.g. PAYMENT_REQUIRED from booth assignment, where payment must really be verified first); those
+ * keep their normal error instead of offering an override that the server would reject. */
+export const OVERRIDE_SCOPE: Record<string, RegExp> = {
+  SAME_ACTOR: /\/api\/admin\/manual-transfers\/[^/]+\/approve/,
+  SECOND_APPROVER_REQUIRED: /\/api\/admin\/mailouts\/[^/]+\/approve/,
+  SELF_LOCKOUT: /\/api\/admin\/staff\//,
+  PAYMENT_REQUIRED: /\/api\/admin\/registrations\/[^/]+\/review/,
+  VISITOR_POLICY: /\/api\/admin\/registrations\/[^/]+\/review/,
+  EXHIBITOR_POLICY: /\/api\/admin\/registrations\/[^/]+\/review/,
+  FEE_NOT_APPROVED: /\/api\/admin\/registrations\/[^/]+\/review/,
+  INVALID_TRANSITION: /\/api\/admin\/booth-requests\/[^/]+\/status/,
+};
 export const OVERRIDES: Record<string, Omit<ConfirmOptions, "reason" | "override">> = {
   SAME_ACTOR: {title: "Approve a receipt you recorded yourself?", tone: "danger",
     changes: ["The receipt is marked VERIFIED and the invoice balance is recalculated."],
