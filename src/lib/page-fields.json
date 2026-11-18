@@ -212,6 +212,101 @@
     "href": "#about"
    },
    {
+    "key": "site-footer.11",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Company Address"
+   },
+   {
+    "key": "site-footer.12",
+    "kind": "text",
+    "tag": "p",
+    "mode": "plain",
+    "text": "Citra Tower Kemayoran 11C, Jl. Benyamin Suaeb Kav. A6"
+   },
+   {
+    "key": "site-footer.13",
+    "kind": "text",
+    "tag": "strong",
+    "mode": "plain",
+    "text": "Follow us"
+   },
+   {
+    "key": "site-footer.14",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "TikTok",
+    "href": ""
+   },
+   {
+    "key": "site-footer.15",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Instagram",
+    "href": ""
+   },
+   {
+    "key": "site-footer.16",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "Facebook",
+    "href": ""
+   },
+   {
+    "key": "site-footer.17",
+    "kind": "text",
+    "tag": "a",
+    "mode": "plain",
+    "text": "LinkedIn",
+    "href": ""
+   },
+   {
+    "key": "site-footer.18",
+    "kind": "image",
+    "tag": "img",
+    "src": "/assets/exhibition-wechat-qr.png",
+    "alt": "Exhibition Official WeChat QR Code"
+   },
+   {
+    "key": "site-footer.19",
+    "kind": "text",
+    "tag": "figcaption",
+    "mode": "plain",
+    "text": "Exhibition Official WeChat QR Code"
+   },
+   {
+    "key": "site-footer.20",
+    "kind": "image",
+    "tag": "img",
+    "src": "/assets/wechat-qr.png",
+    "alt": "WeChat QR code"
+   },
+   {
+    "key": "site-footer.21",
+    "kind": "text",
+    "tag": "figcaption",
+    "mode": "plain",
+    "text": "WeChat"
+   },
+   {
+    "key": "site-footer.22",
+    "kind": "image",
+    "tag": "img",
+    "src": "/assets/group-wechat-qr.png",
+    "alt": "Group Official WeChat QR Code"
+   },
+   {
+    "key": "site-footer.23",
+    "kind": "text",
+    "tag": "figcaption",
+    "mode": "plain",
+    "text": "Group Official WeChat QR Code"
+   },
+   {
     "key": "site-footer.6",
     "kind": "text",
     "tag": "span",
