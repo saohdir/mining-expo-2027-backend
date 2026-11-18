@@ -68,7 +68,7 @@
  .imdx-menu:hover .imdx-dropdown,.imdx-menu:focus-within .imdx-dropdown{visibility:hidden;opacity:0;transform:none}
  .imdx-menu.is-expanded .imdx-dropdown{position:relative;top:auto;left:auto;min-width:0;max-width:none;padding:2px 8px 7px;margin-bottom:5px;visibility:visible;opacity:1;transform:none;box-shadow:none;border-top:0;background:#fff9f4}
  .imdx-dropdown a{font-size:13px;padding:10px 17px}
- .imdx-primary-links .imdx-account-link{margin:13px 10px 0;max-width:240px}
+ .imdx-primary-links .imdx-account-link{margin:14px 0 0;width:100%;max-width:none;min-height:48px;font-size:13px;box-sizing:border-box}
  .portal-top>span{display:block}
 }
 @media(max-width:520px){
