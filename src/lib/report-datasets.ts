@@ -80,25 +80,38 @@ export async function finance(role: AdminRole, basis: string, r: Range, f: {stat
 const wib = (d?: Date | null) => d ? new Intl.DateTimeFormat("en-CA", {timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false}).format(d).replace(",", "") + " WIB" : "TBA";
 const pct = (part: number, whole: number) => whole > 0 ? Math.round((part / whole) * 1000) / 10 : "";
 
-/** Conference interest report: one row per session of the active event — registrations against capacity (interest before the
- * event) and unique gate check-ins (real attendance) — plus the delegate list as a second worksheet. The period filters
- * registrations by creation date (WIB); check-ins are counted for those registrations. Contact details follow registrations(). */
-export async function conferences(role: AdminRole, basis: string, r: Range, limit = SYNC_LIMIT) {
+export type ConferenceInterest = {title: string; startsAt: string | null; startsAtWib: string; zone: string | null; feeMinor: number | null; capacity: number | null;
+  registrations: number; active: number; confirmed: number; pending: number; closed: number; seatsRemaining: number | null; fillRate: number | null;
+  paidInFull: number | null; checkedIn: number; attendanceRate: number | null; published: boolean};
+
+/** Interest per conference session of the active event: registrations against capacity (interest before the event) and unique
+ * gate check-ins on conference passes (real attendance). Seats follow the registration capacity rule (ACTIVE_CONFERENCE_STATUSES).
+ * The period filters registrations by creation date; check-ins are counted for those registrations. No personal data. */
+export async function conferenceInterest(r: Range = {}): Promise<ConferenceInterest[]> {
   const range = inRange(r);
   const list = await db.conference.findMany({where: {event: {code: activeEventCode()}}, orderBy: [{startsAt: "asc"}, {title: "asc"}],
     select: {title: true, startsAt: true, zoneCode: true, feeMinor: true, capacity: true, published: true,
       enrollments: {where: range ? {createdAt: range} : {}, select: {status: true, invoices: {select: {status: true}},
         passes: {where: {entitlement: {not: "EXPO_ENTRY"}}, select: {admissions: {select: {id: true}, take: 1}}}}}}});
-  const active = ACTIVE_CONFERENCE_STATUSES as string[];
-  const rows: Dataset["rows"] = list.map(c => {
-    const all = c.enrollments, act = all.filter(e => active.includes(e.status)), confirmed = all.filter(e => e.status === "CONFIRMED");
-    const pending = act.length - confirmed.length, closed = all.filter(e => e.status === "CANCELLED" || e.status === "REJECTED").length;
-    const free = c.feeMinor === 0n, paid = free ? "" : confirmed.filter(e => e.invoices.some(i => i.status === "PAID")).length;
-    const checkedIn = confirmed.filter(e => e.passes.some(p => p.admissions.length)).length;
-    return [c.title, wib(c.startsAt), c.zoneCode || "CONFERENCE (shared)", c.feeMinor === null ? "TBA" : free ? "Free" : Number(c.feeMinor), c.capacity ?? "TBA",
-      all.length, act.length, confirmed.length, pending, closed, c.capacity != null ? Math.max(0, c.capacity - act.length) : "", c.capacity ? pct(act.length, c.capacity) : "",
-      paid, checkedIn, pct(checkedIn, confirmed.length), c.published ? "Published" : "Draft"];
+  const activeStatuses = ACTIVE_CONFERENCE_STATUSES as string[];
+  return list.map(c => {
+    const all = c.enrollments, active = all.filter(e => activeStatuses.includes(e.status)), confirmed = all.filter(e => e.status === "CONFIRMED");
+    const free = c.feeMinor === 0n, checkedIn = confirmed.filter(e => e.passes.some(p => p.admissions.length)).length;
+    const rate = (part: number, whole: number) => (whole > 0 ? (pct(part, whole) as number) : null);
+    return {title: c.title, startsAt: c.startsAt ? c.startsAt.toISOString() : null, startsAtWib: wib(c.startsAt), zone: c.zoneCode, feeMinor: c.feeMinor === null ? null : Number(c.feeMinor),
+      capacity: c.capacity, registrations: all.length, active: active.length, confirmed: confirmed.length, pending: active.length - confirmed.length,
+      closed: all.filter(e => e.status === "CANCELLED" || e.status === "REJECTED").length,
+      seatsRemaining: c.capacity != null ? Math.max(0, c.capacity - active.length) : null, fillRate: c.capacity ? rate(active.length, c.capacity) : null,
+      paidInFull: free ? null : confirmed.filter(e => e.invoices.some(i => i.status === "PAID")).length, checkedIn, attendanceRate: rate(checkedIn, confirmed.length), published: c.published};
   });
+}
+
+/** Conference interest report (XLSX/PDF): one row per session (see conferenceInterest) plus the delegate list as a second
+ * worksheet. Contact details in the delegate list follow registrations(). */
+export async function conferences(role: AdminRole, basis: string, r: Range, limit = SYNC_LIMIT) {
+  const rows: Dataset["rows"] = (await conferenceInterest(r)).map(c => [c.title, c.startsAtWib, c.zone || "CONFERENCE (shared)",
+    c.feeMinor === null ? "TBA" : c.feeMinor === 0 ? "Free" : c.feeMinor, c.capacity ?? "TBA", c.registrations, c.active, c.confirmed, c.pending, c.closed,
+    c.seatsRemaining ?? "", c.fillRate ?? "", c.paidInFull ?? "", c.checkedIn, c.attendanceRate ?? "", c.published ? "Published" : "Draft"]);
   const delegates = await registrations(role, "created", r, {type: "CONFERENCE"}, limit);
   return {sheet: "Conference interest",
     columns: ["Conference", "Date & time (WIB)", "Session zone", "Fee (IDR)", "Capacity", "Registrations (all)", "Active registrations", "Confirmed", "Pending (submitted / review)",

@@ -7,6 +7,7 @@ import {failure, HttpError} from "@/lib/errors";
 import {safeCell} from "@/lib/policy";
 import {activeEventCode} from "@/lib/active-event";
 import {prospectExport, prospects, prospectSummary, type ProspectFilter} from "@/lib/prospects";
+import {conferenceInterest} from "@/lib/report-datasets";
 
 const q = z.object({event: z.string().max(40).optional(), type: z.enum(["VISITOR", "CONFERENCE", "EXHIBITOR"]).optional(), conferenceId: z.string().uuid().optional(),
   attended: z.enum(["yes", "no"]).optional(), q: z.string().trim().max(120).optional(),
@@ -35,7 +36,10 @@ export async function GET(req: NextRequest) {
       return new NextResponse(Buffer.from(await wb.xlsx.writeBuffer()), {headers: {"Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "Content-Disposition": `attachment; filename="imdx-prospects.xlsx"`, "Cache-Control": "private,no-store"}});
     }
-    const take = 50, [list, summary, conferences] = await Promise.all([prospects(f, {skip: (x.page - 1) * take, take}), prospectSummary(f), db.conference.findMany({where: {eventId: event.id}, select: {id: true, title: true}, orderBy: {startsAt: "asc"}})]);
-    return NextResponse.json({event: event.title, filters: {...x, format: undefined}, page: x.page, pageSize: take, ...list, summary, conferences}, H);
+    const take = 50, [list, summary, conferences, interest] = await Promise.all([prospects(f, {skip: (x.page - 1) * take, take}), prospectSummary(f),
+      db.conference.findMany({where: {eventId: event.id}, select: {id: true, title: true}, orderBy: {startsAt: "asc"}}),
+      // interest per session (aggregates only) for the Conference delegates view, active event only
+      x.type === "CONFERENCE" && !x.event ? conferenceInterest() : Promise.resolve(undefined)]);
+    return NextResponse.json({event: event.title, filters: {...x, format: undefined}, page: x.page, pageSize: take, ...list, summary, conferences, ...(interest ? {interest} : {})}, H);
   } catch (e) { return failure(e); }
 }
