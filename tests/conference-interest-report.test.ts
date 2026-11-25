@@ -6,12 +6,15 @@ import {render, validateExport} from "../src/lib/export-build";
 
 const read = (path: string) => readFileSync(path, "utf8");
 
-test("conference interest report is a registered export dataset (sync, background, CMS)", () => {
+test("conference interest report is a registered export dataset (sync, background, Reports, Prospects)", () => {
   assert.doesNotThrow(() => validateExport({dataset: "conferences", basis: "created", format: "xlsx"}));
   assert.throws(() => validateExport({dataset: "conferences", basis: "paid", format: "xlsx"}), /Date basis/);
   assert.match(read("src/app/api/admin/exports/route.ts"), /"conferences"/);
   assert.match(read("src/app/admin/reports/page.tsx"), /value="conferences"/);
-  assert.match(read("src/app/admin/programmes/page.tsx"), /dataset=conferences&basis=created&format=xlsx/);
+  const prospects = read("src/app/admin/prospects/page.tsx");
+  assert.match(prospects, /Interest per conference/);
+  assert.match(prospects, /dataset=conferences&basis=created&format=xlsx/);
+  assert.match(read("src/app/api/admin/reports/prospects/route.ts"), /conferenceInterest\(\)/);
   assert.match(read("src/app/api/admin/reports/export/route.ts"), /"conference-interest"/);
   const ds = read("src/lib/report-datasets.ts");
   for (const col of ["Active registrations", "Fill rate % (active / capacity)", "Checked in (unique)", "Attendance % (checked in / confirmed)"]) assert.ok(ds.includes(col), col);
