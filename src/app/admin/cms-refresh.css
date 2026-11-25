@@ -90,6 +90,31 @@
 .tag.ok{background:var(--cms-ok-bg);border-color:var(--cms-ok-line);color:var(--cms-ok)}
 .tag.info{background:var(--cms-info-bg);border-color:var(--cms-info-line);color:var(--cms-info)}
 .tag.brand{background:var(--color-brand-soft-16);border-color:var(--color-brand-border);color:var(--color-brand-hover)}
+/* Prospect report: more whitespace so figures, labels and rows do not run together */
+.prospects>header{margin-bottom:8px}
+.prospects>header p{max-width:760px;line-height:1.6;margin:8px 0 0}
+.prospects .prospects-kpis{gap:18px;margin:24px 0}
+.prospects .prospects-kpis>div{padding:20px 22px}
+.prospects .prospects-kpis dt{margin-bottom:10px;letter-spacing:.01em}
+.prospects .prospects-kpis dd{display:flex;align-items:baseline;gap:10px;margin:0;line-height:1.1}
+.prospects .prospects-kpis dd small{margin:0;padding:3px 10px;border-radius:999px;background:var(--color-surface-chip);font-size:12px;font-weight:600}
+.prospects .prospects-charts{gap:18px;margin-bottom:24px}
+.prospects .prospects-chart{padding:20px 22px}
+.prospects .prospects-chart h3{margin:0 0 16px}
+.prospects .hbar{gap:12px;padding:6px 4px}
+.prospects .prospects-filters{gap:16px 20px;padding:20px 22px;margin:0 0 24px}
+.prospects .prospects-filters label{gap:8px}
+.prospects .prospects-filters .seg{margin-bottom:4px}
+.prospects .prospects-filters .seg button{padding:10px 18px}
+.prospects .cms-panel{margin-bottom:24px}
+.prospects .cms-panel>.imdx-cms-panel-title{gap:16px;margin-bottom:12px}
+.prospects .cms-panel>.micro{margin:0 0 18px;line-height:1.6;max-width:880px}
+.prospects .prospects-interest .button-link{text-decoration:none}
+.prospects .prospects-interest td[data-label="Fee"],.prospects .prospects-interest td[data-label="Registrations / capacity"]{white-space:nowrap}
+.prospects .prospects-table th,.prospects .prospects-table td{padding:14px 16px;line-height:1.5;vertical-align:top}
+.prospects .prospects-table td small{margin-top:4px;line-height:1.45}
+.prospects .prospects-table td strong{display:block}
+.prospects .prospects-table .tag{margin:2px 6px 2px 0;padding:2px 10px}
 @media (max-width:720px){.hbar{grid-template-columns:1fr auto}.hbar i{grid-column:1/-1}}
 
 /* Live floor (published): active switch, who booked, split */
