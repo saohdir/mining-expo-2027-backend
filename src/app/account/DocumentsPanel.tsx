@@ -2,7 +2,7 @@
 import {useEffect, useState} from "react";
 import type {CustomerInvoice} from "./InvoicePanel";
 
-type Pass = {passId: string; qrDataUrl: string; entitlement: string};
+type Pass = {passId: string; qrDataUrl: string; entitlement: string; label?: string; fileName?: string};
 type Download = {title: string; url: string | null; fileType: string | null; fileSizeBytes: number | null; summary: string | null};
 const size = (b: number | null) => !b ? "" : b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
 const safeUrl = (u: string | null) => u && (/^https:\/\//.test(u) || /^\/(?!\/)/.test(u)) ? u : null;
@@ -26,8 +26,8 @@ export function DocumentsPanel({invoices, passes, exhibitor}: {invoices: Custome
       {issued.map(i => <li key={i.id}><span className="doc-icon" aria-hidden="true">PDF</span><div><strong>Invoice {i.number}</strong><span className="micro">{i.state.replaceAll("_", " ").toLowerCase()}</span></div>
         <div className="doc-actions"><a href={"/api/customer/invoices/" + i.id + "/pdf"} target="_blank" rel="noreferrer">Invoice</a>
           {i.paidMinor !== "0" && <a href={"/api/customer/invoices/" + i.id + "/receipt"} target="_blank" rel="noreferrer">Receipt</a>}</div></li>)}
-      {passes.map(p => <li key={p.passId}><span className="doc-icon" aria-hidden="true">QR</span><div><strong>QR pass · {p.entitlement.replaceAll("_", " ").toLowerCase()}</strong><span className="micro">Personal, do not share</span></div>
-        <div className="doc-actions"><a href={p.qrDataUrl} download={"imdx-pass-" + p.passId.slice(0, 8) + ".png"}>Download</a></div></li>)}
+      {passes.map(p => <li key={p.passId}><span className="doc-icon" aria-hidden="true">QR</span><div><strong>QR pass · {p.label || p.entitlement.replaceAll("_", " ").toLowerCase()}</strong><span className="micro">Personal, do not share</span></div>
+        <div className="doc-actions"><a href={p.qrDataUrl} download={p.fileName || "imdx-pass-" + p.passId.slice(0, 8) + ".png"}>Download</a></div></li>)}
     </ul> : <p className="micro">No documents yet. Invoices and your QR pass appear here once they are issued.</p>}
     <h3>{exhibitor ? "Exhibitor documents" : "Event documents"}</h3>
     {!downloads ? <p className="micro" role="status">Loading documents…</p>

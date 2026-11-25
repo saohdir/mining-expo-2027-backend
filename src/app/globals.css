@@ -117,6 +117,9 @@ body{background:var(--surface);font-weight:400;line-height:1.5}
   body * { visibility: hidden; }
   .printable-pass, .printable-pass * { visibility: visible; color: #000 !important; background: #fff !important; }
   .printable-pass { position: absolute; left: 0; top: 0; }
+  /* "Print pass" on one card prints only that pass (other passes on the page stay off the paper) */
+  .print-one-pass .printable-pass:not(.print-target), .print-one-pass .printable-pass:not(.print-target) * { visibility: hidden !important; }
+  .printable-pass .pass-kind, .printable-pass .pass-title, .printable-pass .pass-meta, .printable-pass .pass-holder { color: #000 !important; }
   .no-print { display: none !important; }
 }
 

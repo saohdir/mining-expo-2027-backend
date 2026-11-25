@@ -11,6 +11,7 @@ import {FeeEstimate} from "./FeeEstimate";
 import {Journeys} from "./Journeys";
 import {PrepChecklist,RecentUpdates,prepItems} from "./PortalHome";
 import {DocumentsPanel} from "./DocumentsPanel";
+import {PassCard, type PassView} from "./PassCard";
 import {ParticipantDetails, participantComplete, WhatsAppVerify} from "./ParticipantDetails";
 type ApiError={error?:string;message?:string;issues?:{field:string;message:string}[]};
 type EventRecord={id:string;code:string;title:string;startsAt:string;venue:string;conferences:{id:string;title:string;startsAt:string|null;feeMinor:string|null;capacity:number|null;remainingSeats:number|null;registrationState:"AVAILABLE"|"FULL"|"NOT_READY"}[]};
@@ -28,7 +29,7 @@ const MOBILE=["overview","conference","visit","booth","payments"];
 function PIcon({name}:{name:string}){const d:Record<string,string>={home:"M3 11 12 4l9 7v9h-6v-6H9v6H3z",pass:"M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2",mic:"M4 5h16v11H8l-4 4zM8 9h8M8 12h5",booth:"M3 5h18v14H3zM3 10h18M10 10v9",invoice:"M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6",doc:"M6 2h9l5 5v15H6zM15 2v6h5",user:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",out:"M10 3H4v18h6M14 7l5 5-5 5M8 12h11"};
  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d={d[name]}/></svg>}
 export default function AccountPage(){
- const [me,setMe]=useState<AccountData|null>(null),[events,setEvents]=useState<EventRecord[]>([]),[plan,setPlan]=useState<Floorplan|null>(null),[invoices,setInvoices]=useState<{invoices:CustomerInvoice[]}|null>(null),[passes,setPasses]=useState<{passes:{passId:string;qrDataUrl:string;entitlement:string;manualCode:string}[]}|null>(null);
+ const [me,setMe]=useState<AccountData|null>(null),[events,setEvents]=useState<EventRecord[]>([]),[plan,setPlan]=useState<Floorplan|null>(null),[invoices,setInvoices]=useState<{invoices:CustomerInvoice[]}|null>(null),[passes,setPasses]=useState<{passes:PassView[]}|null>(null);
  const [loading,setLoading]=useState(true),[message,setMessage]=useState(""),[busy,setBusy]=useState(false),[mode,setMode]=useState<"register"|"login">("register"),[email,setEmail]=useState(""),[channel,setChannel]=useState<"EMAIL"|"SMS">("EMAIL"),[phone,setPhone]=useState(""),[smsAvailable,setSmsAvailable]=useState(false),[name,setName]=useState(""),[challenge,setChallenge]=useState(""),[otp,setOtp]=useState(""),[tab,setTab]=useState("overview");
  const [fHall,setFHall]=useState(""),[fZone,setFZone]=useState(""),[fAvail,setFAvail]=useState(false),[fq,setFq]=useState(""),[boothView,setBoothView]=useState<"map"|"list">("map");
  const [company,setCompany]=useState(""),[picName,setPicName]=useState(""),[products,setProducts]=useState(""),[customSize,setCustomSize]=useState(""),[area,setArea]=useState("18"),[notes,setNotes]=useState(""),[chosen,setChosen]=useState<string[]>([]),[conference,setConference]=useState("");
@@ -86,7 +87,7 @@ export default function AccountPage(){
       {me.enrollments.filter(x=>x.type==="VISITOR").map(r=><div className="record" key={r.id}><strong>Visitor registration</strong><span className="status">{r.status}</span></div>)}
       {me.enrollments.every(x=>x.type!=="VISITOR")&&<ParticipantDetails p={me} onSaved={()=>void reload()} intro="Complete these details to receive your personal exhibition visitor pass."/>}
       {me.enrollments.every(x=>x.type!=="VISITOR")&&<button disabled={busy||!event||!participantComplete(me)} onClick={()=>void doAction(()=>send("/api/customer/registrations",{eventCode:event?.code,kind:"VISITOR",consent:true}),"Registration submitted.")}>Register as exhibition visitor</button>}
-      {passes?.passes.length?passes.passes.map(p=><figure key={p.passId} className="pass printable-pass"><img width={220} height={220} src={p.qrDataUrl} alt={"Personal entry QR pass, "+p.entitlement}/><figcaption>Private pass · {p.entitlement} · Do not share</figcaption><p className="micro">Manual code for gate staff: <strong style={{letterSpacing:"0.12em"}}>{p.manualCode}</strong></p><div className="cms-row-actions no-print"><a href={p.qrDataUrl} download={"imdx-pass-"+p.passId.slice(0,8)+".png"}>Download QR</a><button type="button" onClick={()=>window.print()}>Print pass</button></div></figure>):<p className="micro">QR will appear after your visitor registration is eligible and confirmed.</p>}
+      {passes?.passes.length?passes.passes.map(p=><PassCard key={p.passId} p={p}/>):<p className="micro">QR will appear after your visitor registration is eligible and confirmed.</p>}
       <AttendanceHistory/>
      </section>}
     {tab==="conference"&&<section><h2>My conferences</h2><p>Registration and payment are separate. A submitted request does not confirm payment.</p>
