@@ -4,7 +4,9 @@ import {useCallback, useEffect, useState} from "react";
 type Row = {id: string; salutation: string; name: string; jobTitle: string; company: string; email: string; whatsapp: string; country: string; roles: string[]; programmes: string[];
   exhibitorProducts: string; boothLocation: string; attended: boolean; firstCheckIn: string | null; registeredAt: string};
 type Bar = {label: string; count: number};
-type Data = {event: string; total: number; page: number; pageSize: number; rows: Row[]; conferences: {id: string; title: string}[];
+type Interest = {title: string; startsAtWib: string; zone: string | null; feeMinor: number | null; capacity: number | null; active: number; confirmed: number; pending: number;
+  seatsRemaining: number | null; fillRate: number | null; paidInFull: number | null; checkedIn: number; attendanceRate: number | null};
+type Data = {event: string; total: number; page: number; pageSize: number; rows: Row[]; conferences: {id: string; title: string}[]; interest?: Interest[];
   summary: {people: number; attended: number; withWhatsapp: number; byRole: Bar[]; topCompanies: Bar[]; topJobTitles: Bar[]; topCountries: Bar[]}};
 const ROLES = [["", "Everyone"], ["VISITOR", "Exhibition visitors"], ["CONFERENCE", "Conference delegates"], ["EXHIBITOR", "Exhibitors"]] as const;
 const pct = (n: number, d: number) => d ? Math.round(n * 100 / d) + "%" : "–";
@@ -46,6 +48,21 @@ export default function Prospects() {
       <label>Search<input type="search" placeholder="Name, company, job, email" value={f.q} onChange={e => set("q", e.target.value)} /></label>
       <a className="button-link" href={"/api/admin/reports/prospects?" + qs({format: "xlsx", page: ""})}>Export Excel</a>
     </div>
+    {f.type === "CONFERENCE" && d?.interest && <section className="cms-panel prospects-interest">
+      <div className="imdx-cms-panel-title"><h2>Interest per conference</h2>
+        <a className="button-link" href="/api/admin/reports/export?dataset=conferences&basis=created&format=xlsx">Export interest report (Excel)</a></div>
+      <p className="micro">Registrations show the interest before the event; check-ins at each room&apos;s gate show the real attendance. The Excel file adds the delegate list as a second sheet.</p>
+      <div className="cms-table-wrap"><table className="cms-table prospects-table"><thead><tr><th>Conference</th><th>Fee</th><th>Registrations / capacity</th><th>Fill rate</th><th>Confirmed</th><th>Pending</th><th>Paid in full</th><th>Checked in</th><th>Attendance</th></tr></thead><tbody>
+        {d.interest.map(c => <tr key={c.title}>
+          <td data-label="Conference"><strong>{c.title}</strong><small>{c.startsAtWib}{c.zone ? " · " + c.zone : ""}</small></td>
+          <td data-label="Fee">{c.feeMinor === null ? "TBA" : c.feeMinor === 0 ? "Free" : "Rp " + c.feeMinor.toLocaleString("id-ID")}</td>
+          <td data-label="Registrations / capacity">{c.active} / {c.capacity ?? "TBA"}{c.seatsRemaining !== null && <small>{c.seatsRemaining} seats left</small>}</td>
+          <td data-label="Fill rate">{c.fillRate === null ? "—" : c.fillRate + "%"}</td>
+          <td data-label="Confirmed">{c.confirmed}</td><td data-label="Pending">{c.pending}</td>
+          <td data-label="Paid in full">{c.paidInFull ?? "—"}</td><td data-label="Checked in">{c.checkedIn}</td>
+          <td data-label="Attendance">{c.attendanceRate === null ? "—" : c.attendanceRate + "%"}</td></tr>)}
+      </tbody></table></div>
+    </section>}
     {msg && <p role="alert" className="micro">{msg}</p>}
     {d && <section className="cms-panel"><div className="imdx-cms-panel-title"><h2>{d.total} {d.total === 1 ? "person" : "people"}</h2><span className="micro">{loading ? "Updating…" : "All registered participants"}</span></div>
       <div className="cms-table-wrap"><table className="cms-table prospects-table"><thead><tr><th>Person</th><th>Company</th><th>Contact</th><th>Participated as</th><th>Attended</th><th>Registered</th></tr></thead><tbody>
