@@ -5,7 +5,7 @@ import {admin} from "@/lib/auth";
 import {failure, HttpError} from "@/lib/errors";
 import {validateExport} from "@/lib/export-build";
 
-const schema = z.object({dataset: z.enum(["registrations", "booths", "finance"]), basis: z.string().max(20), format: z.enum(["xlsx", "pdf"]).default("xlsx"),
+const schema = z.object({dataset: z.enum(["registrations", "booths", "finance", "conferences"]), basis: z.string().max(20), format: z.enum(["xlsx", "pdf"]).default("xlsx"),
   from: z.string().max(10).nullable().optional(), to: z.string().max(10).nullable().optional(), type: z.string().max(20).optional(), status: z.string().max(20).optional(),
   hall: z.string().max(60).optional(), zone: z.string().max(60).optional(), q: z.string().max(120).optional()}).strict();
 const ROLES = ["SUPER_ADMIN", "FINANCE", "OPERATIONS", "SALES"] as const;

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const job = await db.exportJob.create({data: {adminId: actor.id, reportType: x.dataset.toUpperCase(), filters, format: x.format, state: "COMPLETED", rowCount: data.rows.length, expiresAt: new Date(Date.now() + 3600000)}});
     await db.auditLog.create({data: {adminId: actor.id, action: "REPORT_EXPORTED", resourceType: "ExportJob", resourceId: job.id, afterState: {format: x.format, rows: data.rows.length, filters}}});
     const out = await render(data, x);
-    return new NextResponse(new Uint8Array(out.bytes), {headers: {"Content-Type": out.contentType, "Content-Disposition": `attachment; filename="imdx-${x.dataset}-${x.from || "all"}-${x.to || "all"}.${out.ext}"`,
+    return new NextResponse(new Uint8Array(out.bytes), {headers: {"Content-Type": out.contentType, "Content-Disposition": `attachment; filename="imdx-${x.dataset === "conferences" ? "conference-interest" : x.dataset}-${x.from || "all"}-${x.to || "all"}.${out.ext}"`,
       "Cache-Control": "private,no-store", "X-Export-Rows": String(data.rows.length)}});
   } catch (e) { return failure(e); }
 }

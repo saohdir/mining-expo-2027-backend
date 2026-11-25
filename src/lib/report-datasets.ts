@@ -2,11 +2,14 @@ import {Prisma, type AdminRole} from "@prisma/client";
 import {db} from "./db";
 import {HttpError} from "./errors";
 import {ledgerTotals} from "./finance-ledger";
+import {activeEventCode} from "./active-event";
+import {ACTIVE_CONFERENCE_STATUSES} from "./conference-capacity";
 
 /** Report datasets for exports (FR-031/067/121/122, AT-070/071/072). Columns are role-scoped:
  * contact PII only for roles that need it; finance amounts only for SUPER_ADMIN/FINANCE/SALES. */
 export type Range = {from?: Date; to?: Date};
-export type Dataset = {sheet: string; columns: string[]; rows: (string | number)[][]};
+/** `sheets`: further worksheets of the same XLSX workbook (PDF renders only the main sheet). */
+export type Dataset = {sheet: string; columns: string[]; rows: (string | number)[][]; sheets?: Dataset[]};
 const inRange = (r: Range) => (r.from || r.to ? {...(r.from ? {gte: r.from} : {}), ...(r.to ? {lt: r.to} : {})} : undefined);
 const iso = (d?: Date | null) => d ? d.toISOString() : "";
 export const SYNC_LIMIT = 2000, ASYNC_LIMIT = 100000;
@@ -72,4 +75,33 @@ export async function finance(role: AdminRole, basis: string, r: Range, f: {stat
     rows: rec.map(i => { const t = ledgerTotals(i.totalMinor, i.transfers, i.adjustments); const last = i.transfers.filter(x => x.verifiedAt && x.status === "VERIFIED").map(x => x.verifiedAt!).sort((a, b) => +b - +a)[0];
       return [i.number, i.status, i.account.profile?.fullName || "", i.account.profile?.organization || "", i.account.email || "", i.totalMinor.toString(), (t.paid + t.reversed).toString(), t.reversed.toString(), t.refunded.toString(),
         ["CANCELLED", "VOID"].includes(i.status) ? "0" : t.outstanding.toString(), iso(i.issuedAt), iso(last)]; })} as Dataset;
+}
+
+const wib = (d?: Date | null) => d ? new Intl.DateTimeFormat("en-CA", {timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false}).format(d).replace(",", "") + " WIB" : "TBA";
+const pct = (part: number, whole: number) => whole > 0 ? Math.round((part / whole) * 1000) / 10 : "";
+
+/** Conference interest report: one row per session of the active event — registrations against capacity (interest before the
+ * event) and unique gate check-ins (real attendance) — plus the delegate list as a second worksheet. The period filters
+ * registrations by creation date (WIB); check-ins are counted for those registrations. Contact details follow registrations(). */
+export async function conferences(role: AdminRole, basis: string, r: Range, limit = SYNC_LIMIT) {
+  const range = inRange(r);
+  const list = await db.conference.findMany({where: {event: {code: activeEventCode()}}, orderBy: [{startsAt: "asc"}, {title: "asc"}],
+    select: {title: true, startsAt: true, zoneCode: true, feeMinor: true, capacity: true, published: true,
+      enrollments: {where: range ? {createdAt: range} : {}, select: {status: true, invoices: {select: {status: true}},
+        passes: {where: {entitlement: {not: "EXPO_ENTRY"}}, select: {admissions: {select: {id: true}, take: 1}}}}}}});
+  const active = ACTIVE_CONFERENCE_STATUSES as string[];
+  const rows: Dataset["rows"] = list.map(c => {
+    const all = c.enrollments, act = all.filter(e => active.includes(e.status)), confirmed = all.filter(e => e.status === "CONFIRMED");
+    const pending = act.length - confirmed.length, closed = all.filter(e => e.status === "CANCELLED" || e.status === "REJECTED").length;
+    const free = c.feeMinor === 0n, paid = free ? "" : confirmed.filter(e => e.invoices.some(i => i.status === "PAID")).length;
+    const checkedIn = confirmed.filter(e => e.passes.some(p => p.admissions.length)).length;
+    return [c.title, wib(c.startsAt), c.zoneCode || "CONFERENCE (shared)", c.feeMinor === null ? "TBA" : free ? "Free" : Number(c.feeMinor), c.capacity ?? "TBA",
+      all.length, act.length, confirmed.length, pending, closed, c.capacity != null ? Math.max(0, c.capacity - act.length) : "", c.capacity ? pct(act.length, c.capacity) : "",
+      paid, checkedIn, pct(checkedIn, confirmed.length), c.published ? "Published" : "Draft"];
+  });
+  const delegates = await registrations(role, "created", r, {type: "CONFERENCE"}, limit);
+  return {sheet: "Conference interest",
+    columns: ["Conference", "Date & time (WIB)", "Session zone", "Fee (IDR)", "Capacity", "Registrations (all)", "Active registrations", "Confirmed", "Pending (submitted / review)",
+      "Cancelled / rejected", "Seats remaining", "Fill rate % (active / capacity)", "Paid in full", "Checked in (unique)", "Attendance % (checked in / confirmed)", "Programme status"],
+    rows, sheets: [{...delegates, sheet: "Delegates"}]} as Dataset;
 }

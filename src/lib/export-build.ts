@@ -4,9 +4,9 @@ import {PDFDocument, StandardFonts, rgb} from "pdf-lib";
 import type {AdminRole} from "@prisma/client";
 import {HttpError} from "./errors";
 import {safeCell} from "./policy";
-import {booths, finance, registrations, type Dataset, SYNC_LIMIT} from "./report-datasets";
+import {booths, conferences, finance, registrations, type Dataset, SYNC_LIMIT} from "./report-datasets";
 
-export const BASES: Record<string, string[]> = {registrations: ["created", "confirmed", "checkedIn"], booths: ["created", "assigned"], finance: ["created", "issued", "paid"]};
+export const BASES: Record<string, string[]> = {registrations: ["created", "confirmed", "checkedIn"], booths: ["created", "assigned"], finance: ["created", "issued", "paid"], conferences: ["created"]};
 export type ExportRequest = {dataset: string; basis: string; format: "xlsx" | "pdf"; from?: string | null; to?: string | null; type?: string; status?: string; hall?: string; zone?: string; q?: string};
 const day = (v: string | null | undefined, end: boolean) => {
   if (!v) return undefined;
@@ -15,7 +15,7 @@ const day = (v: string | null | undefined, end: boolean) => {
 };
 /** Validates an export request (shared by synchronous and background exports). */
 export function validateExport(x: ExportRequest) {
-  if (!BASES[x.dataset]) throw new HttpError(400, "BAD_DATASET", "Datasets: registrations, booths, finance.");
+  if (!BASES[x.dataset]) throw new HttpError(400, "BAD_DATASET", "Datasets: registrations, booths, finance, conferences.");
   if (!BASES[x.dataset].includes(x.basis)) throw new HttpError(400, "BAD_BASIS", "Date basis for " + x.dataset + ": " + BASES[x.dataset].join(", "));
   if (!["xlsx", "pdf"].includes(x.format)) throw new HttpError(400, "BAD_FORMAT", "Supported formats: xlsx, pdf.");
   if (x.type && !["VISITOR", "CONFERENCE", "EXHIBITOR"].includes(x.type)) throw new HttpError(400, "BAD_TYPE", "Unsupported type.");
@@ -29,6 +29,7 @@ export async function loadDataset(role: AdminRole, x: ExportRequest, limit = SYN
   const range = validateExport(x);
   return x.dataset === "booths" ? booths(role, x.basis, range, {status: x.status, hall: x.hall, zone: x.zone, q: x.q}, limit)
     : x.dataset === "finance" ? finance(role, x.basis, range, {status: x.status, q: x.q}, limit)
+    : x.dataset === "conferences" ? conferences(role, x.basis, range, limit)
     : registrations(role, x.basis, range, {type: x.type, status: x.status, q: x.q}, limit);
 }
 /** Renders XLSX (typed numbers, formula-safe text, filter header) or landscape PDF with summary. */
@@ -38,11 +39,15 @@ export async function render(data: Dataset, x: ExportRequest) {
     // NFR-26: streaming writer — rows are committed as they are added instead of building the whole workbook in memory.
     const chunks: Buffer[] = []; const sink = new PassThrough(); sink.on("data", c => chunks.push(c as Buffer));
     const wb = new ExcelJS.stream.xlsx.WorkbookWriter({stream: sink, useSharedStrings: false, useStyles: true});
-    const ws = wb.addWorksheet(data.sheet, {views: [{state: "frozen", ySplit: 2}]});
-    ws.columns = data.columns.map(() => ({width: 24}));
-    ws.addRow([header]).commit(); const head = ws.addRow(data.columns); head.font = {bold: true}; head.commit();
-    for (const row of data.rows) ws.addRow(row.map(v => typeof v === "number" ? v : safeCell(v))).commit();
-    ws.commit(); await wb.commit();
+    for (const [i, sheet] of [data, ...(data.sheets || [])].entries()) {
+      const ws = wb.addWorksheet(sheet.sheet, {views: [{state: "frozen", ySplit: 2}]});
+      ws.columns = sheet.columns.map(() => ({width: 24}));
+      ws.addRow([i === 0 ? header : `IMDX 2027 — ${sheet.sheet} · ${sheet.rows.length} rows · exported ${new Date().toISOString()}`]).commit();
+      const head = ws.addRow(sheet.columns); head.font = {bold: true}; head.commit();
+      for (const row of sheet.rows) ws.addRow(row.map(v => typeof v === "number" ? v : safeCell(v))).commit();
+      ws.commit();
+    }
+    await wb.commit();
     return {bytes: Buffer.concat(chunks), contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ext: "xlsx"};
   }
   if (data.rows.length > 20000) throw new HttpError(413, "PDF_TOO_LARGE", "PDF exports are limited to 20,000 rows; use XLSX.");
